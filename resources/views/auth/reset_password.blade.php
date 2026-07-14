@@ -1,6 +1,6 @@
 @extends('auth.layout')
 
-@section('title', 'Reset Password - Tokoku')
+@section('title', 'Reset Password - Lapaktifikasi')
 
 @section('content')
 

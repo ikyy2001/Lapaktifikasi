@@ -110,7 +110,7 @@ class SendAccountInvoiceWhatsapp implements ShouldQueue
         $tanggalAktifSampai = Carbon::now()->addDays($durasiHari)->format('d/m/Y');
 
         return implode("\n", [
-            '✅ *INVOICE TOKOKU — LUNAS*',
+            '✅ *INVOICE LAPAKTIFIKASI — LUNAS*',
             '',
             'Order ID: ' . $pembelian->order_id,
             'Produk: ' . $namaProduk,
@@ -126,7 +126,7 @@ class SendAccountInvoiceWhatsapp implements ShouldQueue
             '',
             '⚠️ Mohon *jangan ganti password* akun agar layanan tetap berjalan dengan baik.',
             '',
-            'Terima kasih telah berbelanja di Tokoku! 🙏',
+            'Terima kasih telah berbelanja di Lapaktifikasi! 🙏',
         ]);
     }
 }

@@ -10,8 +10,8 @@ Terima kasih atas pembelian Anda! Pembayaran untuk pesanan Akun Premium Anda pad
 Demi keamanan akun, detail kredensial premium Anda (username/email, password, dan catatan akses) tidak kami kirimkan melalui email ini. Anda dapat melihat kredensial tersebut secara langsung di menu **Riwayat Premium** di halaman profil akun Anda.
 
 > **Pemberitahuan Keamanan & Bantuan**:
-> * Jika Anda merasa tidak melakukan transaksi/pembelian ini, harap segera menghubungi admin Tokoku.
-> * Jika Anda menghadapi kendala teknis atau memiliki pertanyaan, silakan hubungi admin Tokoku untuk bantuan lebih lanjut.
+> * Jika Anda merasa tidak melakukan transaksi/pembelian ini, harap segera menghubungi admin Lapaktifikasi.
+> * Jika Anda menghadapi kendala teknis atau memiliki pertanyaan, silakan hubungi admin Lapaktifikasi untuk bantuan lebih lanjut.
 
 Terima kasih,<br>
 Admin, {{ config('app.name') }}

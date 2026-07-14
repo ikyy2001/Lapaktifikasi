@@ -87,7 +87,7 @@
 
         <div class="row mb-3">
             <div class="col">
-                <p class="text-center"> Terima kasih telah membeli produk di Tokoku.
+                <p class="text-center"> Terima kasih telah membeli produk di Lapaktifikasi.
                 </p>
             </div>
         </div>

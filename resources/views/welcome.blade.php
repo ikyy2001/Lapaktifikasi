@@ -1,11 +1,11 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tokoku - E-Commerce Akun Premium Terpercaya</title>
-    <meta name="description" content="Tokoku adalah platform terpercaya untuk membeli akun premium Spotify, Netflix, YouTube Premium, dan lainnya secara instan dan aman dengan pembayaran otomatis.">
-    <meta name="keywords" content="akun premium, spotify premium, netflix, youtube premium, tokoku, beli akun premium murah">
+    <title>Lapaktifikasi - E-Commerce Akun Premium Terpercaya</title>
+    <meta name="description" content="Lapaktifikasi adalah platform terpercaya untuk membeli akun premium Spotify, Netflix, YouTube Premium, dan lainnya secara instan dan aman dengan pembayaran otomatis.">
+    <meta name="keywords" content="akun premium, spotify premium, netflix, youtube premium, lapaktifikasi, beli akun premium murah">
     <meta name="robots" content="index, follow">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,18 +13,18 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
         :root {
-            --primary:      #5B5EF4;
-            --primary-2:    #818CF8;
-            --accent:       #06b6d4;
-            --accent-2:     #F472B6;
-            --dark-bg:      #080b1a;
-            --dark-2:       #0d1130;
-            --glass-bg:     rgba(255,255,255,0.06);
-            --glass-border: rgba(255,255,255,0.12);
-            --glass-hover:  rgba(255,255,255,0.10);
-            --text-main:    #f1f5f9;
-            --text-muted:   #94a3b8;
-            --text-dim:     #64748b;
+            --primary:      #000000;
+            --primary-2:    #1a1a1a;
+            --accent:       #000000;
+            --accent-2:     #333333;
+            --dark-bg:      #ffffff;
+            --dark-2:       #fafafa;
+            --glass-bg:     rgba(0, 0, 0, 0.02);
+            --glass-border: rgba(0, 0, 0, 0.08);
+            --glass-hover:  rgba(0, 0, 0, 0.04);
+            --text-main:    #111111;
+            --text-muted:   #555555;
+            --text-dim:     #888888;
             --white:        #ffffff;
             --radius-lg:    24px;
             --radius-xl:    32px;
@@ -43,88 +43,82 @@
         ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 3px; }
 
         /* BG BLOBS */
-        .bg-blobs { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
-        .blob { position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.35; animation: blobDrift 20s ease-in-out infinite alternate; }
-        .blob-1 { width: 600px; height: 600px; background: radial-gradient(circle, #5B5EF4, transparent); top: -200px; left: -150px; animation-delay: 0s; }
-        .blob-2 { width: 500px; height: 500px; background: radial-gradient(circle, #06b6d4, transparent); top: 40%; right: -100px; animation-delay: -7s; }
-        .blob-3 { width: 400px; height: 400px; background: radial-gradient(circle, #F472B6, transparent); bottom: 10%; left: 30%; animation-delay: -14s; }
-        @keyframes blobDrift { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(40px,30px) scale(1.08); } }
-        .bg-grid { position: fixed; inset: 0; z-index: 0; pointer-events: none; background-image: linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px); background-size: 60px 60px; }
+        .bg-blobs { display: none; }
+        .bg-grid { position: fixed; inset: 0; z-index: 0; pointer-events: none; background-image: linear-gradient(rgba(0,0,0,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.015) 1px, transparent 1px); background-size: 60px 60px; }
 
         /* UTILITY */
         .container-custom { max-width: 1200px; margin: 0 auto; padding: 0 5%; }
-        .section-tag { display: inline-flex; align-items: center; gap: 8px; background: rgba(91,94,244,0.15); border: 1px solid rgba(91,94,244,0.35); color: var(--primary-2); font-size: 0.8rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 7px 16px; border-radius: 50px; margin-bottom: 20px; }
+        .section-tag { display: inline-flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.12); color: var(--text-main); font-size: 0.8rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 7px 16px; border-radius: 50px; margin-bottom: 20px; }
         .section-title { font-family: 'Space Grotesk', sans-serif; font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 700; line-height: 1.2; color: var(--text-main); margin-bottom: 16px; }
         .section-subtitle { font-size: 1.05rem; color: var(--text-muted); max-width: 560px; line-height: 1.7; }
-        .highlight { color: var(--primary-2); }
-        .highlight-cyan { color: var(--accent); }
-        .grad-text { background: linear-gradient(135deg, var(--primary-2), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .highlight { color: #000000; font-weight: 800; }
+        .highlight-cyan { color: #000000; font-weight: 800; }
+        .grad-text { background: none; -webkit-background-clip: unset; -webkit-text-fill-color: currentColor; background-clip: unset; color: #000000; font-weight: 800; }
 
         /* GLASS CARD */
-        .glass-card { background: var(--glass-bg); border: 1px solid var(--glass-border); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: var(--radius-lg); transition: all 0.35s ease; }
-        .glass-card:hover { background: var(--glass-hover); border-color: rgba(91,94,244,0.4); transform: translateY(-6px); box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 40px rgba(91,94,244,0.25); }
+        .glass-card { background: #ffffff; border: 1px solid #000000; border-radius: var(--radius-lg); transition: all 0.35s ease; }
+        .glass-card:hover { transform: translateY(-6px); border-color: #000000; box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
 
         /* BUTTONS */
-        .btn-primary { display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: var(--white) !important; font-weight: 700; font-size: 1rem; padding: 15px 32px; border-radius: 14px; text-decoration: none !important; border: none; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 8px 30px rgba(91,94,244,0.35); font-family: 'Plus Jakarta Sans', sans-serif; }
-        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 16px 40px rgba(91,94,244,0.5); }
-        .btn-secondary { display: inline-flex; align-items: center; gap: 10px; background: var(--glass-bg); border: 1px solid var(--glass-border); backdrop-filter: blur(12px); color: var(--text-main) !important; font-weight: 600; font-size: 1rem; padding: 14px 30px; border-radius: 14px; text-decoration: none !important; cursor: pointer; transition: all 0.3s ease; font-family: 'Plus Jakarta Sans', sans-serif; }
-        .btn-secondary:hover { background: var(--glass-hover); border-color: rgba(91,94,244,0.5); transform: translateY(-2px); }
+        .btn-primary { display: inline-flex; align-items: center; gap: 10px; background: #000000; color: #ffffff !important; font-weight: 700; font-size: 1rem; padding: 15px 32px; border-radius: 14px; text-decoration: none !important; border: 1px solid #000000; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.1); font-family: 'Plus Jakarta Sans', sans-serif; }
+        .btn-primary:hover { background: transparent; color: #000000 !important; transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .btn-secondary { display: inline-flex; align-items: center; gap: 10px; background: transparent; border: 1px solid #000000; color: #000000 !important; font-weight: 600; font-size: 1rem; padding: 14px 30px; border-radius: 14px; text-decoration: none !important; cursor: pointer; transition: all 0.3s ease; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .btn-secondary:hover { background: #000000; color: #ffffff !important; transform: translateY(-2px); }
 
         /* NAVBAR */
         #navbar { position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; padding: 20px 5%; display: flex; align-items: center; justify-content: space-between; transition: all 0.4s ease; }
-        #navbar.scrolled { background: rgba(8,11,26,0.88); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border-bottom: 1px solid var(--glass-border); padding: 14px 5%; box-shadow: 0 4px 30px rgba(0,0,0,0.3); }
+        #navbar.scrolled { background: rgba(255,255,255,0.95); border-bottom: 1px solid #e5e5e5; padding: 14px 5%; box-shadow: 0 4px 30px rgba(0,0,0,0.02); }
         .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none !important; }
-        .nav-logo-icon { width: 42px; height: 42px; background: linear-gradient(135deg, var(--primary), var(--primary-2)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.3rem; color: var(--white); box-shadow: 0 4px 16px rgba(91,94,244,0.4); }
-        .nav-logo-text { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.5rem; color: var(--white); }
-        .nav-logo-text span { color: var(--primary-2); }
+        .nav-logo-icon { width: 42px; height: 42px; background: #000000; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.3rem; color: #ffffff; }
+        .nav-logo-text { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.5rem; color: #000000; }
+        .nav-logo-text span { color: #555555; }
         .nav-links { display: flex; list-style: none; gap: 32px; }
-        .nav-links a { color: var(--text-muted); font-weight: 500; font-size: 0.95rem; text-decoration: none !important; transition: color 0.3s; }
-        .nav-links a:hover { color: var(--white); }
+        .nav-links a { color: var(--text-muted); font-weight: 600; font-size: 0.95rem; text-decoration: none !important; transition: color 0.3s; }
+        .nav-links a:hover { color: #000000; }
         .nav-actions { display: flex; align-items: center; gap: 16px; }
         .btn-nav-login { color: var(--text-muted); font-weight: 600; font-size: 0.95rem; text-decoration: none !important; transition: color 0.3s; }
-        .btn-nav-login:hover { color: var(--white); }
-        .btn-nav-signup { background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: var(--white) !important; font-weight: 700; font-size: 0.9rem; padding: 10px 22px; border-radius: 12px; text-decoration: none !important; transition: all 0.3s ease; box-shadow: 0 4px 20px rgba(91,94,244,0.35); }
-        .btn-nav-signup:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(91,94,244,0.5); }
+        .btn-nav-login:hover { color: #000000; }
+        .btn-nav-signup { background: #000000; color: #ffffff !important; font-weight: 700; font-size: 0.9rem; padding: 10px 22px; border-radius: 12px; text-decoration: none !important; border: 1px solid #000000; transition: all 0.3s ease; }
+        .btn-nav-signup:hover { background: transparent; color: #000000 !important; transform: translateY(-2px); }
 
         /* HERO */
         #hero { min-height: 100vh; display: flex; align-items: center; padding: 140px 5% 100px; position: relative; z-index: 1; }
         .hero-inner { display: flex; align-items: center; gap: 60px; max-width: 1200px; margin: 0 auto; width: 100%; }
         .hero-content { flex: 1; }
-        .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(6,182,212,0.12); border: 1px solid rgba(6,182,212,0.3); color: var(--accent); font-size: 0.82rem; font-weight: 700; letter-spacing: 1px; padding: 8px 18px; border-radius: 50px; margin-bottom: 28px; animation: fadeInDown 0.7s ease both; }
+        .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.12); color: #000000; font-size: 0.82rem; font-weight: 700; letter-spacing: 1px; padding: 8px 18px; border-radius: 50px; margin-bottom: 28px; animation: fadeInDown 0.7s ease both; }
         .hero-title { font-family: 'Space Grotesk', sans-serif; font-size: clamp(2.5rem, 5.5vw, 4rem); font-weight: 700; line-height: 1.1; margin-bottom: 24px; animation: fadeInUp 0.7s ease 0.1s both; }
         .hero-desc { font-size: 1.1rem; color: var(--text-muted); line-height: 1.75; margin-bottom: 42px; max-width: 500px; animation: fadeInUp 0.7s ease 0.2s both; }
         .hero-cta { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 48px; animation: fadeInUp 0.7s ease 0.3s both; }
         .hero-trust { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; animation: fadeInUp 0.7s ease 0.4s both; }
         .trust-item { display: flex; align-items: center; gap: 8px; color: var(--text-muted); font-size: 0.85rem; font-weight: 500; }
-        .trust-item i { color: #22c55e; }
+        .trust-item i { color: #000000; }
         .hero-visual { flex: 0.85; display: flex; flex-direction: column; gap: 16px; animation: fadeInRight 0.8s ease 0.2s both; }
-        .card-badge-live { display: flex; align-items: center; gap: 6px; background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); color: #4ade80; font-size: 0.75rem; font-weight: 700; padding: 5px 12px; border-radius: 50px; }
-        .card-badge-live::before { content: ''; width: 7px; height: 7px; background: #4ade80; border-radius: 50%; animation: pulse 1.5s ease infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
+        .card-badge-live { display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.12); color: #000000; font-size: 0.75rem; font-weight: 700; padding: 5px 12px; border-radius: 50px; }
+        .card-badge-live::before { content: ''; width: 7px; height: 7px; background: #000000; border-radius: 50%; }
         .card-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; }
-        .product-row { display: flex; align-items: center; gap: 16px; padding: 14px; border-radius: 16px; background: rgba(255,255,255,0.04); margin-bottom: 10px; transition: background 0.3s; }
-        .product-row:hover { background: rgba(255,255,255,0.08); }
-        .product-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; }
+        .product-row { display: flex; align-items: center; gap: 16px; padding: 14px; border-radius: 16px; background: #ffffff; border: 1px solid #e5e5e5; margin-bottom: 10px; transition: all 0.3s; }
+        .product-row:hover { background: #fafafa; border-color: #000000; }
+        .product-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; background: #fafafa; border: 1px solid #e5e5e5; }
         .product-info { flex: 1; }
         .product-info h6 { font-weight: 700; font-size: 0.9rem; margin-bottom: 2px; }
         .product-info small { color: var(--text-muted); font-size: 0.78rem; }
-        .product-price { font-weight: 800; font-size: 1rem; color: #4ade80; }
+        .product-price { font-weight: 800; font-size: 1rem; color: #000000; }
         .hero-cards-mini { display: flex; gap: 14px; }
         .mini-card { flex: 1; padding: 18px 20px; border-radius: 20px; text-align: center; }
-        .mini-card .num { font-family: 'Space Grotesk', sans-serif; font-size: 1.6rem; font-weight: 700; color: var(--primary-2); }
+        .mini-card .num { font-family: 'Space Grotesk', sans-serif; font-size: 1.6rem; font-weight: 700; color: #000000; }
         .mini-card .lbl { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
 
         /* STATS */
         #stats { position: relative; z-index: 1; padding: 0 5% 80px; }
         .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 20px; max-width: 1200px; margin: 0 auto; }
         .stat-card { padding: 32px 28px; text-align: center; }
-        .stat-icon { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; margin: 0 auto 16px; }
-        .stat-num { font-family: 'Space Grotesk', sans-serif; font-size: 2.2rem; font-weight: 700; color: var(--white); line-height: 1; margin-bottom: 6px; }
+        .stat-icon { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; margin: 0 auto 16px; background: #fafafa; border: 1px solid #e5e5e5; }
+        .stat-num { font-family: 'Space Grotesk', sans-serif; font-size: 2.2rem; font-weight: 700; color: #000000; line-height: 1; margin-bottom: 6px; }
         .stat-label { font-size: 0.85rem; color: var(--text-muted); }
 
         /* SECTION WRAPPERS */
         .section-wrap { position: relative; z-index: 1; padding: 100px 5%; }
-        .section-wrap.alt { background: rgba(255,255,255,0.018); }
+        .section-wrap.alt { background: #fafafa; border-top: 1px solid #e5e5e5; border-bottom: 1px solid #e5e5e5; }
         .section-header { margin-bottom: 64px; }
         .section-header.centered { text-align: center; }
         .section-header.centered .section-subtitle { margin: 0 auto; }
@@ -132,33 +126,28 @@
         /* FEATURES */
         .features-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; max-width: 1200px; margin: 0 auto; }
         .feature-card { padding: 36px 30px; }
-        .feature-icon { width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 24px; }
+        .feature-icon { width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 24px; background: #fafafa; border: 1px solid #000000; color: #000000; }
         .feature-card h3 { font-family: 'Space Grotesk', sans-serif; font-size: 1.15rem; font-weight: 700; margin-bottom: 12px; }
         .feature-card p { color: var(--text-muted); font-size: 0.92rem; line-height: 1.7; }
-        .fi-1 { background: rgba(91,94,244,0.15); color: var(--primary-2); }
-        .fi-2 { background: rgba(6,182,212,0.15); color: var(--accent); }
-        .fi-3 { background: rgba(244,114,182,0.15); color: var(--accent-2); }
-        .fi-4 { background: rgba(34,197,94,0.15); color: #4ade80; }
-        .fi-5 { background: rgba(251,191,36,0.15); color: #fbbf24; }
-        .fi-6 { background: rgba(167,139,250,0.15); color: #a78bfa; }
+        .fi-1, .fi-2, .fi-3, .fi-4, .fi-5, .fi-6 { background: #fafafa; border: 1px solid #000000; color: #000000; }
 
         /* VISI MISI */
         .vm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; max-width: 1200px; margin: 0 auto; }
         .vm-card { padding: 44px 40px; }
         .vm-icon { font-size: 2.4rem; margin-bottom: 20px; }
-        .vm-card h3 { font-family: 'Space Grotesk', sans-serif; font-size: 1.5rem; font-weight: 700; margin-bottom: 16px; color: var(--white); }
+        .vm-card h3 { font-family: 'Space Grotesk', sans-serif; font-size: 1.5rem; font-weight: 700; margin-bottom: 16px; color: #000000; }
         .vm-card p { color: var(--text-muted); line-height: 1.8; font-size: 0.97rem; }
         .vm-card ul { list-style: none; margin-top: 16px; }
         .vm-card ul li { display: flex; align-items: flex-start; gap: 12px; color: var(--text-muted); font-size: 0.95rem; margin-bottom: 12px; }
-        .vm-card ul li i { color: var(--primary-2); margin-top: 3px; flex-shrink: 0; }
-        .vm-visi { border-top: 3px solid var(--primary); }
-        .vm-misi { border-top: 3px solid var(--accent); }
+        .vm-card ul li i { color: #000000; margin-top: 3px; flex-shrink: 0; }
+        .vm-visi { border-top: 3px solid #000000; }
+        .vm-misi { border-top: 3px dashed #000000; }
 
         /* CARA KERJA */
         .steps-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 24px; max-width: 1200px; margin: 0 auto; position: relative; }
-        .steps-grid::before { content: ''; position: absolute; top: 36px; left: 12.5%; right: 12.5%; height: 2px; background: linear-gradient(90deg, var(--primary), var(--accent)); z-index: 0; opacity: 0.4; }
+        .steps-grid::before { content: ''; position: absolute; top: 36px; left: 12.5%; right: 12.5%; height: 2px; background: #e5e5e5; z-index: 0; }
         .step-card { padding: 36px 24px; text-align: center; position: relative; z-index: 1; }
-        .step-num { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--accent)); color: var(--white); font-family: 'Space Grotesk', sans-serif; font-size: 1.3rem; font-weight: 700; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; box-shadow: 0 0 30px rgba(91,94,244,0.4); }
+        .step-num { width: 56px; height: 56px; border-radius: 50%; background: #000000; color: #ffffff; font-family: 'Space Grotesk', sans-serif; font-size: 1.3rem; font-weight: 700; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; }
         .step-card h4 { font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 10px; }
         .step-card p { color: var(--text-muted); font-size: 0.88rem; line-height: 1.65; }
 
@@ -170,83 +159,83 @@
         .product-card p { color: var(--text-muted); font-size: 0.88rem; line-height: 1.6; margin-bottom: 20px; }
         .product-card-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 20px; border-top: 1px solid var(--glass-border); }
         .product-card-price small { color: var(--text-muted); font-size: 0.75rem; display: block; }
-        .product-card-price strong { color: #4ade80; font-size: 1.1rem; font-weight: 700; }
-        .btn-see { font-size: 0.82rem; font-weight: 600; color: var(--primary-2); text-decoration: none !important; border: 1px solid rgba(129,140,248,0.35); padding: 7px 16px; border-radius: 10px; transition: all 0.3s; }
-        .btn-see:hover { background: rgba(91,94,244,0.15); border-color: var(--primary-2); }
+        .product-card-price strong { color: #000000; font-size: 1.1rem; font-weight: 700; }
+        .btn-see { font-size: 0.82rem; font-weight: 600; color: #000000; text-decoration: none !important; border: 1px solid #000000; padding: 7px 16px; border-radius: 10px; transition: all 0.3s; }
+        .btn-see:hover { background: #000000; color: #ffffff !important; }
 
         /* TESTIMONI */
         .testi-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; max-width: 1200px; margin: 0 auto; }
         .testi-card { padding: 32px 28px; }
-        .testi-stars { color: #fbbf24; font-size: 0.9rem; margin-bottom: 16px; letter-spacing: 3px; }
+        .testi-stars { color: #000000; font-size: 0.9rem; margin-bottom: 16px; letter-spacing: 3px; }
         .testi-text { color: var(--text-muted); font-size: 0.93rem; line-height: 1.75; font-style: italic; margin-bottom: 24px; }
         .testi-author { display: flex; align-items: center; gap: 14px; }
-        .testi-avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.1rem; flex-shrink: 0; }
+        .testi-avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.1rem; flex-shrink: 0; background: #fafafa; border: 1px solid #e5e5e5; }
         .testi-name { font-weight: 700; font-size: 0.9rem; }
         .testi-role { color: var(--text-dim); font-size: 0.8rem; margin-top: 2px; }
 
         /* FAQ */
         .faq-wrap { max-width: 800px; margin: 0 auto; }
         .faq-item { margin-bottom: 14px; border-radius: 16px; overflow: hidden; }
-        .faq-question { width: 100%; background: var(--glass-bg); border: 1px solid var(--glass-border); backdrop-filter: blur(12px); color: var(--text-main); font-size: 0.98rem; font-weight: 600; text-align: left; padding: 20px 24px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 16px; transition: all 0.3s; border-radius: 16px; font-family: 'Plus Jakarta Sans', sans-serif; }
-        .faq-question:hover, .faq-question.open { background: var(--glass-hover); border-color: rgba(91,94,244,0.4); }
+        .faq-question { width: 100%; background: #ffffff; border: 1px solid #000000; color: var(--text-main); font-size: 0.98rem; font-weight: 600; text-align: left; padding: 20px 24px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 16px; transition: all 0.3s; border-radius: 16px; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .faq-question:hover, .faq-question.open { background: #fafafa; border-color: #000000; }
         .faq-question.open { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
-        .faq-icon { transition: transform 0.3s; flex-shrink: 0; color: var(--primary-2); }
+        .faq-icon { transition: transform 0.3s; flex-shrink: 0; color: #000000; }
         .faq-question.open .faq-icon { transform: rotate(45deg); }
-        .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.3s ease; background: rgba(91,94,244,0.06); border: 1px solid rgba(91,94,244,0.25); border-top: none; border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; }
+        .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.3s ease; background: #fafafa; border: 1px solid #000000; border-top: none; border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; }
         .faq-answer.open { max-height: 300px; padding: 20px 24px; }
         .faq-answer p { color: var(--text-muted); font-size: 0.93rem; line-height: 1.7; }
 
-        /* CTA */
-        .cta-box { max-width: 1200px; margin: 0 auto; padding: 80px 60px; border-radius: 40px; background: linear-gradient(135deg, rgba(91,94,244,0.25), rgba(6,182,212,0.15)); border: 1px solid rgba(91,94,244,0.4); backdrop-filter: blur(24px); text-align: center; position: relative; overflow: hidden; }
-        .cta-box::before { content: ''; position: absolute; top: -80px; left: 50%; transform: translateX(-50%); width: 400px; height: 300px; background: radial-gradient(ellipse, rgba(91,94,244,0.3), transparent); pointer-events: none; }
-        .cta-box h2 { font-family: 'Space Grotesk', sans-serif; font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 700; margin-bottom: 16px; position: relative; }
+        /* FAQ AND CTA */
+        .cta-box { max-width: 1200px; margin: 0 auto; padding: 80px 60px; border-radius: 40px; background: #ffffff; border: 1px solid #000000; text-align: center; position: relative; overflow: hidden; }
+        .cta-box::before { display: none; }
+        .cta-box h2 { font-family: 'Space Grotesk', sans-serif; font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 700; margin-bottom: 16px; position: relative; color: #000000; }
         .cta-box p { color: var(--text-muted); font-size: 1.05rem; margin-bottom: 36px; max-width: 500px; margin-left: auto; margin-right: auto; position: relative; }
         .cta-actions { display: flex; justify-content: center; align-items: center; gap: 16px; flex-wrap: wrap; position: relative; }
 
         /* FOOTER */
-        footer { position: relative; z-index: 1; background: rgba(0,0,0,0.5); border-top: 1px solid var(--glass-border); backdrop-filter: blur(20px); padding: 72px 5% 36px; }
+        footer { position: relative; z-index: 1; background: #ffffff; border-top: 1px solid #000000; padding: 72px 5% 36px; color: #000000; }
         .footer-inner { max-width: 1200px; margin: 0 auto; }
         .footer-top-row { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 60px; }
         .footer-brand p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.7; margin: 18px 0 24px; }
         .footer-socials { display: flex; gap: 12px; }
-        .social-btn { width: 40px; height: 40px; border-radius: 10px; background: var(--glass-bg); border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 1.1rem; text-decoration: none !important; transition: all 0.3s; }
-        .social-btn:hover { background: var(--glass-hover); color: var(--primary-2); border-color: var(--primary); }
-        .footer-col h5 { font-family: 'Space Grotesk', sans-serif; font-size: 0.95rem; font-weight: 700; color: var(--white); margin-bottom: 20px; }
+        .social-btn { width: 40px; height: 40px; border-radius: 10px; background: #ffffff; border: 1px solid #000000; display: flex; align-items: center; justify-content: center; color: #000000; font-size: 1.1rem; text-decoration: none !important; transition: all 0.3s; }
+        .social-btn:hover { background: #000000; color: #ffffff !important; }
+        .footer-col h5 { font-family: 'Space Grotesk', sans-serif; font-size: 0.95rem; font-weight: 700; color: #000000; margin-bottom: 20px; }
         .footer-col ul { list-style: none; }
         .footer-col ul li { margin-bottom: 12px; }
         .footer-col ul a { color: var(--text-muted); text-decoration: none !important; font-size: 0.9rem; transition: color 0.3s; }
-        .footer-col ul a:hover { color: var(--white); }
-        .footer-bottom-row { border-top: 1px solid var(--glass-border); padding-top: 28px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+        .footer-col ul a:hover { color: #000000; }
+        .footer-bottom-row { border-top: 1px solid #e5e5e5; padding-top: 28px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
         .footer-bottom-row p { color: var(--text-dim); font-size: 0.85rem; }
         .footer-bottom-badges { display: flex; gap: 12px; flex-wrap: wrap; }
-        .badge-secure { display: flex; align-items: center; gap: 6px; background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-muted); font-size: 0.8rem; padding: 6px 14px; border-radius: 8px; }
-        .badge-secure i { color: #4ade80; }
+        .badge-secure { display: flex; align-items: center; gap: 6px; background: #ffffff; border: 1px solid #e5e5e5; color: var(--text-muted); font-size: 0.8rem; padding: 6px 14px; border-radius: 8px; }
+        .badge-secure i { color: #000000; }
 
         /* MODAL */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(8,11,26,0.75); backdrop-filter: blur(12px); display: none; justify-content: center; align-items: center; z-index: 10000; opacity: 0; transition: opacity 0.3s ease; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 10000; opacity: 0; transition: opacity 0.3s ease; }
         .modal-overlay.open { display: flex; opacity: 1; }
-        .modal-box { background: rgba(13,17,48,0.97); border: 1px solid var(--glass-border); backdrop-filter: blur(24px); border-radius: var(--radius-xl); padding: 44px; width: 100%; max-width: 460px; position: relative; box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 60px rgba(91,94,244,0.2); transform: scale(0.92) translateY(20px); transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1); }
+        .modal-box { background: #ffffff; border: 1px solid #000000; border-radius: var(--radius-xl); padding: 44px; width: 100%; max-width: 460px; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.1); transform: scale(0.92) translateY(20px); transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1); color: #000000; }
         .modal-overlay.open .modal-box { transform: scale(1) translateY(0); }
-        .modal-close { position: absolute; top: 20px; right: 20px; background: var(--glass-bg); border: 1px solid var(--glass-border); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; cursor: pointer; color: var(--text-muted); transition: all 0.2s; }
-        .modal-close:hover { background: var(--glass-hover); color: var(--white); }
-        .modal-logo { width: 54px; height: 54px; background: linear-gradient(135deg, var(--primary), var(--primary-2)); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.6rem; color: var(--white); margin: 0 auto 16px; box-shadow: 0 8px 24px rgba(91,94,244,0.4); }
-        .modal-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.5rem; font-weight: 700; text-align: center; margin-bottom: 6px; }
+        .modal-close { position: absolute; top: 20px; right: 20px; background: #ffffff; border: 1px solid #e5e5e5; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; cursor: pointer; color: var(--text-muted); transition: all 0.2s; }
+        .modal-close:hover { background: #000000; color: #ffffff !important; }
+        .modal-logo { width: 54px; height: 54px; background: #000000; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.6rem; color: #ffffff; margin: 0 auto 16px; }
+        .modal-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.5rem; font-weight: 700; text-align: center; margin-bottom: 6px; color: #000000; }
         .modal-subtitle { color: var(--text-muted); text-align: center; font-size: 0.88rem; margin-bottom: 28px; }
-        .login-tabs { display: flex; background: rgba(255,255,255,0.04); border: 1px solid var(--glass-border); padding: 5px; border-radius: 14px; margin-bottom: 24px; }
+        .login-tabs { display: flex; background: #fafafa; border: 1px solid #e5e5e5; padding: 5px; border-radius: 14px; margin-bottom: 24px; }
         .login-tab { flex: 1; border: none; background: transparent; padding: 10px; border-radius: 10px; font-weight: 600; font-size: 0.88rem; color: var(--text-muted); cursor: pointer; transition: all 0.3s; font-family: 'Plus Jakarta Sans', sans-serif; }
-        .login-tab.active { background: rgba(91,94,244,0.2); color: var(--primary-2); box-shadow: 0 2px 10px rgba(91,94,244,0.2); }
+        .login-tab.active { background: #000000; color: #ffffff !important; }
         .form-group { margin-bottom: 18px; }
-        .form-label { display: block; font-weight: 600; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; }
+        .form-label { display: block; font-weight: 600; font-size: 0.85rem; color: #333333; margin-bottom: 8px; }
         .form-input-wrap { position: relative; }
-        .form-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-dim); }
-        .form-input { width: 100%; padding: 14px 18px 14px 46px; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px; color: var(--text-main); font-size: 0.93rem; outline: none; transition: all 0.3s; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .form-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #666666; }
+        .form-input { width: 100%; padding: 14px 18px 14px 46px; background: #ffffff; border: 1px solid #cccccc; border-radius: 12px; color: #000000; font-size: 0.93rem; outline: none; transition: all 0.3s; font-family: 'Plus Jakarta Sans', sans-serif; }
         .form-input::placeholder { color: var(--text-dim); }
-        .form-input:focus { border-color: var(--primary); background: rgba(91,94,244,0.08); box-shadow: 0 0 0 4px rgba(91,94,244,0.15); }
+        .form-input:focus { border-color: #000000; box-shadow: 0 0 0 3px rgba(0,0,0,0.1); }
         .form-check-row { display: flex; align-items: center; gap: 8px; color: var(--text-muted); font-size: 0.84rem; margin-bottom: 22px; cursor: pointer; }
-        .btn-modal-submit { width: 100%; padding: 15px; background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: var(--white); font-weight: 700; font-size: 1rem; border: none; border-radius: 14px; cursor: pointer; transition: all 0.3s; box-shadow: 0 8px 24px rgba(91,94,244,0.35); font-family: 'Plus Jakarta Sans', sans-serif; }
-        .btn-modal-submit:hover { box-shadow: 0 12px 32px rgba(91,94,244,0.5); transform: translateY(-2px); }
+        .btn-modal-submit { width: 100%; padding: 15px; background: #000000; color: #ffffff; font-weight: 700; font-size: 1rem; border: 1px solid #000000; border-radius: 14px; cursor: pointer; transition: all 0.3s; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .btn-modal-submit:hover { background: transparent; color: #000000 !important; }
         .modal-register-hint { text-align: center; margin-top: 18px; font-size: 0.85rem; color: var(--text-muted); }
-        .modal-register-hint a { color: var(--primary-2); font-weight: 600; text-decoration: none !important; }
+        .modal-register-hint a { color: #000000; font-weight: 600; text-decoration: none !important; }
 
         /* ANIMATIONS */
         @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
@@ -291,8 +280,8 @@
 <!-- NAVBAR -->
 <nav id="navbar">
     <a href="{{ url('/') }}" class="nav-logo">
-        <div class="nav-logo-icon">T</div>
-        <span class="nav-logo-text">TO<span>KOKU</span></span>
+        <div class="nav-logo-icon">L</div>
+        <span class="nav-logo-text">LAPAK<span>TIFIKASI</span></span>
     </a>
     <ul class="nav-links">
         <li><a href="#hero">Beranda</a></li>
@@ -328,7 +317,7 @@
         <div class="hero-content">
             <div class="hero-badge"><i class="bi bi-lightning-charge-fill"></i> Platform Premium Instan &amp; Terpercaya</div>
             <h1 class="hero-title">Dapatkan Akun Premium<br><span class="grad-text">Instan &amp; Otomatis</span></h1>
-            <p class="hero-desc">Tokoku hadir sebagai solusi terpercaya bagi Anda yang ingin menikmati layanan digital premium — Spotify, Netflix, YouTube, dan lainnya — dengan harga terjangkau dan pengiriman seketika.</p>
+            <p class="hero-desc">Lapaktifikasi hadir sebagai solusi terpercaya bagi Anda yang ingin menikmati layanan digital premium — Spotify, Netflix, YouTube, dan lainnya — dengan harga terjangkau dan pengiriman seketika.</p>
             <div class="hero-cta">
                 @auth
                     @if(Auth::user()->role_id == 2)
@@ -410,7 +399,7 @@
     <div class="container-custom">
         <div class="section-header centered">
             <div class="section-tag"><i class="bi bi-stars"></i> Kelebihan Kami</div>
-            <h2 class="section-title">Mengapa <span class="highlight">Tokoku</span>?</h2>
+            <h2 class="section-title">Mengapa <span class="highlight">Lapaktifikasi</span>?</h2>
             <p class="section-subtitle">Platform kami dirancang dengan teknologi terkini untuk memastikan pengalaman belanja yang cepat, aman, dan memuaskan.</p>
         </div>
         <div class="features-grid">
@@ -454,7 +443,7 @@
         <div class="section-header centered">
             <div class="section-tag"><i class="bi bi-eye-fill"></i> Visi &amp; Misi</div>
             <h2 class="section-title">Landasan <span class="highlight-cyan">Kami Bergerak</span></h2>
-            <p class="section-subtitle">Tokoku dibangun di atas fondasi kepercayaan, inovasi, dan komitmen untuk memberikan layanan terbaik bagi setiap pelanggan.</p>
+            <p class="section-subtitle">Lapaktifikasi dibangun di atas fondasi kepercayaan, inovasi, dan komitmen untuk memberikan layanan terbaik bagi setiap pelanggan.</p>
         </div>
         <div class="vm-grid">
             <div class="glass-card vm-card vm-visi reveal">
@@ -489,7 +478,7 @@
             <div class="glass-card step-card reveal">
                 <div class="step-num">1</div>
                 <h4>Daftar Akun</h4>
-                <p>Buat akun Tokoku gratis hanya dengan email dan kata sandi. Proses verifikasi instan, langsung bisa digunakan.</p>
+                <p>Buat akun Lapaktifikasi gratis hanya dengan email dan kata sandi. Proses verifikasi instan, langsung bisa digunakan.</p>
             </div>
             <div class="glass-card step-card reveal" style="transition-delay:.12s">
                 <div class="step-num">2</div>
@@ -607,7 +596,7 @@
         <div class="section-header centered">
             <div class="section-tag"><i class="bi bi-chat-quote-fill"></i> Testimoni</div>
             <h2 class="section-title">Kata Mereka yang <span class="highlight">Sudah Merasakan</span></h2>
-            <p class="section-subtitle">Ribuan pelanggan telah mempercayai Tokoku sebagai platform akun digital premium pilihan mereka.</p>
+            <p class="section-subtitle">Ribuan pelanggan telah mempercayai Lapaktifikasi sebagai platform akun digital premium pilihan mereka.</p>
         </div>
         <div class="testi-grid">
             <div class="glass-card testi-card reveal">
@@ -620,7 +609,7 @@
             </div>
             <div class="glass-card testi-card reveal" style="transition-delay:.12s">
                 <div class="testi-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-                <p class="testi-text">"Sudah 6 bulan berlangganan Netflix lewat Tokoku, tidak pernah ada masalah. Harga jauh lebih murah, pengirimannya otomatis. Sangat recommended!"</p>
+                <p class="testi-text">"Sudah 6 bulan berlangganan Netflix lewat Lapaktifikasi, tidak pernah ada masalah. Harga jauh lebih murah, pengirimannya otomatis. Sangat recommended!"</p>
                 <div class="testi-author">
                     <div class="testi-avatar" style="background:rgba(6,182,212,0.2);color:#06b6d4;">S</div>
                     <div><div class="testi-name">Sari Dewi Lestari</div><div class="testi-role">Pengguna Aktif &middot; Surabaya</div></div>
@@ -628,7 +617,7 @@
             </div>
             <div class="glass-card testi-card reveal" style="transition-delay:.24s">
                 <div class="testi-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-                <p class="testi-text">"Tokoku adalah yang terbaik! Pernah ada masalah kecil dan tim CS langsung bantu selesaikan dalam waktu singkat. Pelayanannya profesional."</p>
+                <p class="testi-text">"Lapaktifikasi adalah yang terbaik! Pernah ada masalah kecil dan tim CS langsung bantu selesaikan dalam waktu singkat. Pelayanannya profesional."</p>
                 <div class="testi-author">
                     <div class="testi-avatar" style="background:rgba(244,114,182,0.2);color:#F472B6;">R</div>
                     <div><div class="testi-name">Rizal Maulana</div><div class="testi-role">Member Premium &middot; Bandung</div></div>
@@ -644,11 +633,11 @@
         <div class="section-header centered">
             <div class="section-tag"><i class="bi bi-question-circle-fill"></i> FAQ</div>
             <h2 class="section-title">Pertanyaan yang <span class="highlight">Sering Ditanyakan</span></h2>
-            <p class="section-subtitle">Temukan jawaban atas pertanyaan umum seputar layanan dan cara penggunaan Tokoku.</p>
+            <p class="section-subtitle">Temukan jawaban atas pertanyaan umum seputar layanan dan cara penggunaan Lapaktifikasi.</p>
         </div>
         <div class="faq-wrap">
             <div class="faq-item reveal">
-                <button class="faq-question" onclick="toggleFaq(this)">Apakah akun premium yang dijual di Tokoku aman dan legal? <i class="bi bi-plus-lg faq-icon"></i></button>
+                <button class="faq-question" onclick="toggleFaq(this)">Apakah akun premium yang dijual di Lapaktifikasi aman dan legal? <i class="bi bi-plus-lg faq-icon"></i></button>
                 <div class="faq-answer"><p>Ya, seluruh produk yang kami jual merupakan akun premium yang aman untuk digunakan. Kami berkomitmen untuk menjaga keamanan dan kenyamanan setiap pelanggan dengan sistem yang terverifikasi.</p></div>
             </div>
             <div class="faq-item reveal" style="transition-delay:.08s">
@@ -676,7 +665,7 @@
     <div class="container-custom">
         <div class="cta-box reveal">
             <h2>Siap Menikmati <span class="grad-text">Premium Digital</span>?</h2>
-            <p>Bergabunglah dengan ribuan pelanggan yang sudah mempercayai Tokoku. Daftar gratis sekarang dan dapatkan akun premium impian Anda.</p>
+            <p>Bergabunglah dengan ribuan pelanggan yang sudah mempercayai Lapaktifikasi. Daftar gratis sekarang dan dapatkan akun premium impian Anda.</p>
             <div class="cta-actions">
                 @auth
                     @if(Auth::user()->role_id == 2)
@@ -699,8 +688,8 @@
         <div class="footer-top-row">
             <div class="footer-brand">
                 <a href="{{ url('/') }}" class="nav-logo" style="display:inline-flex;margin-bottom:4px;">
-                    <div class="nav-logo-icon">T</div>
-                    <span class="nav-logo-text">TO<span>KOKU</span></span>
+                    <div class="nav-logo-icon">L</div>
+                    <span class="nav-logo-text">LAPAK<span>TIFIKASI</span></span>
                 </a>
                 <p>Platform distribusi akun digital premium terpercaya di Indonesia. Cepat, aman, dan terjangkau untuk semua lapisan pengguna.</p>
                 <div class="footer-socials">
@@ -723,7 +712,7 @@
             <div class="footer-col">
                 <h5>Perusahaan</h5>
                 <ul>
-                    <li><a href="#visimisi">Tentang Tokoku</a></li>
+                    <li><a href="#visimisi">Tentang Lapaktifikasi</a></li>
                     <li><a href="#visimisi">Visi &amp; Misi</a></li>
                     <li><a href="#cara-kerja">Cara Kerja</a></li>
                     <li><a href="#testimoni">Testimoni</a></li>
@@ -744,7 +733,7 @@
             </div>
         </div>
         <div class="footer-bottom-row">
-            <p>&copy; {{ date('Y') }} Tokoku. Hak Cipta Dilindungi Undang-Undang.</p>
+            <p>&copy; {{ date('Y') }} Lapaktifikasi. Hak Cipta Dilindungi Undang-Undang.</p>
             <div class="footer-bottom-badges">
                 <div class="badge-secure"><i class="bi bi-shield-check-fill"></i> Pembayaran Aman</div>
                 <div class="badge-secure"><i class="bi bi-lock-fill"></i> Data Terenkripsi</div>
@@ -759,8 +748,8 @@
     <div class="modal-box">
         <button class="modal-close" onclick="closeModal()"><i class="bi bi-x-lg"></i></button>
         <div style="text-align:center;margin-bottom:24px;">
-            <div class="modal-logo">T</div>
-            <div class="modal-title">Masuk ke Tokoku</div>
+            <div class="modal-logo">L</div>
+            <div class="modal-title">Masuk ke Lapaktifikasi</div>
             <div class="modal-subtitle">Masuk untuk mulai menikmati akun premium</div>
         </div>
         <div class="login-tabs">

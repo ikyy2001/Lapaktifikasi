@@ -27,9 +27,163 @@
     <!-- Template CSS -->
     <link rel="stylesheet" href="{{asset('assets/css/style.css')}}">
     <link rel="stylesheet" href="{{asset('assets/css/components.css')}}">
+    <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{config('midtrans.client_key')}}"></script>
+    <style>
+        /* Light Monochrome Layout Overrides */
+        body {
+            background-color: #fafafa !important;
+            color: #000000 !important;
+        }
 
-    <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{config('midtrans.client_key')}}">
-    </script>
+        /* Sidebar Styling */
+        .main-sidebar {
+            background-color: #ffffff !important;
+            border-right: 1px solid #e5e5e5 !important;
+            box-shadow: none !important;
+        }
+
+        .main-sidebar .sidebar-brand {
+            border-bottom: 1px solid #e5e5e5 !important;
+            background-color: #ffffff !important;
+        }
+
+        .main-sidebar .sidebar-brand a {
+            color: #000000 !important;
+            font-weight: 800 !important;
+            letter-spacing: -0.5px !important;
+            text-transform: uppercase !important;
+        }
+
+        .main-sidebar .sidebar-menu li.menu-header {
+            color: #a0a0a0 !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.8px !important;
+            font-size: 10px !important;
+            text-transform: uppercase !important;
+            padding: 3px 20px !important;
+            margin-top: 15px !important;
+        }
+
+        .main-sidebar .sidebar-menu li a {
+            color: #444444 !important;
+            font-weight: 600 !important;
+            border-radius: 8px !important;
+            margin: 4px 12px !important;
+            padding: 0 15px !important;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            font-size: 13px !important;
+        }
+
+        .main-sidebar .sidebar-menu li a i {
+            color: #444444 !important;
+            transition: color 0.2s ease !important;
+        }
+
+        .main-sidebar .sidebar-menu li.active a {
+            background-color: #000000 !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15) !important;
+        }
+
+        .main-sidebar .sidebar-menu li.active a i {
+            color: #ffffff !important;
+        }
+
+        .main-sidebar .sidebar-menu li a:hover {
+            background-color: #f2f2f2 !important;
+            color: #000000 !important;
+        }
+
+        .main-sidebar .sidebar-menu li a:hover i {
+            color: #000000 !important;
+        }
+
+        /* Navbar & Header Overrides */
+        .navbar-bg {
+            background: #000000 !important;
+            height: 70px !important;
+        }
+
+        .main-navbar {
+            background-color: #000000 !important;
+        }
+
+        .main-navbar .nav-link {
+            color: rgba(255, 255, 255, 0.8) !important;
+            transition: color 0.2s ease !important;
+        }
+
+        .main-navbar .nav-link:hover {
+            color: #ffffff !important;
+        }
+
+        .main-navbar .nav-link-user {
+            color: #ffffff !important;
+            font-weight: 600 !important;
+        }
+
+        .main-navbar .nav-link-user img {
+            border: 2px solid #ffffff !important;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2) !important;
+        }
+
+        /* Dropdown menu overrides */
+        .dropdown-menu {
+            border: 1px solid #e5e5e5 !important;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08) !important;
+            border-radius: 12px !important;
+            padding: 10px !important;
+        }
+
+        .dropdown-item {
+            color: #333333 !important;
+            font-weight: 600 !important;
+            padding: 10px 20px !important;
+            border-radius: 8px !important;
+            transition: all 0.2s ease !important;
+            font-size: 13px !important;
+        }
+
+        .dropdown-item i {
+            font-size: 14px !important;
+            margin-right: 10px !important;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f2f2f2 !important;
+            color: #000000 !important;
+        }
+
+        .dropdown-item.text-danger {
+            color: #fc544b !important;
+        }
+        
+        .dropdown-item.text-danger:hover {
+            background-color: #fff5f5 !important;
+            color: #fc544b !important;
+        }
+        
+        /* Modals overrides */
+        .modal-content {
+            border: 1px solid #000000 !important;
+            border-radius: 16px !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+        }
+        
+        .modal-header {
+            border-bottom: 1px solid #e5e5e5 !important;
+        }
+        
+        .modal-footer {
+            border-top: 1px solid #e5e5e5 !important;
+        }
+        
+        .modal-title {
+            font-weight: 700 !important;
+            color: #000000 !important;
+            text-transform: uppercase !important;
+        }
+    </style>
 </head>
 
 <body>
@@ -67,11 +221,11 @@
                 <aside id="sidebar-wrapper">
 
                     <div class="sidebar-brand">
-                        <a href="{{ Auth::user()->role_id == 1 ? url('/dashboard') : route('premium.katalog') }}">Tokoku</a>
+                        <a href="{{ Auth::user()->role_id == 1 ? url('/dashboard') : route('premium.katalog') }}">Lapaktifikasi</a>
                     </div>
 
                     <div class="sidebar-brand sidebar-brand-sm">
-                        <a href="{{ Auth::user()->role_id == 1 ? url('/dashboard') : route('premium.katalog') }}">TK</a>
+                        <a href="{{ Auth::user()->role_id == 1 ? url('/dashboard') : route('premium.katalog') }}">LF</a>
                     </div>
 
                     <ul class="sidebar-menu">

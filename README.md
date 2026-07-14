@@ -1,8 +1,8 @@
-## Tokoku 🛒
+## Lapaktifikasi 🛒
 
-Tokoku merupakan platfrom marketplace produk digital yang menjual produk digital secara online dengan payment gateway Midtrans. Saya membangun ini sesuai dengan kata **tokoku** yang artinya platfrom ini di bangun untuk menjual produk milik saya sendiri. Untuk saat ini produk digital tersebut hanya bisa menjual source code program aplikasi.
+Lapaktifikasi merupakan platfrom marketplace produk digital yang menjual produk digital secara online dengan payment gateway Midtrans. Saya membangun ini sesuai dengan kata **lapaktifikasi** yang artinya platfrom ini di bangun untuk menjual produk milik saya sendiri. Untuk saat ini produk digital tersebut hanya bisa menjual source code program aplikasi.
 
-Tokoku memiliki sistem multi user yang arti nya ada dua role yaitu admin dan customer. Admin adalah role milik saya dan customer sebagai pembeli. Tokoku di bangun dengan framework Laravel 10 dan MySQL sebagai backend nya. Untuk front end menggunakan bootstrap dan JavaScript. 
+Lapaktifikasi memiliki sistem multi user yang arti nya ada dua role yaitu admin dan customer. Admin adalah role milik saya dan customer sebagai pembeli. Lapaktifikasi di bangun dengan framework Laravel 10 dan MySQL sebagai backend nya. Untuk front end menggunakan bootstrap dan JavaScript. 
 
 Alur proses bisnis aplikasi web ini sama dengan layaknya toko pada umum nya. Jadi ketika customer membeli suatu produk, lalu checkout, pilih pembayaran Midtrans, dan jika sukses maka customer bisa mengunduh produk yang di simpan dari sistem aplikasi. Customer akan menerima notifikasi email, misal invoice milik customer adalah **80xxxx** telah membeli suatu produk.
 
@@ -17,9 +17,9 @@ Jika Anda seorang developer atau mahasiswa ingin menggunakan dan mengubah source
 git clone https://github.com/galihap76/tokoku.git
 ```
 
-2. Masuk ke direktori tokoku :
+2. Masuk ke direktori lapaktifikasi :
 ```
-cd tokoku
+cd lapaktifikasi
 ```
 
 3. Install package bawahan Laravel :
@@ -55,7 +55,7 @@ MIDTRANS_CLIENT_KEY = <MASUKKAN CLIENT KEY MILIK ANDA>
 MIDTRANS_SERVER_KEY = <MASUKKAN SERVER KEY MILIK ANDA>
 ```
 
-9. Tokoku memiliki sistem Single Sign On (SSO) Google, jadi Anda perlu masuk dan daftar pada <a href="https://console.cloud.google.com/apis/dashboard">console.cloud.google</a> untuk mendapatkan CLIENT dan SECRET key.
+9. Lapaktifikasi memiliki sistem Single Sign On (SSO) Google, jadi Anda perlu masuk dan daftar pada <a href="https://console.cloud.google.com/apis/dashboard">console.cloud.google</a> untuk mendapatkan CLIENT dan SECRET key.
 
 10. Copas ini ke **.env** untuk bisa menggunakan sistem SSO Google :
 ```

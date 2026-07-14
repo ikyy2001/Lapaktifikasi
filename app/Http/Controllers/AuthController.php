@@ -103,7 +103,7 @@ class AuthController extends Controller
                 $userFromDatabase->name,
                 $userFromDatabase->email
             );
-            $this->setSessionFlash('success', 'Selamat datang di Tokoku.');
+            $this->setSessionFlash('success', 'Selamat datang di Lapaktifikasi.');
             return ($userFromDatabase->role_id == 1 ? redirect('/dashboard') :
                 redirect('profile_customer/' . $userFromDatabase->id));
         } else {
@@ -190,7 +190,7 @@ class AuthController extends Controller
                 $newUser->name,
                 $newUser->email
             );
-            $this->setSessionFlash('success', 'Berhasil mendaftar. Selamat datang di Tokoku.');
+            $this->setSessionFlash('success', 'Berhasil mendaftar. Selamat datang di Lapaktifikasi.');
             return ($newUser->role_id == 1 ? redirect('/dashboard') :
                 redirect('profile_customer/' . $newUser->id));
         } else {
@@ -203,7 +203,7 @@ class AuthController extends Controller
                 $userFromDatabase->name,
                 $userFromDatabase->email
             );
-            $this->setSessionFlash('success', 'Selamat datang di Tokoku.');
+            $this->setSessionFlash('success', 'Selamat datang di Lapaktifikasi.');
             return ($userFromDatabase->role_id == 1 ? redirect('/dashboard') :
                 redirect('profile_customer/' . $userFromDatabase->id));
         }

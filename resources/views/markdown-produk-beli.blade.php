@@ -13,7 +13,7 @@ Terima kasih atas pembelian Anda! Kami dengan senang hati menginformasikan bahwa
 
 IDR {{ number_format($total, 0, ',', '.') }}
 
-Terima kasih telah berbelanja di Tokoku. Anda akan selalu menerima pembaruan terkait produk yang telah Anda beli. 
+Terima kasih telah berbelanja di Lapaktifikasi. Anda akan selalu menerima pembaruan terkait produk yang telah Anda beli. 
 Anda dapat mengunduh pembaruan tersebut kapan saja. Jika ada fitur baru yang tersedia untuk produk Anda, kami akan memberitahukan Anda.
 
 Terima kasih,<br>

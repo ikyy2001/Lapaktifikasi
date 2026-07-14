@@ -42,7 +42,7 @@ class MailProdukBeli extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Pembelian Tokoku: Invoice #' . $this->order_id,
+            subject: 'Pembelian Lapaktifikasi: Invoice #' . $this->order_id,
         );
     }
 

@@ -38,7 +38,7 @@ class MailPremiumBeli extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Pembelian Tokoku Premium: Invoice #' . $this->order_id,
+            subject: 'Pembelian Lapaktifikasi Premium: Invoice #' . $this->order_id,
         );
     }
 

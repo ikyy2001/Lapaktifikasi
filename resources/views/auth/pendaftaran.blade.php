@@ -1,6 +1,6 @@
 @extends('auth.layout')
 
-@section('title', 'Pendaftaran - Tokoku')
+@section('title', 'Pendaftaran - Lapaktifikasi')
 
 @section('content')
 
