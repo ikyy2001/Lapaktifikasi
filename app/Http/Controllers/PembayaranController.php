@@ -52,6 +52,22 @@ class PembayaranController extends Controller
 
                     $pembelian->update(['status' => \App\Enums\PembelianStatus::SUCCESS]);
 
+                    // Send Email to Customer
+                    try {
+                        $customerUser = $pembelian->customer->user;
+                        $varian = $pembelian->varianLayanan;
+                        $namaProdukVarian = $varian->tipeLayanan->produk->nama_produk . ' - ' . $varian->tipeLayanan->nama_tipe . ' (' . $varian->nama_varian . ')';
+
+                        \Illuminate\Support\Facades\Mail::to($customerUser->email)->send(new \App\Mail\MailPremiumBeli(
+                            $customerUser->name ?? $customerUser->email,
+                            $namaProdukVarian,
+                            $pembelian->harga_saat_beli,
+                            $pembelian->order_id
+                        ));
+                    } catch (\Exception $mailEx) {
+                        \Log::error('Failed to send premium purchase email in syncTransactionStatus: ' . $mailEx->getMessage());
+                    }
+
                     if ($pembelian->id_stok) {
                         $stok = \App\Models\StokAkun::find($pembelian->id_stok);
                         if ($stok) {

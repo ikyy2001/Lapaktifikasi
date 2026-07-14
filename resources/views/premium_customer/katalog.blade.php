@@ -10,6 +10,27 @@
 </script>
 @endif
 
+@if(empty($customer->nomor_telepon) || empty(Auth::user()->name))
+<div class="alert alert-warning text-center" role="alert">
+    <i class="bi bi-exclamation-triangle-fill mr-2"></i><strong>Profil Belum Lengkap!</strong> Silakan <a href="{{ url('profile_customer/' . Auth::user()->id) }}" class="font-weight-bold alert-link text-underline">lengkapi nama dan nomor WhatsApp Anda di profil</a> terlebih dahulu agar invoice dan detail akun bisa dikirimkan ke WhatsApp Anda setelah pembayaran.
+</div>
+@endif
+
+<div class="row mb-4">
+    <div class="col-12 col-md-6 offset-md-3">
+        <form action="{{ route('premium.katalog') }}" method="GET">
+            <div class="input-group">
+                <input type="text" name="search" class="form-control" placeholder="Cari layanan premium..." value="{{ request('search') }}">
+                <div class="input-group-append">
+                    <button class="btn btn-primary" type="submit">
+                        <i class="bi bi-search"></i> Cari
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
 <div class="row">
     @forelse($produk as $item)
     <div class="col-12 col-md-6 col-lg-4">

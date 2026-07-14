@@ -104,7 +104,7 @@ class AuthController extends Controller
                 $userFromDatabase->email
             );
             $this->setSessionFlash('success', 'Selamat datang di Tokoku.');
-            return ($userFromDatabase->role_id == 1 ? redirect('/') :
+            return ($userFromDatabase->role_id == 1 ? redirect('/dashboard') :
                 redirect('profile_customer/' . $userFromDatabase->id));
         } else {
             $this->setSessionFlash('error', 'Proses login gagal. Pastikan dengan memasukkan identitas dengan benar.');
@@ -191,10 +191,8 @@ class AuthController extends Controller
                 $newUser->email
             );
             $this->setSessionFlash('success', 'Berhasil mendaftar. Selamat datang di Tokoku.');
-            return ($newUser->role_id == 1 ? redirect('/') :
+            return ($newUser->role_id == 1 ? redirect('/dashboard') :
                 redirect('profile_customer/' . $newUser->id));
-
-            return redirect('/');
         } else {
 
             Auth::login($userFromDatabase);
@@ -206,7 +204,7 @@ class AuthController extends Controller
                 $userFromDatabase->email
             );
             $this->setSessionFlash('success', 'Selamat datang di Tokoku.');
-            return ($userFromDatabase->role_id == 1 ? redirect('/') :
+            return ($userFromDatabase->role_id == 1 ? redirect('/dashboard') :
                 redirect('profile_customer/' . $userFromDatabase->id));
         }
     }
@@ -221,6 +219,6 @@ class AuthController extends Controller
 
         $this->setSessionFlash('logout', 'Anda telah berhasil logout.');
 
-        return redirect('/login');
+        return redirect('/');
     }
 }

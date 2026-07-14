@@ -15,11 +15,20 @@ use App\Enums\StokStatus;
 class PremiumCustomerController extends Controller
 {
     // === 1. Listing Produk -> Tipe Layanan -> Varian ===
-    public function katalog()
+    public function katalog(Request $request)
     {
-        // Get all active products with their active types and active variations
-        $produk = Produk::where('status', 'aktif')
-            ->with(['tipeLayanan' => function ($query) {
+        $search = $request->input('search');
+
+        $query = Produk::where('status', 'aktif');
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('nama_produk', 'like', '%' . $search . '%')
+                  ->orWhere('deskripsi', 'like', '%' . $search . '%');
+            });
+        }
+
+        $produk = $query->with(['tipeLayanan' => function ($query) {
                 $query->where('status', 'aktif')
                     ->with(['varianLayanan' => function ($vQuery) {
                         $vQuery->where('status', 'aktif');
@@ -39,7 +48,10 @@ class PremiumCustomerController extends Controller
             }
         }
 
-        return view('premium_customer.katalog', compact('produk'));
+        $idCustomerUser = session('id');
+        $customer = CustomerModel::where('user_id', $idCustomerUser)->first();
+
+        return view('premium_customer.katalog', compact('produk', 'customer'));
     }
 
     // === 2. Riwayat Pembelian Customer ===

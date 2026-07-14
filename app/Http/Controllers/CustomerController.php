@@ -4,51 +4,59 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\CustomerModel;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Auth;
 
 class CustomerController extends Controller
 {
-
     public function index($id)
     {
         $user = User::find($id);
+
+        if ($user && $user->role_id != 1) {
+            CustomerModel::firstOrCreate([
+                'user_id' => $user->id
+            ]);
+            $user->load('customer');
+        }
+
         return view('customer.index', compact('user'));
     }
 
     public function update_profile(Request $request)
     {
+        $customer = Auth::user();
+        if (!$customer) {
+            return redirect()->back()->with('error', 'User not authenticated.');
+        }
 
-        $checkEmail = $request->session()->get('email');
-        $customer = User::where('email', $checkEmail)->first();
-        $nomorTeleponCustomer = CustomerModel::where('user_id', $customer->id)->first();
+        $nomorTeleponCustomer = CustomerModel::firstOrCreate([
+            'user_id' => $customer->id
+        ]);
 
         $validator = Validator::make($request->all(), [
             'name' => 'required',
-            'email' => 'required|email',
-            'nomor_telepon' => 'required|numeric'
+            'nomor_telepon' => 'required|string|min:9|max:20'
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()->with('error', 'Profile Anda gagal di ubah.');
-        } else if (
+            return redirect()->back()->withErrors($validator)->with('error', 'Profile Anda gagal di ubah.');
+        }
+
+        if (
             $request->input('name') == $customer->name
-            && $request->input('email') == $customer->email
             && $request->input('nomor_telepon') == $nomorTeleponCustomer->nomor_telepon
         ) {
             Session::flash('warning', 'Anda tidak memperbarui apapun.');
             return redirect('profile_customer/' . $customer->id);
-        } else if ($request->input('email') == $checkEmail) {
-
-            $customer->update(['name' => $request->input('name')]);
-            $nomorTeleponCustomer->update(['nomor_telepon' => $request->input('nomor_telepon')]);
-
-            Session::flash('success', 'Profile Anda berhasil di update.');
-            return redirect('profile_customer/' . $customer->id);
-        } else {
-            return redirect()->back()->with('error', 'Profile Anda gagal di ubah.');
         }
+
+        $customer->update(['name' => $request->input('name')]);
+        $nomorTeleponCustomer->update(['nomor_telepon' => $request->input('nomor_telepon')]);
+
+        Session::flash('success', 'Profile Anda berhasil di update.');
+        return redirect('profile_customer/' . $customer->id);
     }
 }

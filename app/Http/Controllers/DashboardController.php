@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\BeliProdukModel;
 use App\Models\User;
+use App\Models\Pembelian;
+use App\Models\Pembayaran;
+use App\Models\PembayaranModel;
+use App\Enums\PembelianStatus;
 
 class DashboardController extends Controller
 {
@@ -26,37 +30,74 @@ class DashboardController extends Controller
 
     protected function getTotalOrderHariIni($hari_ini)
     {
-        $total = BeliProdukModel::where('tanggal_transaksi', $hari_ini)->count();
-        return $total;
+        // Legacy orders today
+        $legacyCount = BeliProdukModel::where('tanggal_transaksi', $hari_ini)->count();
+        
+        // Premium orders today
+        $premiumCount = Pembelian::whereDate('created_at', $hari_ini)->count();
+
+        return $legacyCount + $premiumCount;
     }
 
     protected function getTotalPenjualanHariIni($hari_ini)
     {
-        $totalCollection = BeliProdukModel::withSum(['pembayaran' => function ($query) use ($hari_ini) {
-            $query->whereDate('tanggal_transaksi', $hari_ini);
-        }], 'total')->get();
+        // Legacy sales today
+        $legacySales = PembayaranModel::whereIn('order_id', BeliProdukModel::where('tanggal_transaksi', $hari_ini)->pluck('order_id'))->sum('total');
 
-        // Mengambil jumlah total dari koleksi
-        $total = $totalCollection->sum('pembayaran_sum_total');
+        // Premium sales today
+        $premiumSales = Pembayaran::whereDate('tanggal_bayar', $hari_ini)->sum('jumlah_dibayar');
 
-        // Mengembalikan hasil format Rupiah
+        $total = $legacySales + $premiumSales;
+
         return number_format($total, 0, ',', '.');
     }
 
     protected function getTotalBarangTerjualHariIni($hari_ini)
     {
-        $qty = BeliProdukModel::where('status', 'success')
-            ->whereDate('tanggal_transaksi', $hari_ini)
+        // Legacy items sold today
+        $legacyQty = BeliProdukModel::where('status', 'success')
+            ->where('tanggal_transaksi', $hari_ini)
             ->sum('qty');
 
-        return $qty;
+        // Premium items sold today (count of successful purchases paid today)
+        $premiumQty = Pembelian::where('status', PembelianStatus::SUCCESS)
+            ->whereHas('pembayaran', function ($query) use ($hari_ini) {
+                $query->whereDate('tanggal_bayar', $hari_ini);
+            })
+            ->count();
+
+        return $legacyQty + $premiumQty;
     }
 
     protected function getNamaOrderHariIni($hari_ini)
     {
-        $orders = User::withWhereHas('order_details', function ($query) use ($hari_ini) {
-            $query->whereDate('tanggal_transaksi', $hari_ini);
-        })->get();
+        $orders = [];
+
+        // Legacy orders today
+        $legacyOrders = BeliProdukModel::with('users')
+            ->where('tanggal_transaksi', $hari_ini)
+            ->get();
+
+        foreach ($legacyOrders as $order) {
+            $orders[] = [
+                'nama_customer' => $order->users->name ?? $order->users->email ?? '-',
+                'order_id' => $order->order_id,
+                'status' => ucfirst($order->status),
+            ];
+        }
+
+        // Premium orders today
+        $premiumOrders = Pembelian::with('customer.user')
+            ->whereDate('created_at', $hari_ini)
+            ->get();
+
+        foreach ($premiumOrders as $order) {
+            $orders[] = [
+                'nama_customer' => $order->customer->user->name ?? $order->customer->user->email ?? '-',
+                'order_id' => $order->order_id,
+                'status' => ucfirst($order->status->value),
+            ];
+        }
 
         return $orders;
     }

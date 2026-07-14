@@ -1,140 +1,862 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+﻿<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tokoku - E-Commerce Akun Premium Terpercaya</title>
+    <meta name="description" content="Tokoku adalah platform terpercaya untuk membeli akun premium Spotify, Netflix, YouTube Premium, dan lainnya secara instan dan aman dengan pembayaran otomatis.">
+    <meta name="keywords" content="akun premium, spotify premium, netflix, youtube premium, tokoku, beli akun premium murah">
+    <meta name="robots" content="index, follow">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary:      #5B5EF4;
+            --primary-2:    #818CF8;
+            --accent:       #06b6d4;
+            --accent-2:     #F472B6;
+            --dark-bg:      #080b1a;
+            --dark-2:       #0d1130;
+            --glass-bg:     rgba(255,255,255,0.06);
+            --glass-border: rgba(255,255,255,0.12);
+            --glass-hover:  rgba(255,255,255,0.10);
+            --text-main:    #f1f5f9;
+            --text-muted:   #94a3b8;
+            --text-dim:     #64748b;
+            --white:        #ffffff;
+            --radius-lg:    24px;
+            --radius-xl:    32px;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-main);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--dark-bg); }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 3px; }
 
-        <title>Laravel</title>
+        /* BG BLOBS */
+        .bg-blobs { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+        .blob { position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.35; animation: blobDrift 20s ease-in-out infinite alternate; }
+        .blob-1 { width: 600px; height: 600px; background: radial-gradient(circle, #5B5EF4, transparent); top: -200px; left: -150px; animation-delay: 0s; }
+        .blob-2 { width: 500px; height: 500px; background: radial-gradient(circle, #06b6d4, transparent); top: 40%; right: -100px; animation-delay: -7s; }
+        .blob-3 { width: 400px; height: 400px; background: radial-gradient(circle, #F472B6, transparent); bottom: 10%; left: 30%; animation-delay: -14s; }
+        @keyframes blobDrift { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(40px,30px) scale(1.08); } }
+        .bg-grid { position: fixed; inset: 0; z-index: 0; pointer-events: none; background-image: linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px); background-size: 60px 60px; }
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,600&display=swap" rel="stylesheet" />
+        /* UTILITY */
+        .container-custom { max-width: 1200px; margin: 0 auto; padding: 0 5%; }
+        .section-tag { display: inline-flex; align-items: center; gap: 8px; background: rgba(91,94,244,0.15); border: 1px solid rgba(91,94,244,0.35); color: var(--primary-2); font-size: 0.8rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 7px 16px; border-radius: 50px; margin-bottom: 20px; }
+        .section-title { font-family: 'Space Grotesk', sans-serif; font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 700; line-height: 1.2; color: var(--text-main); margin-bottom: 16px; }
+        .section-subtitle { font-size: 1.05rem; color: var(--text-muted); max-width: 560px; line-height: 1.7; }
+        .highlight { color: var(--primary-2); }
+        .highlight-cyan { color: var(--accent); }
+        .grad-text { background: linear-gradient(135deg, var(--primary-2), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 
-        <!-- Styles -->
-        <style>
-            /* ! tailwindcss v3.2.4 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:Figtree, sans-serif;font-feature-settings:normal}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-size:100%;font-weight:inherit;line-height:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]{display:none}*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: }::-webkit-backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: }.relative{position:relative}.mx-auto{margin-left:auto;margin-right:auto}.mx-6{margin-left:1.5rem;margin-right:1.5rem}.ml-4{margin-left:1rem}.mt-16{margin-top:4rem}.mt-6{margin-top:1.5rem}.mt-4{margin-top:1rem}.-mt-px{margin-top:-1px}.mr-1{margin-right:0.25rem}.flex{display:flex}.inline-flex{display:inline-flex}.grid{display:grid}.h-16{height:4rem}.h-7{height:1.75rem}.h-6{height:1.5rem}.h-5{height:1.25rem}.min-h-screen{min-height:100vh}.w-auto{width:auto}.w-16{width:4rem}.w-7{width:1.75rem}.w-6{width:1.5rem}.w-5{width:1.25rem}.max-w-7xl{max-width:80rem}.shrink-0{flex-shrink:0}.scale-100{--tw-scale-x:1;--tw-scale-y:1;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.items-center{align-items:center}.justify-center{justify-content:center}.gap-6{gap:1.5rem}.gap-4{gap:1rem}.self-center{align-self:center}.rounded-lg{border-radius:0.5rem}.rounded-full{border-radius:9999px}.bg-gray-100{--tw-bg-opacity:1;background-color:rgb(243 244 246 / var(--tw-bg-opacity))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity))}.bg-red-50{--tw-bg-opacity:1;background-color:rgb(254 242 242 / var(--tw-bg-opacity))}.bg-dots-darker{background-image:url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.22676 0C1.91374 0 2.45351 0.539773 2.45351 1.22676C2.45351 1.91374 1.91374 2.45351 1.22676 2.45351C0.539773 2.45351 0 1.91374 0 1.22676C0 0.539773 0.539773 0 1.22676 0Z' fill='rgba(0,0,0,0.07)'/%3E%3C/svg%3E")}.from-gray-700\/50{--tw-gradient-from:rgb(55 65 81 / 0.5);--tw-gradient-to:rgb(55 65 81 / 0);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.via-transparent{--tw-gradient-to:rgb(0 0 0 / 0);--tw-gradient-stops:var(--tw-gradient-from), transparent, var(--tw-gradient-to)}.bg-center{background-position:center}.stroke-red-500{stroke:#ef4444}.stroke-gray-400{stroke:#9ca3af}.p-6{padding:1.5rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.text-center{text-align:center}.text-right{text-align:right}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.font-semibold{font-weight:600}.leading-relaxed{line-height:1.625}.text-gray-600{--tw-text-opacity:1;color:rgb(75 85 99 / var(--tw-text-opacity))}.text-gray-900{--tw-text-opacity:1;color:rgb(17 24 39 / var(--tw-text-opacity))}.text-gray-500{--tw-text-opacity:1;color:rgb(107 114 128 / var(--tw-text-opacity))}.underline{-webkit-text-decoration-line:underline;text-decoration-line:underline}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.shadow-2xl{--tw-shadow:0 25px 50px -12px rgb(0 0 0 / 0.25);--tw-shadow-colored:0 25px 50px -12px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-gray-500\/20{--tw-shadow-color:rgb(107 114 128 / 0.2);--tw-shadow:var(--tw-shadow-colored)}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.selection\:bg-red-500 *::selection{--tw-bg-opacity:1;background-color:rgb(239 68 68 / var(--tw-bg-opacity))}.selection\:text-white *::selection{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity))}.selection\:bg-red-500::selection{--tw-bg-opacity:1;background-color:rgb(239 68 68 / var(--tw-bg-opacity))}.selection\:text-white::selection{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity))}.hover\:text-gray-900:hover{--tw-text-opacity:1;color:rgb(17 24 39 / var(--tw-text-opacity))}.hover\:text-gray-700:hover{--tw-text-opacity:1;color:rgb(55 65 81 / var(--tw-text-opacity))}.focus\:rounded-sm:focus{border-radius:0.125rem}.focus\:outline:focus{outline-style:solid}.focus\:outline-2:focus{outline-width:2px}.focus\:outline-red-500:focus{outline-color:#ef4444}.group:hover .group-hover\:stroke-gray-600{stroke:#4b5563}@media (prefers-reduced-motion: no-preference){.motion-safe\:hover\:scale-\[1\.01\]:hover{--tw-scale-x:1.01;--tw-scale-y:1.01;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}}@media (prefers-color-scheme: dark){.dark\:bg-gray-900{--tw-bg-opacity:1;background-color:rgb(17 24 39 / var(--tw-bg-opacity))}.dark\:bg-gray-800\/50{background-color:rgb(31 41 55 / 0.5)}.dark\:bg-red-800\/20{background-color:rgb(153 27 27 / 0.2)}.dark\:bg-dots-lighter{background-image:url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.22676 0C1.91374 0 2.45351 0.539773 2.45351 1.22676C2.45351 1.91374 1.91374 2.45351 1.22676 2.45351C0.539773 2.45351 0 1.91374 0 1.22676C0 0.539773 0.539773 0 1.22676 0Z' fill='rgba(255,255,255,0.07)'/%3E%3C/svg%3E")}.dark\:bg-gradient-to-bl{background-image:linear-gradient(to bottom left, var(--tw-gradient-stops))}.dark\:stroke-gray-600{stroke:#4b5563}.dark\:text-gray-400{--tw-text-opacity:1;color:rgb(156 163 175 / var(--tw-text-opacity))}.dark\:text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity))}.dark\:shadow-none{--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.dark\:ring-1{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)}.dark\:ring-inset{--tw-ring-inset:inset}.dark\:ring-white\/5{--tw-ring-color:rgb(255 255 255 / 0.05)}.dark\:hover\:text-white:hover{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity))}.group:hover .dark\:group-hover\:stroke-gray-400{stroke:#9ca3af}}@media (min-width: 640px){.sm\:fixed{position:fixed}.sm\:top-0{top:0px}.sm\:right-0{right:0px}.sm\:ml-0{margin-left:0px}.sm\:flex{display:flex}.sm\:items-center{align-items:center}.sm\:justify-center{justify-content:center}.sm\:justify-between{justify-content:space-between}.sm\:text-left{text-align:left}.sm\:text-right{text-align:right}}@media (min-width: 768px){.md\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}}@media (min-width: 1024px){.lg\:gap-8{gap:2rem}.lg\:p-8{padding:2rem}}
-        </style>
-    </head>
-    <body class="antialiased">
-        <div class="relative sm:flex sm:justify-center sm:items-center min-h-screen bg-dots-darker bg-center bg-gray-100 dark:bg-dots-lighter dark:bg-gray-900 selection:bg-red-500 selection:text-white">
-            @if (Route::has('login'))
-                <div class="sm:fixed sm:top-0 sm:right-0 p-6 text-right">
-                    @auth
-                        <a href="{{ url('/home') }}" class="font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Home</a>
+        /* GLASS CARD */
+        .glass-card { background: var(--glass-bg); border: 1px solid var(--glass-border); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: var(--radius-lg); transition: all 0.35s ease; }
+        .glass-card:hover { background: var(--glass-hover); border-color: rgba(91,94,244,0.4); transform: translateY(-6px); box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 40px rgba(91,94,244,0.25); }
+
+        /* BUTTONS */
+        .btn-primary { display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: var(--white) !important; font-weight: 700; font-size: 1rem; padding: 15px 32px; border-radius: 14px; text-decoration: none !important; border: none; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 8px 30px rgba(91,94,244,0.35); font-family: 'Plus Jakarta Sans', sans-serif; }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 16px 40px rgba(91,94,244,0.5); }
+        .btn-secondary { display: inline-flex; align-items: center; gap: 10px; background: var(--glass-bg); border: 1px solid var(--glass-border); backdrop-filter: blur(12px); color: var(--text-main) !important; font-weight: 600; font-size: 1rem; padding: 14px 30px; border-radius: 14px; text-decoration: none !important; cursor: pointer; transition: all 0.3s ease; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .btn-secondary:hover { background: var(--glass-hover); border-color: rgba(91,94,244,0.5); transform: translateY(-2px); }
+
+        /* NAVBAR */
+        #navbar { position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; padding: 20px 5%; display: flex; align-items: center; justify-content: space-between; transition: all 0.4s ease; }
+        #navbar.scrolled { background: rgba(8,11,26,0.88); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border-bottom: 1px solid var(--glass-border); padding: 14px 5%; box-shadow: 0 4px 30px rgba(0,0,0,0.3); }
+        .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none !important; }
+        .nav-logo-icon { width: 42px; height: 42px; background: linear-gradient(135deg, var(--primary), var(--primary-2)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.3rem; color: var(--white); box-shadow: 0 4px 16px rgba(91,94,244,0.4); }
+        .nav-logo-text { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.5rem; color: var(--white); }
+        .nav-logo-text span { color: var(--primary-2); }
+        .nav-links { display: flex; list-style: none; gap: 32px; }
+        .nav-links a { color: var(--text-muted); font-weight: 500; font-size: 0.95rem; text-decoration: none !important; transition: color 0.3s; }
+        .nav-links a:hover { color: var(--white); }
+        .nav-actions { display: flex; align-items: center; gap: 16px; }
+        .btn-nav-login { color: var(--text-muted); font-weight: 600; font-size: 0.95rem; text-decoration: none !important; transition: color 0.3s; }
+        .btn-nav-login:hover { color: var(--white); }
+        .btn-nav-signup { background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: var(--white) !important; font-weight: 700; font-size: 0.9rem; padding: 10px 22px; border-radius: 12px; text-decoration: none !important; transition: all 0.3s ease; box-shadow: 0 4px 20px rgba(91,94,244,0.35); }
+        .btn-nav-signup:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(91,94,244,0.5); }
+
+        /* HERO */
+        #hero { min-height: 100vh; display: flex; align-items: center; padding: 140px 5% 100px; position: relative; z-index: 1; }
+        .hero-inner { display: flex; align-items: center; gap: 60px; max-width: 1200px; margin: 0 auto; width: 100%; }
+        .hero-content { flex: 1; }
+        .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(6,182,212,0.12); border: 1px solid rgba(6,182,212,0.3); color: var(--accent); font-size: 0.82rem; font-weight: 700; letter-spacing: 1px; padding: 8px 18px; border-radius: 50px; margin-bottom: 28px; animation: fadeInDown 0.7s ease both; }
+        .hero-title { font-family: 'Space Grotesk', sans-serif; font-size: clamp(2.5rem, 5.5vw, 4rem); font-weight: 700; line-height: 1.1; margin-bottom: 24px; animation: fadeInUp 0.7s ease 0.1s both; }
+        .hero-desc { font-size: 1.1rem; color: var(--text-muted); line-height: 1.75; margin-bottom: 42px; max-width: 500px; animation: fadeInUp 0.7s ease 0.2s both; }
+        .hero-cta { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 48px; animation: fadeInUp 0.7s ease 0.3s both; }
+        .hero-trust { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; animation: fadeInUp 0.7s ease 0.4s both; }
+        .trust-item { display: flex; align-items: center; gap: 8px; color: var(--text-muted); font-size: 0.85rem; font-weight: 500; }
+        .trust-item i { color: #22c55e; }
+        .hero-visual { flex: 0.85; display: flex; flex-direction: column; gap: 16px; animation: fadeInRight 0.8s ease 0.2s both; }
+        .card-badge-live { display: flex; align-items: center; gap: 6px; background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); color: #4ade80; font-size: 0.75rem; font-weight: 700; padding: 5px 12px; border-radius: 50px; }
+        .card-badge-live::before { content: ''; width: 7px; height: 7px; background: #4ade80; border-radius: 50%; animation: pulse 1.5s ease infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
+        .card-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; }
+        .product-row { display: flex; align-items: center; gap: 16px; padding: 14px; border-radius: 16px; background: rgba(255,255,255,0.04); margin-bottom: 10px; transition: background 0.3s; }
+        .product-row:hover { background: rgba(255,255,255,0.08); }
+        .product-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; }
+        .product-info { flex: 1; }
+        .product-info h6 { font-weight: 700; font-size: 0.9rem; margin-bottom: 2px; }
+        .product-info small { color: var(--text-muted); font-size: 0.78rem; }
+        .product-price { font-weight: 800; font-size: 1rem; color: #4ade80; }
+        .hero-cards-mini { display: flex; gap: 14px; }
+        .mini-card { flex: 1; padding: 18px 20px; border-radius: 20px; text-align: center; }
+        .mini-card .num { font-family: 'Space Grotesk', sans-serif; font-size: 1.6rem; font-weight: 700; color: var(--primary-2); }
+        .mini-card .lbl { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+
+        /* STATS */
+        #stats { position: relative; z-index: 1; padding: 0 5% 80px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 20px; max-width: 1200px; margin: 0 auto; }
+        .stat-card { padding: 32px 28px; text-align: center; }
+        .stat-icon { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; margin: 0 auto 16px; }
+        .stat-num { font-family: 'Space Grotesk', sans-serif; font-size: 2.2rem; font-weight: 700; color: var(--white); line-height: 1; margin-bottom: 6px; }
+        .stat-label { font-size: 0.85rem; color: var(--text-muted); }
+
+        /* SECTION WRAPPERS */
+        .section-wrap { position: relative; z-index: 1; padding: 100px 5%; }
+        .section-wrap.alt { background: rgba(255,255,255,0.018); }
+        .section-header { margin-bottom: 64px; }
+        .section-header.centered { text-align: center; }
+        .section-header.centered .section-subtitle { margin: 0 auto; }
+
+        /* FEATURES */
+        .features-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; max-width: 1200px; margin: 0 auto; }
+        .feature-card { padding: 36px 30px; }
+        .feature-icon { width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 24px; }
+        .feature-card h3 { font-family: 'Space Grotesk', sans-serif; font-size: 1.15rem; font-weight: 700; margin-bottom: 12px; }
+        .feature-card p { color: var(--text-muted); font-size: 0.92rem; line-height: 1.7; }
+        .fi-1 { background: rgba(91,94,244,0.15); color: var(--primary-2); }
+        .fi-2 { background: rgba(6,182,212,0.15); color: var(--accent); }
+        .fi-3 { background: rgba(244,114,182,0.15); color: var(--accent-2); }
+        .fi-4 { background: rgba(34,197,94,0.15); color: #4ade80; }
+        .fi-5 { background: rgba(251,191,36,0.15); color: #fbbf24; }
+        .fi-6 { background: rgba(167,139,250,0.15); color: #a78bfa; }
+
+        /* VISI MISI */
+        .vm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; max-width: 1200px; margin: 0 auto; }
+        .vm-card { padding: 44px 40px; }
+        .vm-icon { font-size: 2.4rem; margin-bottom: 20px; }
+        .vm-card h3 { font-family: 'Space Grotesk', sans-serif; font-size: 1.5rem; font-weight: 700; margin-bottom: 16px; color: var(--white); }
+        .vm-card p { color: var(--text-muted); line-height: 1.8; font-size: 0.97rem; }
+        .vm-card ul { list-style: none; margin-top: 16px; }
+        .vm-card ul li { display: flex; align-items: flex-start; gap: 12px; color: var(--text-muted); font-size: 0.95rem; margin-bottom: 12px; }
+        .vm-card ul li i { color: var(--primary-2); margin-top: 3px; flex-shrink: 0; }
+        .vm-visi { border-top: 3px solid var(--primary); }
+        .vm-misi { border-top: 3px solid var(--accent); }
+
+        /* CARA KERJA */
+        .steps-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 24px; max-width: 1200px; margin: 0 auto; position: relative; }
+        .steps-grid::before { content: ''; position: absolute; top: 36px; left: 12.5%; right: 12.5%; height: 2px; background: linear-gradient(90deg, var(--primary), var(--accent)); z-index: 0; opacity: 0.4; }
+        .step-card { padding: 36px 24px; text-align: center; position: relative; z-index: 1; }
+        .step-num { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--accent)); color: var(--white); font-family: 'Space Grotesk', sans-serif; font-size: 1.3rem; font-weight: 700; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; box-shadow: 0 0 30px rgba(91,94,244,0.4); }
+        .step-card h4 { font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 10px; }
+        .step-card p { color: var(--text-muted); font-size: 0.88rem; line-height: 1.65; }
+
+        /* PRODUCTS */
+        .products-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; max-width: 1200px; margin: 0 auto; }
+        .product-card { padding: 32px 28px; }
+        .product-card-icon { font-size: 3rem; margin-bottom: 20px; display: block; }
+        .product-card h3 { font-family: 'Space Grotesk', sans-serif; font-size: 1.15rem; font-weight: 700; margin-bottom: 8px; }
+        .product-card p { color: var(--text-muted); font-size: 0.88rem; line-height: 1.6; margin-bottom: 20px; }
+        .product-card-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 20px; border-top: 1px solid var(--glass-border); }
+        .product-card-price small { color: var(--text-muted); font-size: 0.75rem; display: block; }
+        .product-card-price strong { color: #4ade80; font-size: 1.1rem; font-weight: 700; }
+        .btn-see { font-size: 0.82rem; font-weight: 600; color: var(--primary-2); text-decoration: none !important; border: 1px solid rgba(129,140,248,0.35); padding: 7px 16px; border-radius: 10px; transition: all 0.3s; }
+        .btn-see:hover { background: rgba(91,94,244,0.15); border-color: var(--primary-2); }
+
+        /* TESTIMONI */
+        .testi-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; max-width: 1200px; margin: 0 auto; }
+        .testi-card { padding: 32px 28px; }
+        .testi-stars { color: #fbbf24; font-size: 0.9rem; margin-bottom: 16px; letter-spacing: 3px; }
+        .testi-text { color: var(--text-muted); font-size: 0.93rem; line-height: 1.75; font-style: italic; margin-bottom: 24px; }
+        .testi-author { display: flex; align-items: center; gap: 14px; }
+        .testi-avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.1rem; flex-shrink: 0; }
+        .testi-name { font-weight: 700; font-size: 0.9rem; }
+        .testi-role { color: var(--text-dim); font-size: 0.8rem; margin-top: 2px; }
+
+        /* FAQ */
+        .faq-wrap { max-width: 800px; margin: 0 auto; }
+        .faq-item { margin-bottom: 14px; border-radius: 16px; overflow: hidden; }
+        .faq-question { width: 100%; background: var(--glass-bg); border: 1px solid var(--glass-border); backdrop-filter: blur(12px); color: var(--text-main); font-size: 0.98rem; font-weight: 600; text-align: left; padding: 20px 24px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 16px; transition: all 0.3s; border-radius: 16px; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .faq-question:hover, .faq-question.open { background: var(--glass-hover); border-color: rgba(91,94,244,0.4); }
+        .faq-question.open { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+        .faq-icon { transition: transform 0.3s; flex-shrink: 0; color: var(--primary-2); }
+        .faq-question.open .faq-icon { transform: rotate(45deg); }
+        .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.3s ease; background: rgba(91,94,244,0.06); border: 1px solid rgba(91,94,244,0.25); border-top: none; border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; }
+        .faq-answer.open { max-height: 300px; padding: 20px 24px; }
+        .faq-answer p { color: var(--text-muted); font-size: 0.93rem; line-height: 1.7; }
+
+        /* CTA */
+        .cta-box { max-width: 1200px; margin: 0 auto; padding: 80px 60px; border-radius: 40px; background: linear-gradient(135deg, rgba(91,94,244,0.25), rgba(6,182,212,0.15)); border: 1px solid rgba(91,94,244,0.4); backdrop-filter: blur(24px); text-align: center; position: relative; overflow: hidden; }
+        .cta-box::before { content: ''; position: absolute; top: -80px; left: 50%; transform: translateX(-50%); width: 400px; height: 300px; background: radial-gradient(ellipse, rgba(91,94,244,0.3), transparent); pointer-events: none; }
+        .cta-box h2 { font-family: 'Space Grotesk', sans-serif; font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 700; margin-bottom: 16px; position: relative; }
+        .cta-box p { color: var(--text-muted); font-size: 1.05rem; margin-bottom: 36px; max-width: 500px; margin-left: auto; margin-right: auto; position: relative; }
+        .cta-actions { display: flex; justify-content: center; align-items: center; gap: 16px; flex-wrap: wrap; position: relative; }
+
+        /* FOOTER */
+        footer { position: relative; z-index: 1; background: rgba(0,0,0,0.5); border-top: 1px solid var(--glass-border); backdrop-filter: blur(20px); padding: 72px 5% 36px; }
+        .footer-inner { max-width: 1200px; margin: 0 auto; }
+        .footer-top-row { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 60px; }
+        .footer-brand p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.7; margin: 18px 0 24px; }
+        .footer-socials { display: flex; gap: 12px; }
+        .social-btn { width: 40px; height: 40px; border-radius: 10px; background: var(--glass-bg); border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 1.1rem; text-decoration: none !important; transition: all 0.3s; }
+        .social-btn:hover { background: var(--glass-hover); color: var(--primary-2); border-color: var(--primary); }
+        .footer-col h5 { font-family: 'Space Grotesk', sans-serif; font-size: 0.95rem; font-weight: 700; color: var(--white); margin-bottom: 20px; }
+        .footer-col ul { list-style: none; }
+        .footer-col ul li { margin-bottom: 12px; }
+        .footer-col ul a { color: var(--text-muted); text-decoration: none !important; font-size: 0.9rem; transition: color 0.3s; }
+        .footer-col ul a:hover { color: var(--white); }
+        .footer-bottom-row { border-top: 1px solid var(--glass-border); padding-top: 28px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+        .footer-bottom-row p { color: var(--text-dim); font-size: 0.85rem; }
+        .footer-bottom-badges { display: flex; gap: 12px; flex-wrap: wrap; }
+        .badge-secure { display: flex; align-items: center; gap: 6px; background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-muted); font-size: 0.8rem; padding: 6px 14px; border-radius: 8px; }
+        .badge-secure i { color: #4ade80; }
+
+        /* MODAL */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(8,11,26,0.75); backdrop-filter: blur(12px); display: none; justify-content: center; align-items: center; z-index: 10000; opacity: 0; transition: opacity 0.3s ease; }
+        .modal-overlay.open { display: flex; opacity: 1; }
+        .modal-box { background: rgba(13,17,48,0.97); border: 1px solid var(--glass-border); backdrop-filter: blur(24px); border-radius: var(--radius-xl); padding: 44px; width: 100%; max-width: 460px; position: relative; box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 60px rgba(91,94,244,0.2); transform: scale(0.92) translateY(20px); transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1); }
+        .modal-overlay.open .modal-box { transform: scale(1) translateY(0); }
+        .modal-close { position: absolute; top: 20px; right: 20px; background: var(--glass-bg); border: 1px solid var(--glass-border); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; cursor: pointer; color: var(--text-muted); transition: all 0.2s; }
+        .modal-close:hover { background: var(--glass-hover); color: var(--white); }
+        .modal-logo { width: 54px; height: 54px; background: linear-gradient(135deg, var(--primary), var(--primary-2)); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.6rem; color: var(--white); margin: 0 auto 16px; box-shadow: 0 8px 24px rgba(91,94,244,0.4); }
+        .modal-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.5rem; font-weight: 700; text-align: center; margin-bottom: 6px; }
+        .modal-subtitle { color: var(--text-muted); text-align: center; font-size: 0.88rem; margin-bottom: 28px; }
+        .login-tabs { display: flex; background: rgba(255,255,255,0.04); border: 1px solid var(--glass-border); padding: 5px; border-radius: 14px; margin-bottom: 24px; }
+        .login-tab { flex: 1; border: none; background: transparent; padding: 10px; border-radius: 10px; font-weight: 600; font-size: 0.88rem; color: var(--text-muted); cursor: pointer; transition: all 0.3s; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .login-tab.active { background: rgba(91,94,244,0.2); color: var(--primary-2); box-shadow: 0 2px 10px rgba(91,94,244,0.2); }
+        .form-group { margin-bottom: 18px; }
+        .form-label { display: block; font-weight: 600; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; }
+        .form-input-wrap { position: relative; }
+        .form-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-dim); }
+        .form-input { width: 100%; padding: 14px 18px 14px 46px; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px; color: var(--text-main); font-size: 0.93rem; outline: none; transition: all 0.3s; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .form-input::placeholder { color: var(--text-dim); }
+        .form-input:focus { border-color: var(--primary); background: rgba(91,94,244,0.08); box-shadow: 0 0 0 4px rgba(91,94,244,0.15); }
+        .form-check-row { display: flex; align-items: center; gap: 8px; color: var(--text-muted); font-size: 0.84rem; margin-bottom: 22px; cursor: pointer; }
+        .btn-modal-submit { width: 100%; padding: 15px; background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: var(--white); font-weight: 700; font-size: 1rem; border: none; border-radius: 14px; cursor: pointer; transition: all 0.3s; box-shadow: 0 8px 24px rgba(91,94,244,0.35); font-family: 'Plus Jakarta Sans', sans-serif; }
+        .btn-modal-submit:hover { box-shadow: 0 12px 32px rgba(91,94,244,0.5); transform: translateY(-2px); }
+        .modal-register-hint { text-align: center; margin-top: 18px; font-size: 0.85rem; color: var(--text-muted); }
+        .modal-register-hint a { color: var(--primary-2); font-weight: 600; text-decoration: none !important; }
+
+        /* ANIMATIONS */
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+        .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .features-grid { grid-template-columns: repeat(2,1fr); }
+            .products-grid { grid-template-columns: repeat(2,1fr); }
+            .testi-grid { grid-template-columns: repeat(2,1fr); }
+            .steps-grid { grid-template-columns: repeat(2,1fr); }
+            .steps-grid::before { display: none; }
+            .footer-top-row { grid-template-columns: 1fr 1fr; }
+            .stats-grid { grid-template-columns: repeat(2,1fr); }
+        }
+        @media (max-width: 768px) {
+            .hero-inner { flex-direction: column; gap: 40px; }
+            .hero-visual { width: 100%; }
+            .nav-links { display: none; }
+            .vm-grid { grid-template-columns: 1fr; }
+            .features-grid { grid-template-columns: 1fr; }
+            .testi-grid { grid-template-columns: 1fr; }
+            .steps-grid { grid-template-columns: 1fr; }
+            .products-grid { grid-template-columns: 1fr; }
+            .footer-top-row { grid-template-columns: 1fr; gap: 32px; }
+            .cta-box { padding: 48px 28px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="bg-blobs">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+</div>
+<div class="bg-grid"></div>
+
+<!-- NAVBAR -->
+<nav id="navbar">
+    <a href="{{ url('/') }}" class="nav-logo">
+        <div class="nav-logo-icon">T</div>
+        <span class="nav-logo-text">TO<span>KOKU</span></span>
+    </a>
+    <ul class="nav-links">
+        <li><a href="#hero">Beranda</a></li>
+        <li><a href="#fitur">Kelebihan</a></li>
+        <li><a href="#visimisi">Visi &amp; Misi</a></li>
+        <li><a href="#produk">Produk</a></li>
+        <li><a href="#faq">FAQ</a></li>
+        @auth
+            @if(Auth::user()->role_id == 2)
+                <li><a href="{{ route('premium.katalog') }}">Belanja</a></li>
+            @else
+                <li><a href="{{ url('/dashboard') }}">Dashboard</a></li>
+            @endif
+        @endauth
+    </ul>
+    <div class="nav-actions">
+        @auth
+            @if(Auth::user()->role_id == 1)
+                <a href="{{ url('/dashboard') }}" class="btn-nav-signup"><i class="bi bi-speedometer2"></i> Dashboard</a>
+            @else
+                <a href="{{ route('premium.katalog') }}" class="btn-nav-signup"><i class="bi bi-cart3"></i> Belanja</a>
+            @endif
+        @else
+            <a href="#" class="btn-nav-login" onclick="openModal(); return false;">Masuk</a>
+            <a href="{{ url('/pendaftaran') }}" class="btn-nav-signup">Daftar Gratis</a>
+        @endauth
+    </div>
+</nav>
+
+<!-- HERO -->
+<header id="hero">
+    <div class="hero-inner">
+        <div class="hero-content">
+            <div class="hero-badge"><i class="bi bi-lightning-charge-fill"></i> Platform Premium Instan &amp; Terpercaya</div>
+            <h1 class="hero-title">Dapatkan Akun Premium<br><span class="grad-text">Instan &amp; Otomatis</span></h1>
+            <p class="hero-desc">Tokoku hadir sebagai solusi terpercaya bagi Anda yang ingin menikmati layanan digital premium — Spotify, Netflix, YouTube, dan lainnya — dengan harga terjangkau dan pengiriman seketika.</p>
+            <div class="hero-cta">
+                @auth
+                    @if(Auth::user()->role_id == 2)
+                        <a href="{{ route('premium.katalog') }}" class="btn-primary"><i class="bi bi-bag-fill"></i> Mulai Belanja</a>
+                        <a href="{{ route('premium.riwayat') }}" class="btn-secondary"><i class="bi bi-clock-history"></i> Riwayat</a>
                     @else
-                        <a href="{{ route('login') }}" class="font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Log in</a>
+                        <a href="{{ url('/dashboard') }}" class="btn-primary"><i class="bi bi-speedometer2"></i> Dashboard</a>
+                    @endif
+                @else
+                    <a href="#" class="btn-primary" onclick="openModal(); return false;"><i class="bi bi-bag-fill"></i> Beli Sekarang</a>
+                    <a href="{{ url('/pendaftaran') }}" class="btn-secondary"><i class="bi bi-person-plus"></i> Daftar Gratis</a>
+                @endauth
+            </div>
+            <div class="hero-trust">
+                <div class="trust-item"><i class="bi bi-check-circle-fill"></i> Pengiriman Instan</div>
+                <div class="trust-item"><i class="bi bi-check-circle-fill"></i> Pembayaran Aman</div>
+                <div class="trust-item"><i class="bi bi-check-circle-fill"></i> 24/7 Stok Tersedia</div>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="glass-card" style="padding:28px;border-radius:28px;">
+                <div class="card-header-row">
+                    <span style="font-weight:700;font-size:1rem;">Produk Terlaris</span>
+                    <span class="card-badge-live">Live</span>
+                </div>
+                <div class="product-row">
+                    <div class="product-icon" style="background:rgba(30,215,96,0.15);">&#127925;</div>
+                    <div class="product-info"><h6>Spotify Premium</h6><small>Musik tanpa iklan, kualitas tinggi</small></div>
+                    <div class="product-price">Rp 15rb</div>
+                </div>
+                <div class="product-row">
+                    <div class="product-icon" style="background:rgba(229,9,20,0.15);">&#127916;</div>
+                    <div class="product-info"><h6>Netflix Premium</h6><small>Streaming 4K tanpa batas</small></div>
+                    <div class="product-price">Rp 25rb</div>
+                </div>
+                <div class="product-row">
+                    <div class="product-icon" style="background:rgba(255,0,0,0.12);">&#9654;</div>
+                    <div class="product-info"><h6>YouTube Premium</h6><small>Tanpa iklan, video offline</small></div>
+                    <div class="product-price">Rp 12rb</div>
+                </div>
+            </div>
+            <div class="hero-cards-mini">
+                <div class="glass-card mini-card"><div class="num">2.5K+</div><div class="lbl">Pelanggan Aktif</div></div>
+                <div class="glass-card mini-card"><div class="num">99%</div><div class="lbl">Kepuasan</div></div>
+                <div class="glass-card mini-card"><div class="num">&lt;5s</div><div class="lbl">Waktu Kirim</div></div>
+            </div>
+        </div>
+    </div>
+</header>
 
-                        @if (Route::has('register'))
-                            <a href="{{ route('register') }}" class="ml-4 font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Register</a>
-                        @endif
+<!-- STATS -->
+<section id="stats">
+    <div class="stats-grid">
+        <div class="glass-card stat-card reveal">
+            <div class="stat-icon fi-1"><i class="bi bi-people-fill"></i></div>
+            <div class="stat-num">2.500+</div>
+            <div class="stat-label">Pelanggan Terdaftar</div>
+        </div>
+        <div class="glass-card stat-card reveal" style="transition-delay:.1s">
+            <div class="stat-icon fi-2"><i class="bi bi-bag-check-fill"></i></div>
+            <div class="stat-num">15.000+</div>
+            <div class="stat-label">Transaksi Berhasil</div>
+        </div>
+        <div class="glass-card stat-card reveal" style="transition-delay:.2s">
+            <div class="stat-icon fi-3"><i class="bi bi-star-fill"></i></div>
+            <div class="stat-num">4.9/5</div>
+            <div class="stat-label">Rating Kepuasan</div>
+        </div>
+        <div class="glass-card stat-card reveal" style="transition-delay:.3s">
+            <div class="stat-icon fi-4"><i class="bi bi-clock-fill"></i></div>
+            <div class="stat-num">99.8%</div>
+            <div class="stat-label">Uptime Sistem</div>
+        </div>
+    </div>
+</section>
+
+<!-- FITUR -->
+<section id="fitur" class="section-wrap">
+    <div class="container-custom">
+        <div class="section-header centered">
+            <div class="section-tag"><i class="bi bi-stars"></i> Kelebihan Kami</div>
+            <h2 class="section-title">Mengapa <span class="highlight">Tokoku</span>?</h2>
+            <p class="section-subtitle">Platform kami dirancang dengan teknologi terkini untuk memastikan pengalaman belanja yang cepat, aman, dan memuaskan.</p>
+        </div>
+        <div class="features-grid">
+            <div class="glass-card feature-card reveal">
+                <div class="feature-icon fi-1"><i class="bi bi-lightning-charge-fill"></i></div>
+                <h3>Pengiriman Instan</h3>
+                <p>Kredensial akun premium dikirim otomatis dalam hitungan detik setelah pembayaran berhasil dikonfirmasi oleh sistem.</p>
+            </div>
+            <div class="glass-card feature-card reveal" style="transition-delay:.1s">
+                <div class="feature-icon fi-2"><i class="bi bi-shield-lock-fill"></i></div>
+                <h3>Pembayaran Aman</h3>
+                <p>Integrasi Midtrans menyediakan belasan metode pembayaran yang terenkripsi dan terpercaya — tanpa transfer manual.</p>
+            </div>
+            <div class="glass-card feature-card reveal" style="transition-delay:.2s">
+                <div class="feature-icon fi-3"><i class="bi bi-clock-history"></i></div>
+                <h3>Reservasi Stok 15 Menit</h3>
+                <p>Sistem kami mengamankan stok akun pilihan Anda selama 15 menit saat checkout agar tidak diambil pembeli lain.</p>
+            </div>
+            <div class="glass-card feature-card reveal" style="transition-delay:.3s">
+                <div class="feature-icon fi-4"><i class="bi bi-headset"></i></div>
+                <h3>Dukungan Responsif</h3>
+                <p>Tim kami siap membantu Anda kapan saja melalui berbagai kanal yang tersedia untuk penyelesaian masalah.</p>
+            </div>
+            <div class="glass-card feature-card reveal" style="transition-delay:.4s">
+                <div class="feature-icon fi-5"><i class="bi bi-collection-fill"></i></div>
+                <h3>Pilihan Produk Lengkap</h3>
+                <p>Temukan berbagai layanan digital premium dalam satu platform — hiburan, produktivitas, hingga pendidikan digital.</p>
+            </div>
+            <div class="glass-card feature-card reveal" style="transition-delay:.5s">
+                <div class="feature-icon fi-6"><i class="bi bi-arrow-repeat"></i></div>
+                <h3>Riwayat Jelas &amp; Transparan</h3>
+                <p>Semua transaksi tersimpan rapi. Akses kembali kredensial Anda kapan saja melalui halaman riwayat belanja.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- VISI MISI -->
+<section id="visimisi" class="section-wrap alt">
+    <div class="container-custom">
+        <div class="section-header centered">
+            <div class="section-tag"><i class="bi bi-eye-fill"></i> Visi &amp; Misi</div>
+            <h2 class="section-title">Landasan <span class="highlight-cyan">Kami Bergerak</span></h2>
+            <p class="section-subtitle">Tokoku dibangun di atas fondasi kepercayaan, inovasi, dan komitmen untuk memberikan layanan terbaik bagi setiap pelanggan.</p>
+        </div>
+        <div class="vm-grid">
+            <div class="glass-card vm-card vm-visi reveal">
+                <div class="vm-icon">&#127919;</div>
+                <h3>Visi Kami</h3>
+                <p>Menjadi platform distribusi akun digital premium terdepan di Indonesia yang paling dipercaya, memberikan akses mudah ke layanan hiburan dan produktivitas berkualitas bagi seluruh lapisan masyarakat.</p>
+            </div>
+            <div class="glass-card vm-card vm-misi reveal" style="transition-delay:.15s">
+                <div class="vm-icon">&#128640;</div>
+                <h3>Misi Kami</h3>
+                <ul>
+                    <li><i class="bi bi-chevron-right"></i> Menyediakan produk digital premium dengan harga transparan dan terjangkau</li>
+                    <li><i class="bi bi-chevron-right"></i> Membangun sistem pengiriman otomatis yang cepat dan andal berbasis teknologi modern</li>
+                    <li><i class="bi bi-chevron-right"></i> Menjaga kepercayaan pelanggan dengan keamanan transaksi berlapis</li>
+                    <li><i class="bi bi-chevron-right"></i> Terus berinovasi menghadirkan produk dan fitur baru sesuai kebutuhan pengguna</li>
+                    <li><i class="bi bi-chevron-right"></i> Memberikan pengalaman belanja digital yang menyenangkan dan efisien</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CARA KERJA -->
+<section id="cara-kerja" class="section-wrap">
+    <div class="container-custom">
+        <div class="section-header centered">
+            <div class="section-tag"><i class="bi bi-diagram-3-fill"></i> Cara Kerja</div>
+            <h2 class="section-title">Belanja Semudah <span class="highlight">4 Langkah</span></h2>
+            <p class="section-subtitle">Proses yang cepat dan sederhana — dari daftar hingga mendapatkan akun premium hanya dalam hitungan menit.</p>
+        </div>
+        <div class="steps-grid">
+            <div class="glass-card step-card reveal">
+                <div class="step-num">1</div>
+                <h4>Daftar Akun</h4>
+                <p>Buat akun Tokoku gratis hanya dengan email dan kata sandi. Proses verifikasi instan, langsung bisa digunakan.</p>
+            </div>
+            <div class="glass-card step-card reveal" style="transition-delay:.12s">
+                <div class="step-num">2</div>
+                <h4>Pilih Produk</h4>
+                <p>Jelajahi katalog lengkap kami dan pilih akun premium yang sesuai dengan kebutuhan dan anggaran Anda.</p>
+            </div>
+            <div class="glass-card step-card reveal" style="transition-delay:.24s">
+                <div class="step-num">3</div>
+                <h4>Bayar Aman</h4>
+                <p>Lakukan pembayaran melalui berbagai metode tersedia — transfer bank, e-wallet, QRIS, dan lainnya via Midtrans.</p>
+            </div>
+            <div class="glass-card step-card reveal" style="transition-delay:.36s">
+                <div class="step-num">4</div>
+                <h4>Terima Instan</h4>
+                <p>Kredensial akun premium langsung muncul di halaman riwayat belanja Anda. Siap digunakan seketika!</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- PRODUK -->
+<section id="produk" class="section-wrap alt">
+    <div class="container-custom">
+        <div class="section-header centered">
+            <div class="section-tag"><i class="bi bi-grid-fill"></i> Katalog</div>
+            <h2 class="section-title">Produk <span class="highlight">Unggulan</span> Kami</h2>
+            <p class="section-subtitle">Pilihan lengkap layanan digital premium terpopuler dengan harga kompetitif dan ketersediaan stok terjaga.</p>
+        </div>
+        <div class="products-grid">
+            <div class="glass-card product-card reveal">
+                <span class="product-card-icon">&#127925;</span>
+                <h3>Spotify Premium</h3>
+                <p>Nikmati jutaan lagu tanpa iklan, kualitas audio tinggi, dan unduhan untuk mendengarkan secara offline.</p>
+                <div class="product-card-footer">
+                    <div class="product-card-price"><small>Mulai dari</small><strong>Rp 15.000</strong></div>
+                    @auth
+                        <a href="{{ route('premium.katalog') }}" class="btn-see">Lihat <i class="bi bi-arrow-right"></i></a>
+                    @else
+                        <a href="#" onclick="openModal(); return false;" class="btn-see">Beli <i class="bi bi-arrow-right"></i></a>
                     @endauth
                 </div>
-            @endif
-
-            <div class="max-w-7xl mx-auto p-6 lg:p-8">
-                <div class="flex justify-center">
-                    <svg viewBox="0 0 62 65" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-16 w-auto bg-gray-100 dark:bg-gray-900">
-                        <path d="M61.8548 14.6253C61.8778 14.7102 61.8895 14.7978 61.8897 14.8858V28.5615C61.8898 28.737 61.8434 28.9095 61.7554 29.0614C61.6675 29.2132 61.5409 29.3392 61.3887 29.4265L49.9104 36.0351V49.1337C49.9104 49.4902 49.7209 49.8192 49.4118 49.9987L25.4519 63.7916C25.3971 63.8227 25.3372 63.8427 25.2774 63.8639C25.255 63.8714 25.2338 63.8851 25.2101 63.8913C25.0426 63.9354 24.8666 63.9354 24.6991 63.8913C24.6716 63.8838 24.6467 63.8689 24.6205 63.8589C24.5657 63.8389 24.5084 63.8215 24.456 63.7916L0.501061 49.9987C0.348882 49.9113 0.222437 49.7853 0.134469 49.6334C0.0465019 49.4816 0.000120578 49.3092 0 49.1337L0 8.10652C0 8.01678 0.0124642 7.92953 0.0348998 7.84477C0.0423783 7.8161 0.0598282 7.78993 0.0697995 7.76126C0.0884958 7.70891 0.105946 7.65531 0.133367 7.6067C0.152063 7.5743 0.179485 7.54812 0.20192 7.51821C0.230588 7.47832 0.256763 7.43719 0.290416 7.40229C0.319084 7.37362 0.356476 7.35243 0.388883 7.32751C0.425029 7.29759 0.457436 7.26518 0.498568 7.2415L12.4779 0.345059C12.6296 0.257786 12.8015 0.211853 12.9765 0.211853C13.1515 0.211853 13.3234 0.257786 13.475 0.345059L25.4531 7.2415H25.4556C25.4955 7.26643 25.5292 7.29759 25.5653 7.32626C25.5977 7.35119 25.6339 7.37362 25.6625 7.40104C25.6974 7.43719 25.7224 7.47832 25.7523 7.51821C25.7735 7.54812 25.8021 7.5743 25.8196 7.6067C25.8483 7.65656 25.8645 7.70891 25.8844 7.76126C25.8944 7.78993 25.9118 7.8161 25.9193 7.84602C25.9423 7.93096 25.954 8.01853 25.9542 8.10652V33.7317L35.9355 27.9844V14.8846C35.9355 14.7973 35.948 14.7088 35.9704 14.6253C35.9792 14.5954 35.9954 14.5692 36.0053 14.5405C36.0253 14.4882 36.0427 14.4346 36.0702 14.386C36.0888 14.3536 36.1163 14.3274 36.1375 14.2975C36.1674 14.2576 36.1923 14.2165 36.2272 14.1816C36.2559 14.1529 36.292 14.1317 36.3244 14.1068C36.3618 14.0769 36.3942 14.0445 36.4341 14.0208L48.4147 7.12434C48.5663 7.03694 48.7383 6.99094 48.9133 6.99094C49.0883 6.99094 49.2602 7.03694 49.4118 7.12434L61.3899 14.0208C61.4323 14.0457 61.4647 14.0769 61.5021 14.1055C61.5333 14.1305 61.5694 14.1529 61.5981 14.1803C61.633 14.2165 61.6579 14.2576 61.6878 14.2975C61.7103 14.3274 61.7377 14.3536 61.7551 14.386C61.7838 14.4346 61.8 14.4882 61.8199 14.5405C61.8312 14.5692 61.8474 14.5954 61.8548 14.6253ZM59.893 27.9844V16.6121L55.7013 19.0252L49.9104 22.3593V33.7317L59.8942 27.9844H59.893ZM47.9149 48.5566V37.1768L42.2187 40.4299L25.953 49.7133V61.2003L47.9149 48.5566ZM1.99677 9.83281V48.5566L23.9562 61.199V49.7145L12.4841 43.2219L12.4804 43.2194L12.4754 43.2169C12.4368 43.1945 12.4044 43.1621 12.3682 43.1347C12.3371 43.1097 12.3009 43.0898 12.2735 43.0624L12.271 43.0586C12.2386 43.0275 12.2162 42.9888 12.1887 42.9539C12.1638 42.9203 12.1339 42.8916 12.114 42.8567L12.1127 42.853C12.0903 42.8156 12.0766 42.7707 12.0604 42.7283C12.0442 42.6909 12.023 42.656 12.013 42.6161C12.0005 42.5688 11.998 42.5177 11.9931 42.4691C11.9881 42.4317 11.9781 42.3943 11.9781 42.3569V15.5801L6.18848 12.2446L1.99677 9.83281ZM12.9777 2.36177L2.99764 8.10652L12.9752 13.8513L22.9541 8.10527L12.9752 2.36177H12.9777ZM18.1678 38.2138L23.9574 34.8809V9.83281L19.7657 12.2459L13.9749 15.5801V40.6281L18.1678 38.2138ZM48.9133 9.14105L38.9344 14.8858L48.9133 20.6305L58.8909 14.8846L48.9133 9.14105ZM47.9149 22.3593L42.124 19.0252L37.9323 16.6121V27.9844L43.7219 31.3174L47.9149 33.7317V22.3593ZM24.9533 47.987L39.59 39.631L46.9065 35.4555L36.9352 29.7145L25.4544 36.3242L14.9907 42.3482L24.9533 47.987Z" fill="#FF2D20"/>
-                    </svg>
+            </div>
+            <div class="glass-card product-card reveal" style="transition-delay:.1s">
+                <span class="product-card-icon">&#127916;</span>
+                <h3>Netflix Premium</h3>
+                <p>Streaming film dan serial TV favorit dalam kualitas 4K Ultra HD dengan konten original eksklusif Netflix.</p>
+                <div class="product-card-footer">
+                    <div class="product-card-price"><small>Mulai dari</small><strong>Rp 25.000</strong></div>
+                    @auth
+                        <a href="{{ route('premium.katalog') }}" class="btn-see">Lihat <i class="bi bi-arrow-right"></i></a>
+                    @else
+                        <a href="#" onclick="openModal(); return false;" class="btn-see">Beli <i class="bi bi-arrow-right"></i></a>
+                    @endauth
                 </div>
-
-                <div class="mt-16">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
-                        <a href="https://laravel.com/docs" class="scale-100 p-6 bg-white dark:bg-gray-800/50 dark:bg-gradient-to-bl from-gray-700/50 via-transparent dark:ring-1 dark:ring-inset dark:ring-white/5 rounded-lg shadow-2xl shadow-gray-500/20 dark:shadow-none flex motion-safe:hover:scale-[1.01] transition-all duration-250 focus:outline focus:outline-2 focus:outline-red-500">
-                            <div>
-                                <div class="h-16 w-16 bg-red-50 dark:bg-red-800/20 flex items-center justify-center rounded-full">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" class="w-7 h-7 stroke-red-500">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
-                                    </svg>
-                                </div>
-
-                                <h2 class="mt-6 text-xl font-semibold text-gray-900 dark:text-white">Documentation</h2>
-
-                                <p class="mt-4 text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
-                                    Laravel has wonderful documentation covering every aspect of the framework. Whether you are a newcomer or have prior experience with Laravel, we recommend reading our documentation from beginning to end.
-                                </p>
-                            </div>
-
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" class="self-center shrink-0 stroke-red-500 w-6 h-6 mx-6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" />
-                            </svg>
-                        </a>
-
-                        <a href="https://laracasts.com" class="scale-100 p-6 bg-white dark:bg-gray-800/50 dark:bg-gradient-to-bl from-gray-700/50 via-transparent dark:ring-1 dark:ring-inset dark:ring-white/5 rounded-lg shadow-2xl shadow-gray-500/20 dark:shadow-none flex motion-safe:hover:scale-[1.01] transition-all duration-250 focus:outline focus:outline-2 focus:outline-red-500">
-                            <div>
-                                <div class="h-16 w-16 bg-red-50 dark:bg-red-800/20 flex items-center justify-center rounded-full">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" class="w-7 h-7 stroke-red-500">
-                                        <path stroke-linecap="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" />
-                                    </svg>
-                                </div>
-
-                                <h2 class="mt-6 text-xl font-semibold text-gray-900 dark:text-white">Laracasts</h2>
-
-                                <p class="mt-4 text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
-                                    Laracasts offers thousands of video tutorials on Laravel, PHP, and JavaScript development. Check them out, see for yourself, and massively level up your development skills in the process.
-                                </p>
-                            </div>
-
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" class="self-center shrink-0 stroke-red-500 w-6 h-6 mx-6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" />
-                            </svg>
-                        </a>
-
-                        <a href="https://laravel-news.com" class="scale-100 p-6 bg-white dark:bg-gray-800/50 dark:bg-gradient-to-bl from-gray-700/50 via-transparent dark:ring-1 dark:ring-inset dark:ring-white/5 rounded-lg shadow-2xl shadow-gray-500/20 dark:shadow-none flex motion-safe:hover:scale-[1.01] transition-all duration-250 focus:outline focus:outline-2 focus:outline-red-500">
-                            <div>
-                                <div class="h-16 w-16 bg-red-50 dark:bg-red-800/20 flex items-center justify-center rounded-full">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" class="w-7 h-7 stroke-red-500">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z" />
-                                    </svg>
-                                </div>
-
-                                <h2 class="mt-6 text-xl font-semibold text-gray-900 dark:text-white">Laravel News</h2>
-
-                                <p class="mt-4 text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
-                                    Laravel News is a community driven portal and newsletter aggregating all of the latest and most important news in the Laravel ecosystem, including new package releases and tutorials.
-                                </p>
-                            </div>
-
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" class="self-center shrink-0 stroke-red-500 w-6 h-6 mx-6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" />
-                            </svg>
-                        </a>
-
-                        <div class="scale-100 p-6 bg-white dark:bg-gray-800/50 dark:bg-gradient-to-bl from-gray-700/50 via-transparent dark:ring-1 dark:ring-inset dark:ring-white/5 rounded-lg shadow-2xl shadow-gray-500/20 dark:shadow-none flex motion-safe:hover:scale-[1.01] transition-all duration-250 focus:outline focus:outline-2 focus:outline-red-500">
-                            <div>
-                                <div class="h-16 w-16 bg-red-50 dark:bg-red-800/20 flex items-center justify-center rounded-full">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" class="w-7 h-7 stroke-red-500">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.115 5.19l.319 1.913A6 6 0 008.11 10.36L9.75 12l-.387.775c-.217.433-.132.956.21 1.298l1.348 1.348c.21.21.329.497.329.795v1.089c0 .426.24.815.622 1.006l.153.076c.433.217.956.132 1.298-.21l.723-.723a8.7 8.7 0 002.288-4.042 1.087 1.087 0 00-.358-1.099l-1.33-1.108c-.251-.21-.582-.299-.905-.245l-1.17.195a1.125 1.125 0 01-.98-.314l-.295-.295a1.125 1.125 0 010-1.591l.13-.132a1.125 1.125 0 011.3-.21l.603.302a.809.809 0 001.086-1.086L14.25 7.5l1.256-.837a4.5 4.5 0 001.528-1.732l.146-.292M6.115 5.19A9 9 0 1017.18 4.64M6.115 5.19A8.965 8.965 0 0112 3c1.929 0 3.716.607 5.18 1.64" />
-                                    </svg>
-                                </div>
-
-                                <h2 class="mt-6 text-xl font-semibold text-gray-900 dark:text-white">Vibrant Ecosystem</h2>
-
-                                <p class="mt-4 text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
-                                    Laravel's robust library of first-party tools and libraries, such as <a href="https://forge.laravel.com" class="underline hover:text-gray-700 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Forge</a>, <a href="https://vapor.laravel.com" class="underline hover:text-gray-700 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Vapor</a>, <a href="https://nova.laravel.com" class="underline hover:text-gray-700 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Nova</a>, and <a href="https://envoyer.io" class="underline hover:text-gray-700 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Envoyer</a> help you take your projects to the next level. Pair them with powerful open source libraries like <a href="https://laravel.com/docs/billing" class="underline hover:text-gray-700 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Cashier</a>, <a href="https://laravel.com/docs/dusk" class="underline hover:text-gray-700 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Dusk</a>, <a href="https://laravel.com/docs/broadcasting" class="underline hover:text-gray-700 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Echo</a>, <a href="https://laravel.com/docs/horizon" class="underline hover:text-gray-700 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Horizon</a>, <a href="https://laravel.com/docs/sanctum" class="underline hover:text-gray-700 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Sanctum</a>, <a href="https://laravel.com/docs/telescope" class="underline hover:text-gray-700 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Telescope</a>, and more.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+            </div>
+            <div class="glass-card product-card reveal" style="transition-delay:.2s">
+                <span class="product-card-icon">&#9654;</span>
+                <h3>YouTube Premium</h3>
+                <p>YouTube bebas iklan, unduhan video, dan akses YouTube Music tanpa biaya tambahan.</p>
+                <div class="product-card-footer">
+                    <div class="product-card-price"><small>Mulai dari</small><strong>Rp 12.000</strong></div>
+                    @auth
+                        <a href="{{ route('premium.katalog') }}" class="btn-see">Lihat <i class="bi bi-arrow-right"></i></a>
+                    @else
+                        <a href="#" onclick="openModal(); return false;" class="btn-see">Beli <i class="bi bi-arrow-right"></i></a>
+                    @endauth
                 </div>
-
-                <div class="flex justify-center mt-16 px-0 sm:items-center sm:justify-between">
-                    <div class="text-center text-sm text-gray-500 dark:text-gray-400 sm:text-left">
-                        <div class="flex items-center gap-4">
-                            <a href="https://github.com/sponsors/taylorotwell" class="group inline-flex items-center hover:text-gray-700 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" class="-mt-px mr-1 w-5 h-5 stroke-gray-400 dark:stroke-gray-600 group-hover:stroke-gray-600 dark:group-hover:stroke-gray-400">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-                                </svg>
-                                Sponsor
-                            </a>
-                        </div>
-                    </div>
-
-                    <div class="ml-4 text-center text-sm text-gray-500 dark:text-gray-400 sm:text-right sm:ml-0">
-                        Laravel v{{ Illuminate\Foundation\Application::VERSION }} (PHP v{{ PHP_VERSION }})
-                    </div>
+            </div>
+            <div class="glass-card product-card reveal" style="transition-delay:.3s">
+                <span class="product-card-icon">&#127918;</span>
+                <h3>Layanan Gaming</h3>
+                <p>Akses layanan gaming premium dengan koleksi game terlengkap dan harga terjangkau.</p>
+                <div class="product-card-footer">
+                    <div class="product-card-price"><small>Mulai dari</small><strong>Rp 20.000</strong></div>
+                    @auth
+                        <a href="{{ route('premium.katalog') }}" class="btn-see">Lihat <i class="bi bi-arrow-right"></i></a>
+                    @else
+                        <a href="#" onclick="openModal(); return false;" class="btn-see">Beli <i class="bi bi-arrow-right"></i></a>
+                    @endauth
+                </div>
+            </div>
+            <div class="glass-card product-card reveal" style="transition-delay:.4s">
+                <span class="product-card-icon">&#128218;</span>
+                <h3>Platform Edukasi</h3>
+                <p>Tingkatkan skill dengan akses ke platform pembelajaran digital premium pilihan.</p>
+                <div class="product-card-footer">
+                    <div class="product-card-price"><small>Mulai dari</small><strong>Rp 18.000</strong></div>
+                    @auth
+                        <a href="{{ route('premium.katalog') }}" class="btn-see">Lihat <i class="bi bi-arrow-right"></i></a>
+                    @else
+                        <a href="#" onclick="openModal(); return false;" class="btn-see">Beli <i class="bi bi-arrow-right"></i></a>
+                    @endauth
+                </div>
+            </div>
+            <div class="glass-card product-card reveal" style="transition-delay:.5s">
+                <span class="product-card-icon">&#10024;</span>
+                <h3>Dan Masih Banyak Lagi</h3>
+                <p>Katalog kami terus berkembang. Temukan lebih banyak produk premium digital pilihan di halaman katalog.</p>
+                <div class="product-card-footer">
+                    <div class="product-card-price"><small>Lihat semua</small><strong>Katalog Penuh</strong></div>
+                    @auth
+                        <a href="{{ route('premium.katalog') }}" class="btn-see">Jelajahi <i class="bi bi-arrow-right"></i></a>
+                    @else
+                        <a href="{{ url('/pendaftaran') }}" class="btn-see">Daftar <i class="bi bi-arrow-right"></i></a>
+                    @endauth
                 </div>
             </div>
         </div>
-    </body>
+    </div>
+</section>
+
+<!-- TESTIMONI -->
+<section id="testimoni" class="section-wrap">
+    <div class="container-custom">
+        <div class="section-header centered">
+            <div class="section-tag"><i class="bi bi-chat-quote-fill"></i> Testimoni</div>
+            <h2 class="section-title">Kata Mereka yang <span class="highlight">Sudah Merasakan</span></h2>
+            <p class="section-subtitle">Ribuan pelanggan telah mempercayai Tokoku sebagai platform akun digital premium pilihan mereka.</p>
+        </div>
+        <div class="testi-grid">
+            <div class="glass-card testi-card reveal">
+                <div class="testi-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                <p class="testi-text">"Awalnya saya ragu, tapi ternyata luar biasa! Beli Spotify Premium dan dalam 5 detik sudah langsung bisa dipakai. Prosesnya gampang dan aman banget."</p>
+                <div class="testi-author">
+                    <div class="testi-avatar" style="background:rgba(91,94,244,0.2);color:#818CF8;">A</div>
+                    <div><div class="testi-name">Andi Firmansyah</div><div class="testi-role">Pelanggan Setia &middot; Jakarta</div></div>
+                </div>
+            </div>
+            <div class="glass-card testi-card reveal" style="transition-delay:.12s">
+                <div class="testi-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                <p class="testi-text">"Sudah 6 bulan berlangganan Netflix lewat Tokoku, tidak pernah ada masalah. Harga jauh lebih murah, pengirimannya otomatis. Sangat recommended!"</p>
+                <div class="testi-author">
+                    <div class="testi-avatar" style="background:rgba(6,182,212,0.2);color:#06b6d4;">S</div>
+                    <div><div class="testi-name">Sari Dewi Lestari</div><div class="testi-role">Pengguna Aktif &middot; Surabaya</div></div>
+                </div>
+            </div>
+            <div class="glass-card testi-card reveal" style="transition-delay:.24s">
+                <div class="testi-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                <p class="testi-text">"Tokoku adalah yang terbaik! Pernah ada masalah kecil dan tim CS langsung bantu selesaikan dalam waktu singkat. Pelayanannya profesional."</p>
+                <div class="testi-author">
+                    <div class="testi-avatar" style="background:rgba(244,114,182,0.2);color:#F472B6;">R</div>
+                    <div><div class="testi-name">Rizal Maulana</div><div class="testi-role">Member Premium &middot; Bandung</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" class="section-wrap alt">
+    <div class="container-custom">
+        <div class="section-header centered">
+            <div class="section-tag"><i class="bi bi-question-circle-fill"></i> FAQ</div>
+            <h2 class="section-title">Pertanyaan yang <span class="highlight">Sering Ditanyakan</span></h2>
+            <p class="section-subtitle">Temukan jawaban atas pertanyaan umum seputar layanan dan cara penggunaan Tokoku.</p>
+        </div>
+        <div class="faq-wrap">
+            <div class="faq-item reveal">
+                <button class="faq-question" onclick="toggleFaq(this)">Apakah akun premium yang dijual di Tokoku aman dan legal? <i class="bi bi-plus-lg faq-icon"></i></button>
+                <div class="faq-answer"><p>Ya, seluruh produk yang kami jual merupakan akun premium yang aman untuk digunakan. Kami berkomitmen untuk menjaga keamanan dan kenyamanan setiap pelanggan dengan sistem yang terverifikasi.</p></div>
+            </div>
+            <div class="faq-item reveal" style="transition-delay:.08s">
+                <button class="faq-question" onclick="toggleFaq(this)">Berapa lama waktu yang dibutuhkan untuk menerima akun setelah pembayaran? <i class="bi bi-plus-lg faq-icon"></i></button>
+                <div class="faq-answer"><p>Sistem kami memproses pengiriman secara otomatis. Setelah pembayaran Anda dikonfirmasi oleh Midtrans, kredensial akun akan langsung tersedia di halaman riwayat belanja dalam hitungan detik — umumnya kurang dari 5 detik.</p></div>
+            </div>
+            <div class="faq-item reveal" style="transition-delay:.16s">
+                <button class="faq-question" onclick="toggleFaq(this)">Metode pembayaran apa saja yang tersedia? <i class="bi bi-plus-lg faq-icon"></i></button>
+                <div class="faq-answer"><p>Kami menyediakan berbagai metode pembayaran melalui Midtrans, termasuk transfer bank (BCA, BNI, BRI, Mandiri), e-wallet (GoPay, OVO, Dana, ShopeePay), QRIS, virtual account, dan Alfamart/Indomaret. Semua transaksi diproses secara aman dan otomatis.</p></div>
+            </div>
+            <div class="faq-item reveal" style="transition-delay:.24s">
+                <button class="faq-question" onclick="toggleFaq(this)">Apa yang terjadi jika akun yang saya beli bermasalah? <i class="bi bi-plus-lg faq-icon"></i></button>
+                <div class="faq-answer"><p>Kepuasan pelanggan adalah prioritas kami. Jika Anda mengalami masalah dengan akun yang dibeli, segera hubungi tim dukungan kami dan kami akan menindaklanjuti dengan cepat sesuai kebijakan garansi yang berlaku.</p></div>
+            </div>
+            <div class="faq-item reveal" style="transition-delay:.32s">
+                <button class="faq-question" onclick="toggleFaq(this)">Apakah data pribadi dan pembayaran saya aman? <i class="bi bi-plus-lg faq-icon"></i></button>
+                <div class="faq-answer"><p>Keamanan data Anda adalah hal utama bagi kami. Seluruh data pribadi dienkripsi dan dilindungi. Proses pembayaran dikelola sepenuhnya oleh Midtrans yang telah tersertifikasi PCI-DSS, sehingga informasi kartu atau rekening Anda tidak pernah kami simpan.</p></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA BOTTOM -->
+<section id="cta" class="section-wrap">
+    <div class="container-custom">
+        <div class="cta-box reveal">
+            <h2>Siap Menikmati <span class="grad-text">Premium Digital</span>?</h2>
+            <p>Bergabunglah dengan ribuan pelanggan yang sudah mempercayai Tokoku. Daftar gratis sekarang dan dapatkan akun premium impian Anda.</p>
+            <div class="cta-actions">
+                @auth
+                    @if(Auth::user()->role_id == 2)
+                        <a href="{{ route('premium.katalog') }}" class="btn-primary"><i class="bi bi-bag-fill"></i> Mulai Belanja</a>
+                    @else
+                        <a href="{{ url('/dashboard') }}" class="btn-primary"><i class="bi bi-speedometer2"></i> Ke Dashboard</a>
+                    @endif
+                @else
+                    <a href="{{ url('/pendaftaran') }}" class="btn-primary"><i class="bi bi-person-plus-fill"></i> Daftar Gratis Sekarang</a>
+                    <a href="#" class="btn-secondary" onclick="openModal(); return false;"><i class="bi bi-box-arrow-in-right"></i> Sudah Punya Akun</a>
+                @endauth
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-inner">
+        <div class="footer-top-row">
+            <div class="footer-brand">
+                <a href="{{ url('/') }}" class="nav-logo" style="display:inline-flex;margin-bottom:4px;">
+                    <div class="nav-logo-icon">T</div>
+                    <span class="nav-logo-text">TO<span>KOKU</span></span>
+                </a>
+                <p>Platform distribusi akun digital premium terpercaya di Indonesia. Cepat, aman, dan terjangkau untuk semua lapisan pengguna.</p>
+                <div class="footer-socials">
+                    <a href="#" class="social-btn"><i class="bi bi-instagram"></i></a>
+                    <a href="#" class="social-btn"><i class="bi bi-twitter-x"></i></a>
+                    <a href="#" class="social-btn"><i class="bi bi-whatsapp"></i></a>
+                    <a href="#" class="social-btn"><i class="bi bi-telegram"></i></a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h5>Layanan</h5>
+                <ul>
+                    <li><a href="#produk">Spotify Premium</a></li>
+                    <li><a href="#produk">Netflix Premium</a></li>
+                    <li><a href="#produk">YouTube Premium</a></li>
+                    <li><a href="#produk">Layanan Gaming</a></li>
+                    <li><a href="#produk">Platform Edukasi</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h5>Perusahaan</h5>
+                <ul>
+                    <li><a href="#visimisi">Tentang Tokoku</a></li>
+                    <li><a href="#visimisi">Visi &amp; Misi</a></li>
+                    <li><a href="#cara-kerja">Cara Kerja</a></li>
+                    <li><a href="#testimoni">Testimoni</a></li>
+                    <li><a href="#faq">FAQ</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h5>Dukungan</h5>
+                <ul>
+                    <li><a href="#">Pusat Bantuan</a></li>
+                    <li><a href="#">Kebijakan Privasi</a></li>
+                    <li><a href="#">Syarat &amp; Ketentuan</a></li>
+                    <li><a href="#">Hubungi Kami</a></li>
+                    @guest
+                        <li><a href="{{ url('/pendaftaran') }}">Daftar Akun</a></li>
+                    @endguest
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom-row">
+            <p>&copy; {{ date('Y') }} Tokoku. Hak Cipta Dilindungi Undang-Undang.</p>
+            <div class="footer-bottom-badges">
+                <div class="badge-secure"><i class="bi bi-shield-check-fill"></i> Pembayaran Aman</div>
+                <div class="badge-secure"><i class="bi bi-lock-fill"></i> Data Terenkripsi</div>
+                <div class="badge-secure"><i class="bi bi-patch-check-fill"></i> Terverifikasi</div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- LOGIN MODAL -->
+<div class="modal-overlay" id="login-modal" onclick="closeModalOverlay(event)">
+    <div class="modal-box">
+        <button class="modal-close" onclick="closeModal()"><i class="bi bi-x-lg"></i></button>
+        <div style="text-align:center;margin-bottom:24px;">
+            <div class="modal-logo">T</div>
+            <div class="modal-title">Masuk ke Tokoku</div>
+            <div class="modal-subtitle">Masuk untuk mulai menikmati akun premium</div>
+        </div>
+        <div class="login-tabs">
+            <button class="login-tab active" onclick="switchModalTab(this,'customer')">&#128722; Pelanggan</button>
+            <button class="login-tab" onclick="switchModalTab(this,'admin')">&#128737; Admin</button>
+        </div>
+        <form action="{{ url('/proses_login') }}" method="POST">
+            @csrf
+            <div class="form-group">
+                <label class="form-label" id="modal-username-label">Email Pelanggan</label>
+                <div class="form-input-wrap">
+                    <i class="bi bi-envelope-fill form-icon"></i>
+                    <input class="form-input" type="email" id="modal-email" name="email" placeholder="Masukkan email Anda" required autocomplete="off">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Kata Sandi</label>
+                <div class="form-input-wrap">
+                    <i class="bi bi-lock-fill form-icon"></i>
+                    <input class="form-input" type="password" id="modal-password" name="password" placeholder="Masukkan kata sandi" required autocomplete="off">
+                </div>
+            </div>
+            <label class="form-check-row">
+                <input type="checkbox" id="modal-show-password" onclick="togglePassword()"> Tampilkan kata sandi
+            </label>
+            <button class="btn-modal-submit" type="submit"><i class="bi bi-box-arrow-in-right" style="margin-right:8px;"></i> Masuk Sekarang</button>
+        </form>
+        <div class="modal-register-hint">Belum punya akun? <a href="{{ url('/pendaftaran') }}">Daftar di sini &rarr;</a></div>
+    </div>
+</div>
+
+<script>
+    // NAVBAR SCROLL
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+        navbar.classList.toggle('scrolled', window.scrollY > 60);
+    });
+
+    // MODAL
+    const tabLabels = { customer: 'Email Pelanggan', admin: 'Email Admin' };
+    window.switchModalTab = function(btn, role) {
+        document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('modal-username-label').textContent = tabLabels[role];
+        document.getElementById('modal-email').placeholder = 'Masukkan ' + tabLabels[role].toLowerCase();
+    };
+    window.openModal = function() {
+        document.getElementById('login-modal').classList.add('open');
+        document.body.style.overflow = 'hidden';
+        setTimeout(() => document.getElementById('modal-email').focus(), 120);
+    };
+    window.closeModal = function() {
+        document.getElementById('login-modal').classList.remove('open');
+        document.body.style.overflow = '';
+    };
+    window.closeModalOverlay = function(e) {
+        if (e.target.id === 'login-modal') closeModal();
+    };
+    window.togglePassword = function() {
+        const f = document.getElementById('modal-password');
+        f.type = f.type === 'password' ? 'text' : 'password';
+    };
+
+    // FAQ
+    window.toggleFaq = function(btn) {
+        const answer = btn.nextElementSibling;
+        const isOpen = answer.classList.contains('open');
+        document.querySelectorAll('.faq-answer').forEach(a => a.classList.remove('open'));
+        document.querySelectorAll('.faq-question').forEach(q => q.classList.remove('open'));
+        if (!isOpen) {
+            answer.classList.add('open');
+            btn.classList.add('open');
+        }
+    };
+
+    // SCROLL REVEAL
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+            if (e.isIntersecting) {
+                e.target.classList.add('visible');
+                observer.unobserve(e.target);
+            }
+        });
+    }, { threshold: 0.12 });
+    reveals.forEach(r => observer.observe(r));
+
+    // SMOOTH SCROLL
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+        a.addEventListener('click', function(e) {
+            const href = this.getAttribute('href');
+            if (href === '#') return;
+            const target = document.querySelector(href);
+            if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+        });
+    });
+</script>
+</body>
 </html>

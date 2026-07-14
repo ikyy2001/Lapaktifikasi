@@ -18,10 +18,13 @@ class Pembayaran extends Model
         'jumlah_dibayar',
         'midtrans_transaction_id',
         'tanggal_bayar',
+        'wa_sent_at',
+        'wa_response',
     ];
 
     protected $casts = [
         'tanggal_bayar' => 'datetime',
+        'wa_sent_at' => 'datetime',
     ];
 
     public function pembelian()

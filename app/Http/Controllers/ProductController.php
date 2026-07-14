@@ -341,6 +341,10 @@ class ProductController extends Controller
             return redirect()->back()->with('error', 'Customer profile not found.');
         }
 
+        if (empty($customer->nomor_telepon) || empty($customer->user->name)) {
+            return redirect('profile_customer/' . $idCustomerUser)->with('error', 'Silakan lengkapi nama dan nomor telepon WhatsApp Anda di profil terlebih dahulu sebelum melakukan pembelian.');
+        }
+
         $id_customer = $customer->id;
 
         try {

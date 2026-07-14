@@ -9,6 +9,7 @@ use App\Http\Controllers\PengaturanController;
 use App\Http\Controllers\PembayaranController;
 use App\Http\Controllers\PremiumAdminController;
 use App\Http\Controllers\PremiumCustomerController;
+use App\Http\Controllers\LaporanController;
 use App\Http\Middleware\OnlyCustomer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
@@ -29,10 +30,14 @@ use Illuminate\Support\Str;
 |
 */
 
+Route::get('/', function () {
+    return view('welcome');
+});
+
 Route::middleware('auth')->group(function () {
 
     Route::controller(DashboardController::class)->group(function () {
-        Route::get('/', 'index')->middleware('prevent.customer');
+        Route::get('/dashboard', 'index')->name('dashboard')->middleware('prevent.customer');
     });
 
     Route::controller(CustomerController::class)->group(function () {
@@ -86,6 +91,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/premium/stok/detail/{id}', [PremiumAdminController::class, 'stok_decrypt'])->name('premium.stok.decrypt');
 
         Route::get('/premium/histori', [PremiumAdminController::class, 'histori_index'])->name('premium.histori.index');
+        Route::get('/premium/laporan-admin', [LaporanController::class, 'admin_index'])->name('admin.laporan');
+        Route::post('/premium/laporan-admin/{id}/status', [LaporanController::class, 'update_status'])->name('admin.laporan.status');
     });
 
     // Premium Customer Routes
@@ -93,6 +100,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/premium/katalog', [PremiumCustomerController::class, 'katalog'])->name('premium.katalog');
         Route::get('/premium/riwayat', [PremiumCustomerController::class, 'riwayat'])->name('premium.riwayat');
         Route::get('/premium/kredensial/{id_pembelian}', [PremiumCustomerController::class, 'kredensial'])->name('premium.kredensial');
+        Route::get('/premium/laporan', [LaporanController::class, 'index'])->name('customer.laporan');
+        Route::post('/premium/laporan', [LaporanController::class, 'store'])->name('customer.laporan.store');
     });
 
     Route::get('/logout', [AuthController::class, 'logout']);

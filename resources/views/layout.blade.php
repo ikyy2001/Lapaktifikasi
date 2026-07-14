@@ -67,19 +67,19 @@
                 <aside id="sidebar-wrapper">
 
                     <div class="sidebar-brand">
-                        <a href="{{url('/')}}">Tokoku</a>
+                        <a href="{{ Auth::user()->role_id == 1 ? url('/dashboard') : route('premium.katalog') }}">Tokoku</a>
                     </div>
 
                     <div class="sidebar-brand sidebar-brand-sm">
-                        <a href="{{url('/')}}">TK</a>
+                        <a href="{{ Auth::user()->role_id == 1 ? url('/dashboard') : route('premium.katalog') }}">TK</a>
                     </div>
 
                     <ul class="sidebar-menu">
                         <li class="menu-header">{{ (Auth::user()->role_id == 1 ? 'Dashboard' : 'Profile') }}</li>
 
-                        <li class="nav-item {{Request::path() == '/' || Request::path() == 'profile_customer/' . Session::get('id')
+                        <li class="nav-item {{Request::path() == 'dashboard' || Request::path() == 'profile_customer/' . Session::get('id')
                          ? 'active' : ''}}"><a
-                                href="{{ (Auth::user()->role_id == 1 ? url('/') : url('profile_customer/' . Session::get('id')))  }}"
+                                href="{{ (Auth::user()->role_id == 1 ? url('/dashboard') : url('profile_customer/' . Session::get('id')))  }}"
                                 class="nav-link">
                                 @if(Auth::user()->role_id == 1)
                                 <i class="bi bi-speedometer pl-3"></i><span>Dashboard</span></a>
@@ -121,6 +121,9 @@
                         <li class="nav-item @if(Request::segment(2) == 'histori') active @endif">
                             <a href="{{ route('premium.histori.index') }}" class="nav-link"><i class="bi bi-journal-text pl-3"></i> <span>Histori Penjualan</span></a>
                         </li>
+                        <li class="nav-item @if(Request::segment(2) == 'laporan-admin') active @endif">
+                            <a href="{{ route('admin.laporan') }}" class="nav-link"><i class="bi bi-exclamation-triangle-fill pl-3"></i> <span>Laporan Customer</span></a>
+                        </li>
                         @endif
 
                         @if(Auth::user()->role_id == 2)
@@ -138,6 +141,9 @@
                         </li>
                         <li class="nav-item @if(Request::path() == 'premium/riwayat') active @endif">
                             <a href="{{ route('premium.riwayat') }}" class="nav-link"><i class="bi bi-receipt pl-3"></i> <span>Riwayat Premium</span></a>
+                        </li>
+                        <li class="nav-item @if(Request::path() == 'premium/laporan') active @endif">
+                            <a href="{{ route('customer.laporan') }}" class="nav-link"><i class="bi bi-chat-left-text-fill pl-3"></i> <span>Laporan Masalah</span></a>
                         </li>
                         @endif
 
