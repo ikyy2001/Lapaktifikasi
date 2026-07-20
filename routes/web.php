@@ -10,6 +10,10 @@ use App\Http\Controllers\PembayaranController;
 use App\Http\Controllers\PremiumAdminController;
 use App\Http\Controllers\PremiumCustomerController;
 use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\KelolaSellerController;
+use App\Http\Controllers\SettingKomisiController;
+use App\Http\Controllers\SaldoTokoController;
+use App\Http\Controllers\SellerTokoController;
 use App\Http\Middleware\OnlyCustomer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
@@ -34,6 +38,15 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/daftar-jadi-seller', function () {
+    return view('daftar_seller');
+})->name('daftar.seller');
+
+Route::get('/join-partner', function () {
+    return view('join_partner');
+})->name('join.partner');
+
+
 Route::middleware('auth')->group(function () {
 
     Route::controller(DashboardController::class)->group(function () {
@@ -48,60 +61,103 @@ Route::middleware('auth')->group(function () {
     Route::controller(PengaturanController::class)->group(function () {
         Route::get('/ganti_password', 'index');
         Route::post('/proses_ganti_password', 'proses_ganti_password');
-        Route::get('/extract_screenshots', 'extract_screenshots')->middleware('prevent.customer');
-        Route::post('/proses_extract_screenshots', 'proses_extract_screenshots')->middleware('prevent.customer');
     });
 
     Route::controller(ProductController::class)->group(function () {
         Route::get('/produk_terjual', 'produk_terjual')->middleware('prevent.customer');
-        Route::get('/beli/{id}', 'beli')->name('beli')->middleware('only.customer');
-        Route::post('/proses_checkout', 'proses_checkout');
-        Route::post('/proses_checkout_premium', 'proses_checkout_premium');
+        Route::post('/proses_checkout_premium', 'proses_checkout_premium')->name('proses_checkout_premium');
         Route::get('/varian/{id_varian}/stok', 'get_stok_varian');
-        Route::get('/download_produk/{id_produk}', 'download_produk')->name('download_produk')->middleware('reset.headers');
+
+        // Customer shop list & scoped catalog (redirects to premium.katalog)
+        Route::get('/daftar_toko', 'daftar_toko')->name('daftar_toko');
+        Route::get('/toko/{id_toko}/produk', 'katalog_toko')->name('toko.produk');
     });
 
-    Route::resource('menu_produk', ProductController::class);
+    Route::resource('menu_produk', ProductController::class, ['only' => ['index']]);
 
     Route::controller(PembayaranController::class)->group(function () {
         Route::middleware([OnlyCustomer::class])->group(function () {
             Route::get('/download_bukti_pembayaran/{order_id}', 'download_bukti_pembayaran')->name('download_bukti_pembayaran');
             Route::get('/bukti_pembayaran', 'index');
             Route::get('/metode_pembayaran/{order_id}', 'metode_pembayaran')->name('metode_pembayaran');
+            Route::get('/bukti_pembayaran/status/{order_id}', 'status')->name('bukti_pembayaran.status');
+            Route::get('/api/status/{order_id}', 'statusApi')->name('bukti_pembayaran.status_api');
         });
     });
 
-    // Premium Admin Routes
+    // ──────────────────────────────────────────────────────────
+    // Premium Layanan Routes  →  Admin & Seller (prevent.customer)
+    // Seller melihat & mengelola data yang di-scope ke tokonya sendiri
+    // via PremiumAdminController (scoping ada di dalam controller)
+    // ──────────────────────────────────────────────────────────
     Route::middleware('prevent.customer')->group(function () {
-        Route::get('/premium/produk', [PremiumAdminController::class, 'produk_index'])->name('premium.produk.index');
-        Route::post('/premium/produk', [PremiumAdminController::class, 'produk_store'])->name('premium.produk.store');
-        Route::put('/premium/produk/{id}', [PremiumAdminController::class, 'produk_update'])->name('premium.produk.update');
-
         Route::get('/premium/tipe', [PremiumAdminController::class, 'tipe_index'])->name('premium.tipe.index');
         Route::post('/premium/tipe', [PremiumAdminController::class, 'tipe_store'])->name('premium.tipe.store');
         Route::put('/premium/tipe/{id}', [PremiumAdminController::class, 'tipe_update'])->name('premium.tipe.update');
+        Route::delete('/premium/tipe/{id}', [PremiumAdminController::class, 'tipe_destroy'])->name('premium.tipe.destroy');
 
         Route::get('/premium/varian', [PremiumAdminController::class, 'varian_index'])->name('premium.varian.index');
         Route::post('/premium/varian', [PremiumAdminController::class, 'varian_store'])->name('premium.varian.store');
         Route::put('/premium/varian/{id}', [PremiumAdminController::class, 'varian_update'])->name('premium.varian.update');
+        Route::delete('/premium/varian/{id}', [PremiumAdminController::class, 'varian_destroy'])->name('premium.varian.destroy');
 
         Route::get('/premium/stok', [PremiumAdminController::class, 'stok_index'])->name('premium.stok.index');
         Route::post('/premium/stok', [PremiumAdminController::class, 'stok_store'])->name('premium.stok.store');
         Route::post('/premium/stok/bulk', [PremiumAdminController::class, 'stok_bulk_store'])->name('premium.stok.bulk_store');
         Route::get('/premium/stok/detail/{id}', [PremiumAdminController::class, 'stok_decrypt'])->name('premium.stok.decrypt');
+        Route::delete('/premium/stok/{id}', [PremiumAdminController::class, 'stok_destroy'])->name('premium.stok.destroy');
 
         Route::get('/premium/histori', [PremiumAdminController::class, 'histori_index'])->name('premium.histori.index');
+    });
+
+    // ──────────────────────────────────────────────────────────
+    // Admin-Exclusive Routes  →  Admin ONLY (admin.only)
+    // Seller TIDAK bisa akses halaman ini
+    // ──────────────────────────────────────────────────────────
+    Route::middleware('admin.only')->group(function () {
         Route::get('/premium/laporan-admin', [LaporanController::class, 'admin_index'])->name('admin.laporan');
         Route::post('/premium/laporan-admin/{id}/status', [LaporanController::class, 'update_status'])->name('admin.laporan.status');
+
+        // Kelola Seller
+        Route::get('/kelola_seller', [KelolaSellerController::class, 'index'])->name('admin.kelola_seller');
+        Route::post('/kelola_seller/store', [KelolaSellerController::class, 'store'])->name('admin.kelola_seller.store');
+        Route::post('/kelola_seller/update/{id_toko}', [KelolaSellerController::class, 'update'])->name('admin.kelola_seller.update');
+        Route::post('/kelola_seller/toggle_status/{id_toko}', [KelolaSellerController::class, 'toggleStatus'])->name('admin.kelola_seller.toggle_status');
+
+        // Setting Komisi
+        Route::get('/setting_komisi', [SettingKomisiController::class, 'index'])->name('admin.setting_komisi');
+        Route::post('/setting_komisi/update', [SettingKomisiController::class, 'update'])->name('admin.setting_komisi.update');
+
+        // Kelola Saldo Toko
+        Route::get('/saldo_toko', [SaldoTokoController::class, 'index'])->name('admin.saldo_toko');
+        Route::get('/saldo_toko/detail/{id_toko}', [SaldoTokoController::class, 'detail'])->name('admin.saldo_toko.detail');
+        Route::post('/saldo_toko/withdraw/{id_toko}', [SaldoTokoController::class, 'withdraw'])->name('admin.saldo_toko.withdraw');
+        Route::post('/premium/pembayaran/{id_pembayaran}/retry-wa', [PremiumAdminController::class, 'retryWa'])->name('admin.pembayaran.retry_wa');
     });
 
     // Premium Customer Routes
     Route::middleware('only.customer')->group(function () {
         Route::get('/premium/katalog', [PremiumCustomerController::class, 'katalog'])->name('premium.katalog');
         Route::get('/premium/riwayat', [PremiumCustomerController::class, 'riwayat'])->name('premium.riwayat');
-        Route::get('/premium/kredensial/{id_pembelian}', [PremiumCustomerController::class, 'kredensial'])->name('premium.kredensial');
+        Route::get('/premium/kredensial/{order_id}', [PremiumCustomerController::class, 'kredensial'])->name('premium.kredensial');
+        Route::get('/premium/invoice/{order_id}/download', [PremiumCustomerController::class, 'downloadInvoice'])->name('premium.invoice.download');
+        Route::get('/premium/review/{order_id}', [PremiumCustomerController::class, 'reviewShow'])->name('premium.review.show');
+        Route::post('/premium/review/{order_id}', [PremiumCustomerController::class, 'reviewStore'])->name('premium.review.store');
         Route::get('/premium/laporan', [LaporanController::class, 'index'])->name('customer.laporan');
         Route::post('/premium/laporan', [LaporanController::class, 'store'])->name('customer.laporan.store');
+    });
+
+    // Seller Routes
+    Route::middleware('only.seller')->group(function () {
+        Route::get('/seller/dashboard', [DashboardController::class, 'seller_index'])->name('seller.dashboard');
+        Route::get('/seller/mutasi', [DashboardController::class, 'seller_mutasi']);
+
+        // Seller Toko Profil
+        Route::get('/seller/profil', [SellerTokoController::class, 'index']);
+        Route::post('/seller/profil/update', [SellerTokoController::class, 'update']);
+
+        // Seller Product CRUD (premium only)
+        Route::resource('menu_produk', ProductController::class, ['except' => ['index', 'show']]);
     });
 
     Route::get('/logout', [AuthController::class, 'logout']);
@@ -181,4 +237,3 @@ Route::middleware('guest')->group(function () {
     });
 });
 
-Route::resource('menu_produk', ProductController::class, ['except' => ['index', 'show']])->middleware('prevent.customer');

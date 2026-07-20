@@ -20,15 +20,24 @@ class Pembayaran extends Model
         'tanggal_bayar',
         'wa_sent_at',
         'wa_response',
+        'wa_retry_count',
+        'wa_last_retry_at',
+        'wa_last_retry_by',
     ];
 
     protected $casts = [
         'tanggal_bayar' => 'datetime',
         'wa_sent_at' => 'datetime',
+        'wa_last_retry_at' => 'datetime',
     ];
 
     public function pembelian()
     {
         return $this->belongsTo(Pembelian::class, 'id_pembelian', 'id_pembelian');
+    }
+
+    public function lastRetryBy()
+    {
+        return $this->belongsTo(User::class, 'wa_last_retry_by', 'id');
     }
 }

@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
         DB::table('tbl_roles')->insert([
             ['id' => 1, 'role' => 'admin'],
             ['id' => 2, 'role' => 'costumer'], // matching original spelling 'costumer'
+            ['id' => 3, 'role' => 'seller'],
         ]);
 
         // 2. Seed default Users (Admin and Customers from original SQL dump)

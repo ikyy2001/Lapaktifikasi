@@ -29,9 +29,14 @@ class Kernel extends ConsoleKernel
                     ]);
 
                     if ($id_pembelian) {
-                        \App\Models\Pembelian::where('id_pembelian', $id_pembelian)
+                        $pembelian = \App\Models\Pembelian::where('id_pembelian', $id_pembelian)
                             ->where('status', \App\Enums\PembelianStatus::PENDING)
-                            ->update(['status' => \App\Enums\PembelianStatus::EXPIRED]);
+                            ->first();
+                        if ($pembelian) {
+                            \App\Models\Pembelian::$sumberPerubahan = 'scheduler_expired';
+                            $pembelian->update(['status' => \App\Enums\PembelianStatus::EXPIRED]);
+                            \App\Models\Pembelian::$sumberPerubahan = null;
+                        }
                     }
                 });
             }

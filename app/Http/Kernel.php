@@ -36,6 +36,7 @@ class Kernel extends HttpKernel
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            \App\Http\Middleware\RedirectIfMustChangePassword::class,
         ],
 
         'api' => [
@@ -64,8 +65,10 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'check.id.customer' => \App\Http\Middleware\CheckIdCustomer::class,
-        'prevent.customer' => \App\Http\Middleware\PreventCustomer::class,
-        'reset.headers' => \App\Http\Middleware\ResetHeaders::class,
-        'only.customer' => \App\Http\Middleware\OnlyCustomer::class
+        'prevent.customer' => \App\Http\Middleware\PreventCustomer::class,   // Admin + Seller only (blocks Customer)
+        'admin.only'       => \App\Http\Middleware\AdminOnly::class,         // Admin only (blocks Seller & Customer)
+        'reset.headers'    => \App\Http\Middleware\ResetHeaders::class,
+        'only.customer'    => \App\Http\Middleware\OnlyCustomer::class,
+        'only.seller'      => \App\Http\Middleware\OnlySeller::class,
     ];
 }

@@ -104,8 +104,13 @@ class AuthController extends Controller
                 $userFromDatabase->email
             );
             $this->setSessionFlash('success', 'Selamat datang di Lapaktifikasi.');
-            return ($userFromDatabase->role_id == 1 ? redirect('/dashboard') :
-                redirect('profile_customer/' . $userFromDatabase->id));
+            if ($userFromDatabase->role_id == 1) {
+                return redirect('/dashboard');
+            } elseif ($userFromDatabase->role_id == 3) {
+                return redirect('/seller/dashboard');
+            } else {
+                return redirect('profile_customer/' . $userFromDatabase->id);
+            }
         } else {
             $this->setSessionFlash('error', 'Proses login gagal. Pastikan dengan memasukkan identitas dengan benar.');
             return redirect('/login')->withErrors($validator)
@@ -191,8 +196,13 @@ class AuthController extends Controller
                 $newUser->email
             );
             $this->setSessionFlash('success', 'Berhasil mendaftar. Selamat datang di Lapaktifikasi.');
-            return ($newUser->role_id == 1 ? redirect('/dashboard') :
-                redirect('profile_customer/' . $newUser->id));
+            if ($newUser->role_id == 1) {
+                return redirect('/dashboard');
+            } elseif ($newUser->role_id == 3) {
+                return redirect('/seller/dashboard');
+            } else {
+                return redirect('profile_customer/' . $newUser->id);
+            }
         } else {
 
             Auth::login($userFromDatabase);
@@ -204,8 +214,13 @@ class AuthController extends Controller
                 $userFromDatabase->email
             );
             $this->setSessionFlash('success', 'Selamat datang di Lapaktifikasi.');
-            return ($userFromDatabase->role_id == 1 ? redirect('/dashboard') :
-                redirect('profile_customer/' . $userFromDatabase->id));
+            if ($userFromDatabase->role_id == 1) {
+                return redirect('/dashboard');
+            } elseif ($userFromDatabase->role_id == 3) {
+                return redirect('/seller/dashboard');
+            } else {
+                return redirect('profile_customer/' . $userFromDatabase->id);
+            }
         }
     }
 

@@ -10,6 +10,9 @@ class ScreenshotsProdukModel extends Model
     use HasFactory;
 
     protected $table = 'tbl_screenshots_produk';
-    protected $guarded = [];
+    protected $fillable = [
+        'folder',
+        'produk_id',
+    ];
     public $timestamps = false;
 }

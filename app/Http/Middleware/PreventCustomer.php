@@ -11,12 +11,15 @@ class PreventCustomer
 {
     /**
      * Handle an incoming request.
+     * Allows Admin (role_id=1) and Seller (role_id=3).
+     * Blocks Customer (role_id=2) with 403.
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::user()->role_id != 1) {
+        $role = Auth::user()->role_id;
+        if ($role != 1 && $role != 3) {
             abort(403, 'Forbidden access.');
         }
         return $next($request);

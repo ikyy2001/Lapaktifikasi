@@ -29,14 +29,32 @@ class MidtransController extends Controller
         $total = $request->gross_amount;
         $order_id = $request->order_id;
 
+        \App\Models\MidtransWebhookLog::create([
+            'order_id' => $order_id,
+            'status_code' => $request->status_code,
+            'signature_key' => $request->signature_key,
+            'payload' => $request->all(),
+        ]);
+
         if ($hashed !== $request->signature_key) {
-            return;
+            Log::warning('Midtrans webhook invalid signature', ['order_id' => $order_id]);
+            return response()->json(['message' => 'Invalid signature'], 403);
+        }
+
+        try {
+            $midtransStatus = \Midtrans\Transaction::status($order_id);
+            $transaction_status = $midtransStatus->transaction_status;
+            $fraud_status = $midtransStatus->fraud_status ?? null;
+        } catch (\Exception $e) {
+            Log::error('Midtrans status check failed in webhook', ['order_id' => $order_id, 'error' => $e->getMessage()]);
+            $transaction_status = $request->transaction_status;
+            $fraud_status = $request->fraud_status;
         }
 
         $pembelian = Pembelian::where('order_id', $order_id)->first();
 
         if ($pembelian) {
-            return $this->handlePremiumCallback($request, $pembelian, $order_id);
+            return $this->handlePremiumCallback($request, $pembelian, $order_id, $transaction_status, $fraud_status);
         }
 
         if (BeliProdukModel::where('order_id', $order_id)->exists()) {
@@ -48,21 +66,26 @@ class MidtransController extends Controller
         ], 404);
     }
 
-    private function handlePremiumCallback(Request $request, Pembelian $pembelian, string $order_id)
+    private function handlePremiumCallback(Request $request, Pembelian $pembelian, string $order_id, $transaction_status = null, $fraud_status = null)
     {
         if ($pembelian->status === PembelianStatus::SUCCESS) {
             return response()->json(['message' => 'already processed']);
         }
 
-        $isPaymentSuccess = $request->transaction_status === 'settlement'
-            || ($request->transaction_status === 'capture' && $request->fraud_status === 'accept');
+        $transaction_status = $transaction_status ?? $request->transaction_status;
+        $fraud_status = $fraud_status ?? $request->fraud_status;
+
+        $isPaymentSuccess = $transaction_status === 'settlement'
+            || ($transaction_status === 'capture' && $fraud_status === 'accept');
 
         if ($isPaymentSuccess) {
             DB::transaction(function () use ($pembelian, $request, $order_id) {
+                Pembelian::$sumberPerubahan = 'webhook_midtrans';
                 $pembelian->update([
                     'status' => PembelianStatus::SUCCESS,
                     'reserved_until' => null,
                 ]);
+                Pembelian::$sumberPerubahan = null;
 
                 $pembayaranExists = Pembayaran::where('id_pembelian', $pembelian->id_pembelian)->exists();
                 if (! $pembayaranExists) {
@@ -145,7 +168,9 @@ class MidtransController extends Controller
                 : PembelianStatus::FAILED;
 
             DB::transaction(function () use ($pembelian, $statusPembelian) {
+                Pembelian::$sumberPerubahan = 'webhook_midtrans';
                 $pembelian->update(['status' => $statusPembelian]);
+                Pembelian::$sumberPerubahan = null;
 
                 if ($pembelian->id_stok) {
                     $stok = StokAkun::find($pembelian->id_stok);
@@ -185,7 +210,7 @@ class MidtransController extends Controller
 
                 Mail::to($user->email)->send(new MailProdukBeli(
                     $user->name,
-                    $produk->nama,
+                    $produk->nama_produk,
                     $produk->deskripsi,
                     $pembayaranProduk->total,
                     $order_id

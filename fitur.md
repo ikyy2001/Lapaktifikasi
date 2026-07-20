@@ -127,3 +127,173 @@ sequenceDiagram
     Database memiliki trigger `after_update_tbl_beli_produk` pada tabel `tbl_beli_produk`. Ketika status berubah dari `'pending'` ke `'success'`, trigger ini secara otomatis menginput data kuantitas barang ke tabel `tbl_produk_terjual` untuk analisis penjualan.
 7.  **Keamanan Unduhan (Download Security)**:
     Route `/download_produk/{id_produk}` dilindungi pengecekan kepemilikan. File ZIP produk hanya dapat diunduh jika `tbl_beli_produk` mencatat transaksi `'success'` atas nama pengguna tersebut untuk ID produk yang bersangkutan.
+
+---
+
+## 4. Alur dan Logika Pembelian Akun Premium (Premium Account Purchase Flow)
+
+Fitur pembelian akun premium memungkinkan Customer membeli akses langganan (seperti Netflix, Spotify) di mana kredensial akun dikirimkan secara otomatis dari stok yang diunggah oleh Seller/Admin.
+
+### A. Diagram Alur Transaksi Akun Premium
+```mermaid
+sequenceDiagram
+    actor Customer
+    participant System as Web Tokoku
+    participant DB as Database (MySQL)
+    participant Midtrans as Midtrans Gateway
+
+    Customer->>System: Kunjungi Katalog Premium Toko
+    System->>DB: Query Produk Premium & hitung stok tersedia per Varian
+    System-->>Customer: Tampilkan list Produk & Varian (Stok & Harga)
+
+    Customer->>System: Klik "Beli" pada Varian tertentu
+    System->>System: Validasi kelengkapan Profil (Nama & No. WA)
+    System->>DB: Mulai DB::transaction (lockForUpdate pada stok)
+    alt Stok TERSEDIA
+        System->>DB: Set status Stok ke RESERVED (15 Menit)
+        System->>DB: Insert ke tbl_pembelian (status = 'PENDING')
+        System->>DB: Link Stok ke ID Pembelian
+        System-->>Customer: Redirect ke Halaman Metode Pembayaran
+    else Stok Habis
+        System-->>Customer: Kembalikan error "Stok Habis"
+    end
+
+    Customer->>System: Selesaikan Pembayaran
+    System->>Midtrans: Request Snap Token & Bayar
+    alt Callback Sukses / Auto-sync Status
+        System->>DB: Update tbl_pembelian (status = 'SUCCESS')
+        System->>DB: Update tbl_stok_akun (status = 'TERJUAL')
+        System->>DB: Insert ke tbl_pembayaran
+        System->>System: Kirim Email Invoice Akun Premium ke Customer
+    end
+
+    Customer->>System: Buka Riwayat Premium & klik "Lihat Akun"
+    System->>DB: Validasi status Pembelian = SUCCESS & Kepemilikan
+    System->>System: Decrypt password secara On-Demand
+    System-->>Customer: Tampilkan Email, Password, & Catatan Akun via Modal
+```
+
+### B. Penjelasan Detail Logika & Controller Premium
+
+#### 1. Penelusuran & Tampilan Katalog
+- **Controller**: `PremiumCustomerController@katalog` ([PremiumCustomerController.php](file:///c:/Users/iki/Downloads/tokoku-main/tokoku-main/app/Http/Controllers/PremiumCustomerController.php))
+- **Logika**:
+  - Mengambil produk dengan filter `status = 'aktif'` dan `tipe_produk = 'premium'`. Mendukung filter pencarian nama produk serta filter `id_toko` untuk halaman toko seller.
+  - Untuk setiap varian layanan pada produk (`varianLayanan`), sistem secara dinamis menghitung jumlah stok yang siap dijual dengan kueri:
+    `StokAkun::where('id_varian', $varian->id_varian)->where('status', 'tersedia')->count()`
+  - Mengarahkan customer ke tampilan grid-card premium (`resources/views/premium_customer/katalog.blade.php`).
+
+#### 2. Proses Reservasi & Pembuatan Order (Checkout)
+- **Controller**: `ProductController@proses_checkout_premium` ([ProductController.php](file:///c:/Users/iki/Downloads/tokoku-main/tokoku-main/app/Http/Controllers/ProductController.php))
+- **Logika**:
+  - Memeriksa apakah nama profil dan nomor telepon WhatsApp Customer sudah terisi. Jika belum, diarahkan untuk melengkapinya terlebih dahulu demi kemudahan pengiriman invoice.
+  - Menjalankan **`DB::transaction`** dengan row lock untuk mengamankan data stok dan mencegah *race condition* (pembelian stok yang sama oleh 2 customer berbeda secara bersamaan):
+    ```php
+    $stok = StokAkun::where('id_varian', $id_varian)
+        ->where('status', StokStatus::TERSEDIA)
+        ->orderBy('created_at', 'asc') // First-In, First-Out (FIFO)
+        ->lockForUpdate()
+        ->first();
+    ```
+  - Jika stok tidak ditemukan, melempar exception `StokHabisException` dan membatalkan transaksi database.
+  - Jika tersedia, mengubah status stok menjadi `'reserved'` dengan menetapkan kedaluwarsa reservasi selama 15 menit (`reserved_expired_at = now()->addMinutes(15)`).
+  - Membuat record pembelian baru di tabel `tbl_pembelian` dengan status awal `'PENDING'` dan menyematkan `order_id` acak berbasis ULID agar aman dan unik.
+  - Menghubungkan ID pembelian dengan stok yang di-reserve (`stok->id_pembelian = pembelian->id_pembelian`).
+
+#### 3. Metode Pembayaran & Sinkronisasi Keberhasilan
+- **Controller**: `PembayaranController@metode_pembayaran` & `PembayaranController@syncTransactionStatus` ([PembayaranController.php](file:///c:/Users/iki/Downloads/tokoku-main/tokoku-main/app/Http/Controllers/PembayaranController.php))
+- **Logika**:
+  - Customer membayar via Midtrans Snap.
+  - Saat notifikasi Midtrans atau auto-sync dipicu (karena customer memuat halaman invoice/riwayat):
+    - Jika pembayaran lunas, sistem memperbarui status di tabel `tbl_pembelian` menjadi `SUCCESS`.
+    - Mengubah status stok di `tbl_stok_akun` menjadi `TERJUAL` dan mencatat `tanggal_terjual = now()`.
+    - Mencatat detail transaksi keuangan ke tabel `tbl_pembayaran`.
+    - Mengirimkan email konfirmasi invoice premium (`MailPremiumBeli`) ke alamat email customer.
+
+#### 4. Pengambilan Kredensial Akun (Decrypt On-Demand)
+- **Controller**: `PremiumCustomerController@kredensial` ([PremiumCustomerController.php](file:///c:/Users/iki/Downloads/tokoku-main/tokoku-main/app/Http/Controllers/PremiumCustomerController.php))
+- **Logika**:
+  - Mengamankan data sensitif: Kredensial (email & password) akun premium tidak pernah dirender langsung di HTML halaman riwayat untuk mencegah scraping.
+  - Ketika customer mengklik tombol **"Lihat Akun"**, Javascript memicu request AJAX ke `/premium/kredensial/{id_pembelian}`.
+  - Controller melakukan validasi ketat:
+    - Memastikan peminta data adalah customer pemilik transaksi pembelian tersebut.
+    - Memastikan status pembelian sudah bernilai `SUCCESS`.
+  - Apabila valid, sistem mengambil kredensial. Kolom `password_encrypted` di dekripsi secara otomatis di layer aplikasi menggunakan fitur *Encrypted Cast* bawaan Laravel pada model `StokAkun` sebelum dikembalikan dalam format JSON untuk ditampilkan pada modal.
+
+---
+
+## 5. Manajemen Akun Premium oleh Seller (Seller Premium Management)
+
+### A. Arsitektur Middleware & Hak Akses
+
+Sistem menggunakan dua middleware terpisah yang bekerja berlapis:
+
+| Middleware | Alias | Izin Akses | Digunakan untuk |
+|---|---|---|---|
+| `PreventCustomer` | `prevent.customer` | Admin (1) + Seller (3) | Premium Layanan (Tipe, Varian, Stok, Histori) |
+| `AdminOnly` | `admin.only` | Admin (1) saja | Kelola Seller, Setting Komisi, Saldo Toko, Laporan Admin |
+
+> **Root cause 403 sebelumnya**: `PreventCustomer` hanya mengizinkan `role_id == 1`. Setelah fix, middleware kini mengizinkan `role_id == 1 OR role_id == 3`.
+
+### B. Jaminan Isolasi Data (Scoping per Toko)
+
+Meskipun Seller dan Admin mengakses URL yang sama (`/premium/tipe`, `/premium/varian`, dst), data yang ditampilkan **sepenuhnya terisolasi per toko** berkat scoping di dalam `PremiumAdminController`:
+
+```
+tbl_produk (id_toko)
+    └── tbl_tipe_layanan (id_produk → id_toko)
+            └── tbl_varian_layanan (id_tipe)
+                    └── tbl_stok_akun (id_varian)
+```
+
+Setiap query pada controller menelusuri rantai relasi ini ke atas dan memfilter berdasarkan `id_toko` toko milik Seller yang login:
+
+```php
+// Contoh scoping di stok_index (PremiumAdminController):
+$toko = Toko::where('user_id', Auth::id())->firstOrFail();
+$stok = StokAkun::whereHas('varianLayanan.tipeLayanan.produk', function ($q) use ($toko) {
+    $q->where('id_toko', $toko->id_toko); // ← Scoped ke toko Seller ini saja
+})->get();
+```
+
+**Seller A tidak bisa melihat/mengedit stok milik Seller B** karena setiap write-operation (`store`, `update`, `destroy`) juga memvalidasi kepemilikan sebelum eksekusi.
+
+### C. Alur Kerja Seller Menambah Akun Premium
+
+```mermaid
+flowchart TD
+    A[Seller Login] --> B[Sidebar: Tipe Layanan]
+    B --> C{Sudah ada Produk Premium\ndi toko ini?}
+    C -- Belum --> D[Buat Produk Premium dulu\ndi Menu Produk]
+    D --> E[Tambah Tipe Layanan\ncontoh: Spotify Premium]
+    C -- Sudah --> E
+    E --> F[Tambah Varian Layanan\ncontoh: 1 Bulan, 3 Bulan]
+    F --> G{Cara input Stok?}
+    G -- Satu per satu --> H[Form Tambah Stok\nemail|password|catatan]
+    G -- Banyak sekaligus --> I[Bulk Input Stok\nFormat: email|pass|catatan\nsatu baris per akun]
+    H --> J[Stok tersimpan dengan\nstatus = tersedia]
+    I --> J
+    J --> K[Customer bisa melihat\nstok tersedia di Katalog Toko]
+```
+
+### D. Validasi Kepemilikan Saat Seller Menulis Data
+
+Controller `PremiumAdminController` memvalidasi **setiap operasi tulis** dengan pola berikut (contoh untuk `stok_store`):
+
+```php
+// Cek apakah Varian yang dipilih Seller benar-benar milik tokonya
+if (Auth::user()->role_id != 1) {
+    $toko = Toko::where('user_id', Auth::id())->firstOrFail();
+    $varian = VarianLayanan::where('id_varian', $request->id_varian)
+        ->whereHas('tipeLayanan.produk', function($q) use ($toko) {
+            $q->where('id_toko', $toko->id_toko); // ← Guard: hanya toko sendiri
+        })->first();
+
+    if (!$varian) abort(403, 'Unauthorized access.'); // Tolak jika bukan miliknya
+}
+```
+
+Validasi ini memastikan bahwa:
+- Seller **tidak bisa menginput stok** ke Varian milik toko lain, bahkan jika mereka mengetahui `id_varian`.
+- Seller **tidak bisa melihat/menghapus stok** akun yang bukan milik tokonya.
+

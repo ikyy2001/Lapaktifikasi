@@ -50,7 +50,9 @@ class PembayaranController extends Controller
                         ]);
                     }
 
+                    \App\Models\Pembelian::$sumberPerubahan = 'webhook_midtrans';
                     $pembelian->update(['status' => \App\Enums\PembelianStatus::SUCCESS]);
+                    \App\Models\Pembelian::$sumberPerubahan = null;
 
                     // Send Email to Customer
                     try {
@@ -77,8 +79,13 @@ class PembayaranController extends Controller
                             ]);
                         }
                     }
+
+                    // Dispatch WA Invoice Job
+                    \App\Jobs\SendAccountInvoiceWhatsapp::dispatch($pembelian->id_pembelian);
                 } elseif (in_array($status->transaction_status, ['deny', 'expire', 'cancel'])) {
+                    \App\Models\Pembelian::$sumberPerubahan = 'webhook_midtrans';
                     $pembelian->update(['status' => \App\Enums\PembelianStatus::FAILED]);
+                    \App\Models\Pembelian::$sumberPerubahan = null;
                 }
             } catch (\Exception $e) {
                 // Ignore status check failure
@@ -122,7 +129,7 @@ class PembayaranController extends Controller
                 try {
                     Mail::to($user->email)->send(new MailProdukBeli(
                         $user->name,
-                        $produk->nama,
+                        $produk->nama_produk,
                         $produk->deskripsi,
                         $status->gross_amount,
                         $order_id
@@ -165,7 +172,7 @@ class PembayaranController extends Controller
         }
 
         $produk = ProdukModel::withWhereHas('produk_beli', function ($query) use ($id) {
-            $query->where('user_id', $id);
+            $query->where('user_id', $id)->with('toko');
         })->get();
 
         return view('pembayaran.bukti_pembayaran', compact('produk'));
@@ -178,6 +185,7 @@ class PembayaranController extends Controller
         // Check if the order is for a Premium Account (Pembelian)
         $pembelian = \App\Models\Pembelian::where('order_id', $order_id)->first();
         if ($pembelian) {
+            $this->authorize('view', $pembelian);
             // Sync status with Midtrans first
             $this->syncTransactionStatus($order_id);
 
@@ -196,15 +204,15 @@ class PembayaranController extends Controller
 
             $items = array(
                 array(
-                    'id'       => $varian->id_varian,
-                    'price'    => $pembelian->harga_saat_beli,
+                    'id' => $varian->id_varian,
+                    'price' => $pembelian->harga_saat_beli,
                     'quantity' => 1,
-                    'name'     => $produk->nama_produk . ' - ' . $tipe->nama_tipe . ' (' . $varian->nama_varian . ')'
+                    'name' => $produk->nama_produk . ' - ' . $tipe->nama_tipe . ' (' . $varian->nama_varian . ')'
                 )
             );
 
             $params = array(
-                'item_details'  => $items,
+                'item_details' => $items,
                 'transaction_details' => array(
                     'order_id' => $pembelian->order_id,
                     'gross_amount' => $pembelian->harga_saat_beli,
@@ -212,6 +220,9 @@ class PembayaranController extends Controller
                 'customer_details' => array(
                     'first_name' => $user->name,
                     'phone' => $nomorTeleponCustomer->nomor_telepon ?? '',
+                ),
+                'callbacks' => array(
+                    'finish' => route('bukti_pembayaran.status', ['order_id' => $pembelian->order_id])
                 )
             );
 
@@ -255,15 +266,15 @@ class PembayaranController extends Controller
 
             $items = array(
                 array(
-                    'id'       => $produk->id,
-                    'price'    => $produk->harga,
+                    'id' => $produk->id_produk,
+                    'price' => $produk->harga,
                     'quantity' => $beli_produk->qty,
-                    'name'     => $produk->nama
+                    'name' => $produk->nama_produk
                 )
             );
 
             $params = array(
-                'item_details'  => $items,
+                'item_details' => $items,
                 'transaction_details' => array(
                     'order_id' => $beli_produk->order_id,
                     'gross_amount' => $produk->harga,
@@ -271,6 +282,9 @@ class PembayaranController extends Controller
                 'customer_details' => array(
                     'first_name' => $user->name,
                     'phone' => $nomorTeleponCustomer->nomor_telepon,
+                ),
+                'callbacks' => array(
+                    'finish' => route('bukti_pembayaran.status', ['order_id' => $beli_produk->order_id])
                 )
             );
 
@@ -301,6 +315,12 @@ class PembayaranController extends Controller
     {
         $id = session('id');
         $user = User::find($id);
+
+        $beliProduk = \App\Models\BeliProdukModel::where('order_id', $order_id)->first();
+        if ($beliProduk && $beliProduk->user_id != $id) {
+            abort(403, 'Unauthorized access.');
+        }
+
         $pembayaran = PembayaranModel::where('order_id', $order_id)->first();
         $produk = ProdukModel::withWhereHas('produk_beli', function ($query) use ($order_id) {
             $query->where('order_id', $order_id);
@@ -309,5 +329,77 @@ class PembayaranController extends Controller
         $invoice = 'invoice-' . $pembayaran->order_id . '.pdf';
         $pdf = Pdf::loadView('pembayaran.download_bukti_pembayaran', compact('user', 'produk', 'pembayaran'));
         return $pdf->download($invoice);
+    }
+
+    public function status(string $order_id)
+    {
+        // 1. Sync status dengan Midtrans terlebih dahulu via API backend (reload-safe/bookmarkable)
+        $this->syncTransactionStatus($order_id);
+
+        // 2. Query Pembelian (Premium Account)
+        $pembelian = \App\Models\Pembelian::with(['varianLayanan.tipeLayanan.produk', 'pembayaran'])
+            ->where('order_id', $order_id)
+            ->first();
+
+        if ($pembelian) {
+            $this->authorize('view', $pembelian);
+            return view('customer.status_pembayaran', [
+                'type' => 'premium',
+                'order' => $pembelian,
+                'status' => strtolower($pembelian->status->value ?? $pembelian->status),
+            ]);
+        }
+
+        // 3. Fallback ke Legacy BeliProdukModel (Zip Product)
+        $beli_produk = BeliProdukModel::with('produk')->where('order_id', $order_id)->first();
+        if ($beli_produk) {
+            if ($beli_produk->user_id != auth()->id()) {
+                abort(403, 'Unauthorized access.');
+            }
+            return view('customer.status_pembayaran', [
+                'type' => 'legacy',
+                'order' => $beli_produk,
+                'status' => strtolower($beli_produk->status),
+            ]);
+        }
+
+        abort(404, 'Transaksi tidak ditemukan.');
+    }
+
+    public function statusApi(string $order_id)
+    {
+        // 1. Sinkronisasi status dengan server Midtrans via API backend (polling-safe)
+        $this->syncTransactionStatus($order_id);
+
+        // 2. Query data Pembelian (Premium Account)
+        $pembelian = \App\Models\Pembelian::where('order_id', $order_id)->first();
+        if ($pembelian) {
+            try {
+                // Cek otorisasi kepemilikan transaksi dengan Policy yang ada
+                $this->authorize('view', $pembelian);
+            } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+                return response()->json(['error' => 'Unauthorized'], 403);
+            }
+
+            return response()->json([
+                'status' => strtolower($pembelian->status->value ?? $pembelian->status),
+                'updated_at' => $pembelian->updated_at ? $pembelian->updated_at->toIso8601String() : null,
+            ]);
+        }
+
+        // 3. Fallback ke Legacy BeliProdukModel (Zip Product)
+        $beli_produk = BeliProdukModel::where('order_id', $order_id)->first();
+        if ($beli_produk) {
+            if ($beli_produk->user_id != auth()->id()) {
+                return response()->json(['error' => 'Unauthorized'], 403);
+            }
+
+            return response()->json([
+                'status' => strtolower($beli_produk->status),
+                'updated_at' => $beli_produk->tanggal_transaksi ? date('c', strtotime($beli_produk->tanggal_transaksi)) : null,
+            ]);
+        }
+
+        return response()->json(['error' => 'Transaksi tidak ditemukan.'], 404);
     }
 }

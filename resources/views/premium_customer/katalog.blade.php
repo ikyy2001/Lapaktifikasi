@@ -275,7 +275,89 @@
     </style>
 
     <div class="shop-container">
-        <h4 class="shop-header-title">Katalog Akun Premium</h4>
+        <div class="d-flex align-items-center justify-content-between mb-4" style="flex-wrap:wrap; gap:12px;">
+            <h4 class="shop-header-title mb-0">
+                Katalog Akun Premium
+                @if($toko)
+                    &nbsp;<span style="font-weight:600; color:#555; font-size:1.3rem;">— {{ $toko->nama_toko }}</span>
+                @endif
+            </h4>
+            @if($toko)
+            <a href="{{ url('daftar_toko') }}" class="btn" style="background:#000; color:#fff; font-size:0.82rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; padding:8px 18px; border-radius:8px; display:inline-flex; align-items:center; gap:6px; text-decoration:none;">
+                <i class="bi bi-arrow-left"></i> Kembali ke Daftar Toko
+            </a>
+            @endif
+        </div>
+        
+        @if($toko)
+        <!-- Toko Profile Details and Rating Summary -->
+        <div class="card border border-dark mb-5" style="border-radius: 16px; overflow: hidden; background: #ffffff; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);">
+            <div class="card-body p-4">
+                <div class="row align-items-center">
+                    <div class="col-lg-2 text-center mb-3 mb-lg-0">
+                        @if($toko->logo_toko)
+                            <img src="{{ asset('assets/img/logo_toko/' . $toko->logo_toko) }}" alt="{{ $toko->nama_toko }}" style="max-height: 100px; max-width: 100%; object-fit: contain; border-radius: 12px; border: 1px solid #e5e5e5; padding: 5px;">
+                        @else
+                            <div class="rounded-circle bg-dark d-inline-flex align-items-center justify-content-center text-white" style="width: 90px; height: 90px; font-size: 2.5rem;">
+                                <i class="bi bi-shop"></i>
+                            </div>
+                        @endif
+                    </div>
+                    <div class="col-lg-6 mb-3 mb-lg-0">
+                        <h4 class="font-weight-bold text-dark mb-2">{{ $toko->nama_toko }}</h4>
+                        <p class="text-muted mb-3" style="font-size: 0.9rem; line-height: 1.5;">
+                            {{ $toko->informasi_toko ?? 'Belum ada deskripsi profil untuk toko ini.' }}
+                        </p>
+                        <div class="d-flex flex-wrap gap-3" style="gap: 15px; font-size: 0.85rem;">
+                            <span class="text-dark"><i class="bi bi-telephone-fill mr-1"></i> {{ $toko->no_telp }}</span>
+                            <span class="text-info"><i class="bi bi-telegram mr-1"></i> @&nbsp;{{ $toko->akun_telegram }}</span>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 border-left">
+                        <div class="pl-lg-3">
+                            <h6 class="font-weight-bold text-uppercase mb-2 text-muted" style="font-size: 0.75rem; letter-spacing: 0.5px;">Reputasi Toko</h6>
+                            <div class="d-flex align-items-center mb-2">
+                                @php
+                                    $rating = (float) $toko->rating_rata_rata;
+                                    $jumlahReview = (int) $toko->jumlah_review;
+                                    $fullStars = floor($rating);
+                                    $halfStar = ($rating - $fullStars) >= 0.5 ? 1 : 0;
+                                    $emptyStars = 5 - $fullStars - $halfStar;
+                                @endphp
+                                <h2 class="font-weight-bold text-dark mb-0 mr-3">{{ number_format($rating, 1) }}</h2>
+                                <div>
+                                    <div class="text-warning" style="font-size: 1.15rem;">
+                                        {!! str_repeat('<i class="bi bi-star-fill"></i>', $fullStars) !!}
+                                        {!! $halfStar ? '<i class="bi bi-star-half"></i>' : '' !!}
+                                        {!! str_repeat('<i class="bi bi-star"></i>', $emptyStars) !!}
+                                    </div>
+                                    <span class="text-muted" style="font-size: 0.82rem;">{{ $jumlahReview }} Ulasan Pembeli</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Rating Distribution Bars -->
+                            <div style="font-size: 0.8rem;">
+                                @for($star = 5; $star >= 1; $star--)
+                                    @php
+                                        $count = $ratingDistribution[$star] ?? 0;
+                                        $percent = $jumlahReview > 0 ? ($count / $jumlahReview) * 100 : 0;
+                                    @endphp
+                                    <div class="d-flex align-items-center mb-1">
+                                        <span class="mr-2" style="width: 12px; font-weight: bold;">{{ $star }}</span>
+                                        <i class="bi bi-star-fill text-warning mr-2" style="font-size: 0.7rem;"></i>
+                                        <div class="progress flex-grow-1" style="height: 6px; border-radius: 3px; background-color: #f0f0f0;">
+                                            <div class="progress-bar bg-dark" style="width: {{ $percent }}%; border-radius: 3px;"></div>
+                                        </div>
+                                        <span class="ml-2 text-muted" style="width: 25px; text-align: right;">{{ $count }}</span>
+                                    </div>
+                                @endfor
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
 
         @if(empty($customer->nomor_telepon) || empty(Auth::user()->name))
         <div class="mono-alert-warning" role="alert">
@@ -304,6 +386,14 @@
                 <div class="mono-shop-card">
                     <div class="mono-card-header">
                         <h4>{{ $item->nama_produk }}</h4>
+                        @if(!$toko && $item->toko)
+                        <div style="margin-top:6px;">
+                            <a href="{{ url('premium/katalog?id_toko=' . $item->toko->id_toko) }}"
+                               style="display:inline-flex; align-items:center; gap:5px; font-size:0.75rem; font-weight:700; color:#fff; background:#333; border-radius:20px; padding:3px 10px; text-decoration:none; letter-spacing:0.3px;">
+                                <i class="bi bi-shop"></i> {{ $item->toko->nama_toko }}
+                            </a>
+                        </div>
+                        @endif
                     </div>
                     <div class="mono-card-body">
                         <div class="product-image-wrapper">
@@ -352,6 +442,60 @@
             </div>
             @endforelse
         </div>
+
+        @if($toko && $reviews)
+        <!-- Ulasan Pembeli Section -->
+        <hr class="my-5" style="border-top: 2px solid #000000;">
+        
+        <div class="mb-5">
+            <h4 class="font-weight-bold text-uppercase mb-4" style="letter-spacing: -0.5px; border-left: 4px solid #000000; padding-left: 14px;">Ulasan Pembeli</h4>
+            
+            @forelse($reviews as $rev)
+                <div class="card border mb-3" style="border-radius: 12px; background: #ffffff; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start flex-wrap mb-2" style="gap: 8px;">
+                            <div>
+                                @php
+                                    $name = $rev->customer->user->name ?? 'Pelanggan';
+                                    $parts = explode(' ', trim($name));
+                                    $maskedName = $parts[0];
+                                    if (count($parts) > 1) {
+                                        $maskedName .= ' ' . substr($parts[1], 0, 1) . '.';
+                                    }
+                                @endphp
+                                <strong class="text-dark">{{ $maskedName }}</strong>
+                                <div class="text-warning mt-1" style="font-size: 0.9rem;">
+                                    {!! str_repeat('<i class="bi bi-star-fill"></i>', $rev->rating) !!}
+                                    {!! str_repeat('<i class="bi bi-star"></i>', 5 - $rev->rating) !!}
+                                </div>
+                            </div>
+                            <small class="text-muted">{{ $rev->created_at->format('d M Y H:i') }} WIB</small>
+                        </div>
+                        
+                        @if($rev->komentar)
+                            <p class="text-dark mb-0 mt-2" style="font-size: 0.92rem; line-height: 1.5;">
+                                {!! nl2br(e($rev->komentar)) !!}
+                            </p>
+                        @else
+                            <p class="text-muted mb-0 mt-2 font-italic" style="font-size: 0.92rem;">
+                                Pembeli tidak menuliskan komentar ulasan.
+                            </p>
+                        @endif
+                    </div>
+                </div>
+            @empty
+                <div class="text-center py-5 border rounded bg-white" style="border-radius: 12px;">
+                    <i class="bi bi-chat-left-dots text-muted" style="font-size: 3rem;"></i>
+                    <h5 class="text-muted mt-3">Belum ada ulasan untuk toko ini.</h5>
+                </div>
+            @endforelse
+            
+            <!-- Reviews Pagination -->
+            <div class="d-flex justify-content-center mt-4">
+                {{ $reviews->links() }}
+            </div>
+        </div>
+        @endif
     </div>
 
 @endsection

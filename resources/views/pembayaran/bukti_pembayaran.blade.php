@@ -233,6 +233,7 @@
                                 <tr>
                                     @if (Auth::user()->role_id == 2)
                                     <th class="text-center">No</th>
+                                    <th class="text-center">Toko</th>
                                     <th class="text-center">Produk</th>
                                     <th class="text-center">Invoice</th>
                                     <th class="text-center">Status</th>
@@ -250,7 +251,15 @@
                                         @foreach($data->produk_beli as $item)
                                         <tr class="text-center">
                                             <td>{{ $no++ }}</td>
-                                            <td>{{ $data->nama }}</td>
+                                            <td>
+                                                @if($item->toko)
+                                                    <strong>{{ $item->toko->nama_toko }}</strong><br/>
+                                                    <small class="text-muted"><i class="fas fa-phone mr-1"></i>{{ $item->toko->no_telp }}</small>
+                                                @else
+                                                    <span class="text-muted">-</span>
+                                                @endif
+                                            </td>
+                                            <td>{{ $data->nama_produk }}</td>
                                             <td><code>{{ $item->order_id }}</code></td>
                                             <td>
                                                 @if($item->status == 'pending')

@@ -11,7 +11,13 @@ class PembayaranModel extends Model
     use HasFactory;
 
     protected $table = 'tbl_pembayaran_zip';
-    protected $guarded = [];
+    protected $fillable = [
+        'order_id',
+        'metode_pembayaran',
+        'jumlah_pembayaran',
+        'status_pembayaran',
+        'url_bukti_pembayaran',
+    ];
 
     public $timestamps = false;
 

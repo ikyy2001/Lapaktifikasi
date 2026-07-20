@@ -30,7 +30,7 @@ class SendAccountInvoiceWhatsapp implements ShouldQueue
     {
         $pembelian = Pembelian::with([
             'customer',
-            'varianLayanan.tipeLayanan.produk',
+            'varianLayanan.tipeLayanan.produk.toko',
             'stokAkun',
         ])->find($this->idPembelian);
 
@@ -100,7 +100,9 @@ class SendAccountInvoiceWhatsapp implements ShouldQueue
         $varian = $pembelian->varianLayanan;
         $tipe = $varian?->tipeLayanan;
         $produk = $tipe?->produk;
+        $toko = $produk?->toko;
 
+        $namaToko = $toko?->nama_toko ?? '-';
         $namaProduk = $produk?->nama_produk ?? '-';
         $namaTipe = $tipe?->nama_tipe ?? '-';
         $namaVarian = $varian?->nama_varian ?? '-';
@@ -113,6 +115,7 @@ class SendAccountInvoiceWhatsapp implements ShouldQueue
             '✅ *INVOICE LAPAKTIFIKASI — LUNAS*',
             '',
             'Order ID: ' . $pembelian->order_id,
+            'Toko: ' . $namaToko,
             'Produk: ' . $namaProduk,
             'Tipe: ' . $namaTipe,
             'Varian: ' . $namaVarian,

@@ -245,6 +245,123 @@
         .reveal.visible { opacity: 1; transform: translateY(0); }
 
         /* RESPONSIVE */
+        /* NAV TOGGLE BUTTON (Hidden on Desktop) */
+        .nav-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            color: #000000;
+            cursor: pointer;
+            z-index: 1001;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            transition: background 0.3s;
+        }
+        .nav-toggle:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        /* MOBILE MENU DRAWER */
+        .mobile-menu-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(8px);
+            z-index: 9998;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+        .mobile-menu-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 80%;
+            max-width: 360px;
+            height: 100vh;
+            background: #ffffff;
+            z-index: 9999;
+            padding: 80px 40px 40px;
+            box-shadow: -10px 0 30px rgba(0, 0, 0, 0.05);
+            border-left: 1px solid #e5e5e5;
+            transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            gap: 36px;
+        }
+        .mobile-menu.open {
+            right: 0;
+        }
+        
+        .mobile-menu-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #ffffff;
+            border: 1px solid #e5e5e5;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+        .mobile-menu-close:hover {
+            background: #000000;
+            color: #ffffff !important;
+        }
+
+        .mobile-nav-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .mobile-nav-links a {
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 1.1rem;
+            text-decoration: none !important;
+            transition: color 0.3s;
+            display: block;
+        }
+        .mobile-nav-links a:hover {
+            color: #000000;
+        }
+
+        .mobile-nav-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            border-top: 1px solid #e5e5e5;
+            padding-top: 24px;
+        }
+        .mobile-nav-actions .btn-nav-signup {
+            text-align: center;
+            justify-content: center;
+            display: flex;
+            padding: 14px;
+        }
+        .mobile-nav-actions .btn-nav-login {
+            text-align: center;
+            font-size: 1.1rem;
+            padding: 10px;
+        }
+
+        /* RESPONSIVE */
         @media (max-width: 1024px) {
             .features-grid { grid-template-columns: repeat(2,1fr); }
             .products-grid { grid-template-columns: repeat(2,1fr); }
@@ -258,6 +375,8 @@
             .hero-inner { flex-direction: column; gap: 40px; }
             .hero-visual { width: 100%; }
             .nav-links { display: none; }
+            .nav-actions { display: none; }
+            .nav-toggle { display: flex; }
             .vm-grid { grid-template-columns: 1fr; }
             .features-grid { grid-template-columns: 1fr; }
             .testi-grid { grid-template-columns: 1fr; }
@@ -289,6 +408,7 @@
         <li><a href="#visimisi">Visi &amp; Misi</a></li>
         <li><a href="#produk">Produk</a></li>
         <li><a href="#faq">FAQ</a></li>
+        <li><a href="{{ route('daftar.seller') }}">Jadi Seller</a></li>
         @auth
             @if(Auth::user()->role_id == 2)
                 <li><a href="{{ route('premium.katalog') }}">Belanja</a></li>
@@ -305,11 +425,49 @@
                 <a href="{{ route('premium.katalog') }}" class="btn-nav-signup"><i class="bi bi-cart3"></i> Belanja</a>
             @endif
         @else
-            <a href="#" class="btn-nav-login" onclick="openModal(); return false;">Masuk</a>
+            <a href="{{ url('/login') }}" class="btn-nav-login">Masuk</a>
             <a href="{{ url('/pendaftaran') }}" class="btn-nav-signup">Daftar Gratis</a>
         @endauth
     </div>
+    <button class="nav-toggle" id="navToggle" onclick="toggleMobileMenu()" aria-label="Toggle Navigation">
+        <i class="bi bi-list"></i>
+    </button>
 </nav>
+
+<!-- MOBILE MENU DRAWER -->
+<div class="mobile-menu-overlay" id="mobileMenuOverlay" onclick="closeMobileMenu()"></div>
+<div class="mobile-menu" id="mobileMenu">
+    <button class="mobile-menu-close" onclick="closeMobileMenu()" aria-label="Close Navigation">
+        <i class="bi bi-x-lg"></i>
+    </button>
+    <ul class="mobile-nav-links">
+        <li><a href="#hero" onclick="closeMobileMenu()">Beranda</a></li>
+        <li><a href="#fitur" onclick="closeMobileMenu()">Kelebihan</a></li>
+        <li><a href="#visimisi" onclick="closeMobileMenu()">Visi &amp; Misi</a></li>
+        <li><a href="#produk" onclick="closeMobileMenu()">Produk</a></li>
+        <li><a href="#faq" onclick="closeMobileMenu()">FAQ</a></li>
+        <li><a href="{{ route('daftar.seller') }}" onclick="closeMobileMenu()">Jadi Seller</a></li>
+        @auth
+            @if(Auth::user()->role_id == 2)
+                <li><a href="{{ route('premium.katalog') }}" onclick="closeMobileMenu()">Belanja</a></li>
+            @else
+                <li><a href="{{ url('/dashboard') }}" onclick="closeMobileMenu()">Dashboard</a></li>
+            @endif
+        @endauth
+    </ul>
+    <div class="mobile-nav-actions">
+        @auth
+            @if(Auth::user()->role_id == 1)
+                <a href="{{ url('/dashboard') }}" class="btn-nav-signup" onclick="closeMobileMenu()"><i class="bi bi-speedometer2"></i> Dashboard</a>
+            @else
+                <a href="{{ route('premium.katalog') }}" class="btn-nav-signup" onclick="closeMobileMenu()"><i class="bi bi-cart3"></i> Belanja</a>
+            @endif
+        @else
+            <a href="{{ url('/login') }}" class="btn-nav-login" onclick="closeMobileMenu()">Masuk</a>
+            <a href="{{ url('/pendaftaran') }}" class="btn-nav-signup" onclick="closeMobileMenu()">Daftar Gratis</a>
+        @endauth
+    </div>
+</div>
 
 <!-- HERO -->
 <header id="hero">
@@ -627,8 +785,58 @@
     </div>
 </section>
 
+<!-- JOIN PARTNER PROMO -->
+<section id="join-partner-promo" class="section-wrap alt">
+    <div class="container-custom">
+        <div class="vm-grid">
+            <div class="hero-content reveal">
+                <div class="section-tag"><i class="bi bi-people-fill"></i> Program Kemitraan Komunitas</div>
+                <h2 class="section-title">Website Toko Komunitas <span class="highlight">100% Gratis</span></h2>
+                <p class="hero-desc" style="margin-bottom:28px;">
+                    Miliki platform e-commerce produk digital khusus untuk komunitas Anda secara gratis (contoh: <code>nusabogor.lapaktifikasi.my.id</code>). Ajak para seller digital di dalam komunitas Anda untuk bergabung berjualan, dan nikmati bagi hasil keuntungan dari komisi transaksi secara otomatis dan transparan.
+                </p>
+                <div class="hero-trust" style="margin-bottom:36px; display:flex; flex-direction:column; align-items:flex-start; gap:12px;">
+                    <div class="trust-item"><i class="bi bi-patch-check-fill"></i> Subdomain Khusus Komunitas (e.g., <code>nusabogor.lapaktifikasi.my.id</code>)</div>
+                    <div class="trust-item"><i class="bi bi-patch-check-fill"></i> Rekrut &amp; Hubungkan Seller Digital dari Komunitas Anda</div>
+                    <div class="trust-item"><i class="bi bi-patch-check-fill"></i> Sistem Bagi Hasil Komisi Transparan dengan Tim Lapaktifikasi</div>
+                </div>
+                <a href="{{ route('join.partner') }}" class="btn-primary"><i class="bi bi-arrow-right-circle-fill"></i> Pelajari Selengkapnya</a>
+            </div>
+            <div class="hero-visual reveal" style="transition-delay:.15s">
+                <div class="glass-card" style="padding:32px; border-radius:28px;">
+                    <div class="card-header-row">
+                        <span style="font-weight:700;font-size:1.1rem;font-family:'Space Grotesk',sans-serif;"><i class="bi bi-rocket-takeoff-fill"></i> Kemitraan Komunitas</span>
+                        <span class="card-badge-live" style="background:rgba(0,0,0,0.05); color:#000000; border-color:#000000;">Gratis</span>
+                    </div>
+                    <div class="product-row" style="background:#ffffff; border:1px solid #e5e5e5;">
+                        <div class="product-icon" style="background:rgba(0,0,0,0.05); border-color:#000000; color:#000000;"><i class="bi bi-globe"></i></div>
+                        <div class="product-info">
+                            <h6 style="font-family:'Space Grotesk',sans-serif; font-weight:700;">Subdomain Sendiri</h6>
+                            <small>nusabogor.lapaktifikasi.my.id</small>
+                        </div>
+                    </div>
+                    <div class="product-row" style="background:#ffffff; border:1px solid #e5e5e5;">
+                        <div class="product-icon" style="background:rgba(0,0,0,0.05); border-color:#000000; color:#000000;"><i class="bi bi-people"></i></div>
+                        <div class="product-info">
+                            <h6 style="font-family:'Space Grotesk',sans-serif; font-weight:700;">Rekrut Seller Internal</h6>
+                            <small>Kumpulkan seller dari komunitas Anda</small>
+                        </div>
+                    </div>
+                    <div class="product-row" style="background:#ffffff; border:1px solid #e5e5e5;">
+                        <div class="product-icon" style="background:rgba(0,0,0,0.05); border-color:#000000; color:#000000;"><i class="bi bi-cash-stack"></i></div>
+                        <div class="product-info">
+                            <h6 style="font-family:'Space Grotesk',sans-serif; font-weight:700;">Bagi Hasil Otomatis</h6>
+                            <small>Komisi transparan dari tiap transaksi</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- FAQ -->
-<section id="faq" class="section-wrap alt">
+<section id="faq" class="section-wrap">
     <div class="container-custom">
         <div class="section-header centered">
             <div class="section-tag"><i class="bi bi-question-circle-fill"></i> FAQ</div>
@@ -725,6 +933,8 @@
                     <li><a href="#">Pusat Bantuan</a></li>
                     <li><a href="#">Kebijakan Privasi</a></li>
                     <li><a href="#">Syarat &amp; Ketentuan</a></li>
+                    <li><a href="{{ route('daftar.seller') }}">Daftar Jadi Seller</a></li>
+                    <li><a href="{{ route('join.partner') }}">Join Partner</a></li>
                     <li><a href="#">Hubungi Kami</a></li>
                     @guest
                         <li><a href="{{ url('/pendaftaran') }}">Daftar Akun</a></li>
@@ -782,6 +992,25 @@
 </div>
 
 <script>
+    // MOBILE NAV
+    window.toggleMobileMenu = function() {
+        const menu = document.getElementById('mobileMenu');
+        const overlay = document.getElementById('mobileMenuOverlay');
+        const isOpen = menu.classList.contains('open');
+        if (isOpen) {
+            closeMobileMenu();
+        } else {
+            menu.classList.add('open');
+            overlay.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+    };
+    window.closeMobileMenu = function() {
+        document.getElementById('mobileMenu').classList.remove('open');
+        document.getElementById('mobileMenuOverlay').classList.remove('open');
+        document.body.style.overflow = '';
+    };
+
     // NAVBAR SCROLL
     const navbar = document.getElementById('navbar');
     window.addEventListener('scroll', () => {

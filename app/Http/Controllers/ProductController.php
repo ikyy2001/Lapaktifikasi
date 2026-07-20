@@ -8,15 +8,16 @@ use App\Models\ProdukModel;
 use App\Models\User;
 use App\Models\BeliProdukModel;
 use App\Models\ScreenshotsProdukModel;
+use App\Models\Toko;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use ZipArchive;
 
 class ProductController extends Controller
 {
-
     protected $messages = [
-        'nama.required' => 'Nama tidak boleh kosong.',
+        'nama_produk.required' => 'Nama tidak boleh kosong.',
         'deskripsi.required' => 'Deskripsi tidak boleh kosong.',
         'status.required' => 'Status tidak boleh kosong.',
         'harga.required' => 'Harga tidak boleh kosong.',
@@ -24,7 +25,10 @@ class ProductController extends Controller
         'harga.max_digits' => 'Nominal harga tidak boleh lebih dari 10 digit.',
         'file.required' => 'File zip harus di upload.',
         'file.extensions' => 'File yang Anda upload tidak valid.',
-        'file.mimetypes' => 'File yang Anda upload tidak valid.'
+        'file.mimetypes' => 'File yang Anda upload tidak valid.',
+        'gambar.image' => 'Cover image harus berupa gambar.',
+        'gambar.mimes' => 'Format cover image harus jpeg, png, jpg, atau webp.',
+        'gambar.max' => 'Ukuran cover image maksimal 2MB.',
     ];
 
     protected function setSessionFlash($detectMessage, $message)
@@ -37,32 +41,26 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $user_id = session('id');
+        $user_id = Auth::id();
         $role = User::find($user_id);
 
-        if ($role->role_id == 1) {
-            $semuaProduk = ProdukModel::all();
-        } else if ($role->role_id == 2) {
-            $produkCustomer = ProdukModel::select(
-                'tbl_produk_zip.id AS id_produk',
-                'tbl_produk_zip.nama AS nama_produk',
-                'tbl_produk_zip.deskripsi AS deskripsi_produk',
-                'tbl_produk_zip.harga AS harga_produk',
-                'tbl_produk_zip.status AS status_produk',
-                'tbl_produk_zip.created_at AS tanggal_buat',
-                'tbl_produk_zip.updated_at AS tanggal_ubah',
-                'tbl_beli_produk.status AS status_beli',
-                'tbl_beli_produk.order_id AS order_id'
-            )
-                ->leftJoin('tbl_beli_produk', function ($join) use ($user_id) {
-                    $join->on('tbl_produk_zip.id', '=', 'tbl_beli_produk.produk_id')
-                        ->where('tbl_beli_produk.user_id', '=', $user_id);
-                })
-                ->leftJoin('users', 'users.id', '=', 'tbl_beli_produk.user_id')
-                ->get();
+        if (!$role) {
+            return redirect('/login');
         }
 
-        return view('produk.index', ($role->role_id == 1 ? compact('semuaProduk') : compact('produkCustomer')));
+        if ($role->role_id == 1) {
+            // Admin sees all products (read-only)
+            $semuaProduk = ProdukModel::with('toko')->get();
+        } else if ($role->role_id == 3) {
+            // Seller sees only their own products
+            $toko = Toko::where('user_id', $user_id)->first();
+            $semuaProduk = $toko ? ProdukModel::where('id_toko', $toko->id_toko)->get() : collect();
+        } else if ($role->role_id == 2) {
+            // Customer: redirect to daftar toko
+            return redirect('/daftar_toko');
+        }
+
+        return view('produk.index', ($role->role_id == 1 || $role->role_id == 3 ? compact('semuaProduk') : []));
     }
 
     /**
@@ -70,6 +68,9 @@ class ProductController extends Controller
      */
     public function create()
     {
+        if (Auth::user()->role_id != 3) {
+            abort(403, 'Forbidden access. Only sellers can manage products.');
+        }
         return view('produk.create');
     }
 
@@ -78,85 +79,56 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        if (Auth::user()->role_id != 3) {
+            abort(403, 'Forbidden access. Only sellers can manage products.');
+        }
+
+        $toko = Toko::where('user_id', Auth::id())->first();
+        if (!$toko) {
+            abort(403, 'Toko Anda tidak ditemukan.');
+        }
 
         $rules = [
-            'nama' => 'required',
-            'deskripsi' => 'required',
-            'harga' => 'required|numeric|max_digits:10',
-            'status' => 'required',
-            'file' => 'required|mimetypes:application/zip|extensions:zip'
+            'nama_produk' => 'required|max:100',
+            'deskripsi'   => 'nullable',
+            'status'      => 'required|in:aktif,nonaktif',
+            'gambar'      => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ];
 
         $validator = Validator::make($request->all(), $rules, $this->messages);
-
         if ($validator->fails()) {
-            return redirect('/menu_produk' . '/' . 'create')
-                ->withErrors($validator)
-                ->withInput();
-        } else {
-
-            $dataRequests = [
-                $request->input('nama'),
-                $request->input('deskripsi'),
-                $request->input('harga'),
-                $request->input('status'),
-                $request->file('file')
-            ];
-
-            $file = $dataRequests[4];
-            $fileName = $file->getClientOriginalName();
-            $destinationPath = public_path('assets');
-
-            if (file_exists($destinationPath . '/' . $fileName)) {
-                $this->setSessionFlash('error', 'File zip yang Anda upload sudah ada.');
-                return redirect()->back()->withInput();
-            } else {
-                ProdukModel::create([
-                    'nama' => $dataRequests[0],
-                    'deskripsi' => $dataRequests[1],
-                    'harga' => $dataRequests[2],
-                    'status' => $dataRequests[3],
-                    'file' => $fileName
-                ]);
-
-                $file->move($destinationPath, $fileName);
-                $this->setSessionFlash('success', 'Data produk telah berhasil di tambahkan.');
-                return redirect('/menu_produk');
-            }
+            return redirect('/menu_produk/create')->withErrors($validator)->withInput();
         }
+
+        $gambarName = null;
+        if ($request->hasFile('gambar')) {
+            $file = $request->file('gambar');
+            $gambarName = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('assets/img/produk_premium'), $gambarName);
+        }
+
+        ProdukModel::create([
+            'nama_produk' => $request->input('nama_produk'),
+            'tipe_produk' => 'premium',
+            'deskripsi'   => $request->input('deskripsi'),
+            'gambar'      => $gambarName,
+            'file'        => null,
+            'harga'       => null,
+            'status'      => $request->input('status'),
+            'id_toko'     => $toko->id_toko,
+        ]);
+
+        $this->setSessionFlash('success', 'Produk berhasil ditambahkan.');
+        return redirect('/menu_produk');
     }
 
     /**
-     * Display the specified resource.
+     * show() — tidak digunakan lagi (semua produk premium, tidak ada screenshots ZIP).
+     * Route ini sudah dihapus dari resource route. Redirect saja jika diakses langsung.
      */
     public function show(string $id)
     {
-
-        $produkScreenshots = ScreenshotsProdukModel::where('produk_id', $id)->first();
-
-        if ($produkScreenshots) {
-            $directory = public_path('assets/' . $produkScreenshots->folder);
-            $ImagesArray = [];
-            $dir_contents = scandir($directory);
-            $file_display = ['jpg', 'jpeg', 'png'];
-
-            foreach ($dir_contents as $file) {
-                $file_type = pathinfo($file, PATHINFO_EXTENSION);
-                if (in_array($file_type, $file_display) == true) {
-                    $ImagesArray[] = $file;
-                }
-            }
-
-            $getFiles = $ImagesArray;
-            $folderExtract = $produkScreenshots->folder;
-
-            return view('produk.show', compact('getFiles', 'folderExtract'));
-        } else {
-            $msg = (Auth::user()->role_id == 1 ? 'Upload zip terlebih dahulu yang berisi file screenshots.'
-                : 'Admin belum melakukan upload screenshots.');
-            $this->setSessionFlash('error', $msg);
-            return redirect('/menu_produk');
-        }
+        return redirect('/menu_produk');
     }
 
     /**
@@ -164,7 +136,17 @@ class ProductController extends Controller
      */
     public function edit(string $id)
     {
-        $data = ProdukModel::find($id);
+        if (Auth::user()->role_id != 3) {
+            abort(403, 'Forbidden access. Only sellers can manage products.');
+        }
+
+        $toko = Toko::where('user_id', Auth::id())->first();
+        $data = ProdukModel::findOrFail($id);
+
+        if (!$toko || $data->id_toko != $toko->id_toko) {
+            abort(403, 'Forbidden access. Anda bukan pemilik produk ini.');
+        }
+
         return view('produk.edit', compact('data'));
     }
 
@@ -173,51 +155,51 @@ class ProductController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        if (Auth::user()->role_id != 3) {
+            abort(403, 'Forbidden access. Only sellers can manage products.');
+        }
+
+        $toko = Toko::where('user_id', Auth::id())->first();
+        $updateProduct = ProdukModel::findOrFail($id);
+
+        if (!$toko || $updateProduct->id_toko != $toko->id_toko) {
+            abort(403, 'Anda bukan pemilik produk ini.');
+        }
 
         $rules = [
-            'nama' => 'required',
-            'deskripsi' => 'required',
-            'harga' => 'required|numeric|max_digits:10',
-            'status' => 'required',
-            'file' => 'mimetypes:application/zip|extensions:zip'
+            'nama_produk' => 'required|max:100',
+            'deskripsi'   => 'nullable',
+            'status'      => 'required|in:aktif,nonaktif',
+            'gambar'      => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ];
 
         $validator = Validator::make($request->all(), $rules, $this->messages);
-
         if ($validator->fails()) {
-            return redirect('/menu_produk' . '/' . $id . '/' . 'edit')
-                ->withErrors($validator)
-                ->withInput();
-        } else {
-
-            $updateProduct = ProdukModel::find($id);
-            $updateProduct->nama = $request->input('nama');
-            $updateProduct->deskripsi = $request->input('deskripsi');
-            $updateProduct->harga = $request->input('harga');
-            $updateProduct->status = $request->input('status');
-
-            if ($request->hasFile('file')) {
-
-                // Hapus file lama jika ada
-                if ($updateProduct->file) {
-                    $oldFilePath = public_path('assets/' . $updateProduct->file);
-                    if (file_exists($oldFilePath)) {
-                        unlink($oldFilePath);
-                    }
-                }
-
-                $file = $request->file('file');
-                $fileName = $file->getClientOriginalName();
-                $destinationPath = public_path('assets');
-                $file->move($destinationPath, $fileName);
-                $updateProduct->file = $fileName;
-            }
-
-            $updateProduct->save();
-
-            $this->setSessionFlash('success', 'Data produk telah berhasil di update.');
-            return redirect('/menu_produk');
+            return redirect('/menu_produk/' . $id . '/edit')->withErrors($validator)->withInput();
         }
+
+        $updateProduct->nama_produk = $request->input('nama_produk');
+        $updateProduct->tipe_produk = 'premium';
+        $updateProduct->deskripsi   = $request->input('deskripsi');
+        $updateProduct->status      = $request->input('status');
+        $updateProduct->harga       = null;
+        $updateProduct->file        = null;
+
+        if ($request->hasFile('gambar')) {
+            // Hapus gambar lama
+            if ($updateProduct->gambar && file_exists(public_path('assets/img/produk_premium/' . $updateProduct->gambar))) {
+                @unlink(public_path('assets/img/produk_premium/' . $updateProduct->gambar));
+            }
+            $file = $request->file('gambar');
+            $gambarName = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('assets/img/produk_premium'), $gambarName);
+            $updateProduct->gambar = $gambarName;
+        }
+
+        $updateProduct->save();
+
+        $this->setSessionFlash('success', 'Produk berhasil diupdate.');
+        return redirect('/menu_produk');
     }
 
     /**
@@ -225,116 +207,64 @@ class ProductController extends Controller
      */
     public function destroy(string $id)
     {
-        $produk = ProdukModel::find($id);
-        $pathfile = public_path('assets/' . $produk->file);
-
-        if (file_exists($pathfile)) {
-            unlink($pathfile);
-            $produk->delete();
-            $this->setSessionFlash('success', 'Data produk berhasil di hapus.');
-            return redirect('/menu_produk');
-        } else {
-            $this->setSessionFlash('error', 'Data produk gagal di hapus.');
-            return redirect('/menu_produk');
+        if (Auth::user()->role_id != 3) {
+            abort(403, 'Forbidden access. Only sellers can manage products.');
         }
+
+        $toko = Toko::where('user_id', Auth::id())->first();
+        $produk = ProdukModel::findOrFail($id);
+
+        if (!$toko || $produk->id_toko != $toko->id_toko) {
+            abort(403, 'Anda bukan pemilik produk ini.');
+        }
+
+        // Hapus cover image
+        if ($produk->gambar && file_exists(public_path('assets/img/produk_premium/' . $produk->gambar))) {
+            @unlink(public_path('assets/img/produk_premium/' . $produk->gambar));
+        }
+
+        $produk->delete();
+        $this->setSessionFlash('success', 'Produk berhasil dihapus.');
+        return redirect('/menu_produk');
     }
 
-    public function beli(string $id, Request $request)
-    {
-
-        $idCustomer = $request->session()->get('id');
-        $produk = ProdukModel::find($id);
-
-        if (!$produk) {
-            return redirect('/menu_produk');
-        } else {
-
-            $detailStatusBeli = BeliProdukModel::where('produk_id', $id)
-                ->where('status', 'success')
-                ->where('user_id', $idCustomer)
-                ->first();
-
-            if ($detailStatusBeli) {
-                return redirect('/menu_produk');
-            } else {
-                $user = CustomerModel::where('user_id', $idCustomer)->first();
-                return view('produk.beli', compact('produk', 'user'));
-            }
-        }
-    }
-
-    public function proses_checkout(Request $request)
-    {
-
-        $qty = $request->input('qty');
-        $harga = $request->input('harga');
-        $idProduk = $request->input('id');
-        $idCustomer = $request->session()->get('id');
-        $hapusKoma = str_replace('.', '', $harga);
-        $nilaiHarga = intval($hapusKoma);
-
-        $min = 100000; // Nilai minimum 6 digit
-        $max = 999999; // Nilai maksimum 6 digit
-        $order_id = rand($min, $max);
-        $produk = ProdukModel::find($idProduk);
-
-        if ($qty > 1 || $qty <= 0 || $nilaiHarga != $produk->harga) {
-            $this->setSessionFlash('error', 'Proses beli produk tidak valid. Harap coba lagi.');
-            return redirect()->back();
-        } else {
-            $beliProduk = BeliProdukModel::create([
-                'qty' => $qty,
-                'status' => 'pending',
-                'order_id' => $order_id,
-                'produk_id' => $idProduk,
-                'user_id' => $idCustomer
-            ]);
-
-            $this->setSessionFlash('success', 'Pilih metode pembayaran yang tersedia.');
-            return redirect('/metode_pembayaran' . '/' . $beliProduk->order_id);
-        }
-    }
+    // beli() dan proses_checkout() dihapus — platform hanya pakai proses_checkout_premium()
 
     public function produk_terjual()
     {
-        $produk = ProdukModel::withSum('produk_terjual', 'jumlah_terjual')
-            ->get()
-            ->filter(function ($item) {
-                return $item->produk_terjual_sum_jumlah_terjual > 0;
-            });
+        $user_id = Auth::id();
+        $role = User::find($user_id);
+
+        if ($role->role_id == 1) {
+            // Admin sees all sold products
+            $produk = ProdukModel::withSum('produk_terjual', 'jumlah_terjual')
+                ->get()
+                ->filter(function ($item) {
+                    return $item->produk_terjual_sum_jumlah_terjual > 0;
+                });
+        } else if ($role->role_id == 3) {
+            // Seller sees only their own sold products
+            $toko = Toko::where('user_id', $user_id)->first();
+            $toko_id = $toko ? $toko->id_toko : 0;
+            $produk = ProdukModel::where('id_toko', $toko_id)
+                ->withSum('produk_terjual', 'jumlah_terjual')
+                ->get()
+                ->filter(function ($item) {
+                    return $item->produk_terjual_sum_jumlah_terjual > 0;
+                });
+        } else {
+            abort(403);
+        }
 
         return view('produk.produk_terjual', compact('produk'));
     }
 
-    public function download_produk(string $id_produk)
-    {
-
-        $user_id = session('id');
-        $detail_produk_beli =  BeliProdukModel::where('produk_id', $id_produk)
-            ->where('user_id', $user_id)
-            ->first();
-
-        if ($detail_produk_beli) {
-            $pathfile = public_path('assets/' . $detail_produk_beli->produk->file);
-
-            if (file_exists($pathfile)) {
-                $headers = array(
-                    'Content-Type: application/zip',
-                );
-
-                return response()->download($pathfile, $detail_produk_beli->produk->file, $headers);
-            } else {
-                abort(404);
-            }
-        } else {
-            abort(404);
-        }
-    }
+    // download_produk() dihapus — tidak ada lagi produk biasa/ZIP
 
     public function proses_checkout_premium(Request $request)
     {
         $id_varian = $request->input('id_varian');
-        $idCustomerUser = session('id');
+        $idCustomerUser = Auth::id();
 
         $customer = CustomerModel::where('user_id', $idCustomerUser)->first();
         if (!$customer) {
@@ -349,7 +279,6 @@ class ProductController extends Controller
 
         try {
             $pembelian = \Illuminate\Support\Facades\DB::transaction(function () use ($id_varian, $id_customer) {
-                // 1. Query StokAkun FIFO with row lock
                 $stok = \App\Models\StokAkun::where('id_varian', $id_varian)
                     ->where('status', \App\Enums\StokStatus::TERSEDIA)
                     ->orderBy('created_at', 'asc')
@@ -360,20 +289,17 @@ class ProductController extends Controller
                     throw new \App\Exceptions\StokHabisException('Stok Habis');
                 }
 
-                // Get current price snapshot
                 $varian = \App\Models\VarianLayanan::findOrFail($id_varian);
                 $harga_saat_beli = $varian->harga;
 
                 $reserved_expired_at = now()->addMinutes(15);
 
-                // 2a. Update StokAkun status and reservation timestamps
                 $stok->update([
                     'status' => \App\Enums\StokStatus::RESERVED,
                     'reserved_at' => now(),
                     'reserved_expired_at' => $reserved_expired_at,
                 ]);
 
-                // 2b. Create Pembelian record
                 $pembelian = \App\Models\Pembelian::create([
                     'order_id' => (string) \Illuminate\Support\Str::ulid(),
                     'id_customer' => $id_customer,
@@ -384,7 +310,6 @@ class ProductController extends Controller
                     'reserved_until' => $reserved_expired_at,
                 ]);
 
-                // 2c. Update StokAkun with newly created id_pembelian
                 $stok->update([
                     'id_pembelian' => $pembelian->id_pembelian,
                 ]);
@@ -392,7 +317,6 @@ class ProductController extends Controller
                 return $pembelian;
             });
 
-            // Redirect to the existing metode_pembayaran route
             return redirect()->route('metode_pembayaran', $pembelian->order_id);
 
         } catch (\App\Exceptions\StokHabisException $e) {
@@ -412,5 +336,27 @@ class ProductController extends Controller
             'id_varian' => $id_varian,
             'stok' => $stok
         ]);
+    }
+
+    // extract_screenshots() dan proses_extract_screenshots() dihapus — tidak ada lagi produk biasa
+
+    // === 4. Customer Browsing (Daftar Toko & Katalog Scoped) ===
+    public function daftar_toko()
+    {
+        $shops = Toko::where('status', 'aktif')->paginate(12);
+        return view('customer.daftar_toko', compact('shops'));
+    }
+
+    /**
+     * Katalog toko per-toko untuk Customer.
+     * Redirect ke PremiumCustomerController@katalog dengan filter id_toko.
+     * Scoping: hanya produk premium milik toko tersebut yang tampil.
+     */
+    public function katalog_toko($id_toko)
+    {
+        // Validasi toko aktif
+        Toko::where('id_toko', $id_toko)->where('status', 'aktif')->firstOrFail();
+        // Delegate ke premium catalog dengan filter toko
+        return redirect()->route('premium.katalog', ['id_toko' => $id_toko]);
     }
 }

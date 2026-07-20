@@ -11,6 +11,8 @@ class Pembelian extends Model
 {
     use HasFactory;
 
+    public static $sumberPerubahan = null;
+
     protected $table = 'tbl_pembelian';
     protected $primaryKey = 'id_pembelian';
 
@@ -56,5 +58,15 @@ class Pembelian extends Model
     public function pembayaran()
     {
         return $this->hasMany(Pembayaran::class, 'id_pembelian', 'id_pembelian');
+    }
+
+    public function logs()
+    {
+        return $this->hasMany(PembelianLog::class, 'id_pembelian', 'id_pembelian');
+    }
+
+    public function review()
+    {
+        return $this->hasOne(Review::class, 'id_pembelian', 'id_pembelian');
     }
 }

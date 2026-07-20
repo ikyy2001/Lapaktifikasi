@@ -45,11 +45,11 @@
                         </div>
                         @endif
 
-                        <input type="hidden" name="id" value="{{ $produk->id  }}">
+                        <input type="hidden" name="id" value="{{ $produk->id_produk  }}">
                         <div class="form-group">
                             <label for="nama_produk">Nama Produk</label>
                             <input type="text" class="form-control" id="nama_produk" name="nama_produk"
-                                autocomplete="off" value="{{ $produk->nama  }}" readonly>
+                                autocomplete="off" value="{{ $produk->nama_produk  }}" readonly>
                         </div>
 
                         <div class="form-group">

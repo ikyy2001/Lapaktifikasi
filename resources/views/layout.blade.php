@@ -16,7 +16,7 @@
         integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 
     @if(Request::path() == '/' && Auth::user()->role_id == 1 || Request::path() == 'menu_produk' || Request::path() ==
-    'produk_terjual' || Request::path() == 'bukti_pembayaran' || Request::path() == 'extract_screenshots')
+    'produk_terjual' || Request::path() == 'bukti_pembayaran' || Request::path() == 'extract_screenshots' || Request::path() == 'kelola_seller' || Request::path() == 'saldo_toko' || Request::segment(1) == 'saldo_toko' || Request::path() == 'setting_komisi')
     <link rel="stylesheet" href="{{asset('assets/datatables.net-bs4/css/dataTables.bootstrap4.min.css')}}">
     <link rel="stylesheet" href="{{asset('assets/datatables.net-select-bs4/css/select.bootstrap4.min.css')}}">
     @endif
@@ -183,6 +183,78 @@
             color: #000000 !important;
             text-transform: uppercase !important;
         }
+
+        /* Central mobile responsiveness overrides */
+        @media (max-width: 1024px) {
+            body.sidebar-show::before {
+                content: "";
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.4);
+                backdrop-filter: blur(4px);
+                z-index: 889;
+                animation: fadeInOverlay 0.3s ease forwards;
+            }
+            @keyframes fadeInOverlay {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+        }
+
+        @media (max-width: 768px) {
+            .profile-header-title,
+            .pembayaran-header-title,
+            .shop-header-title,
+            .riwayat-header-title {
+                font-size: 1.4rem !important;
+                margin-bottom: 18px !important;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .mono-card {
+                padding: 20px 15px !important;
+            }
+            
+            /* Responsive card headers with buttons/actions */
+            .card-header.d-flex.justify-content-between {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 12px !important;
+                height: auto !important;
+                padding-top: 15px !important;
+                padding-bottom: 15px !important;
+            }
+            .card-header.d-flex.justify-content-between > div {
+                width: 100% !important;
+                display: flex !important;
+                flex-wrap: wrap !important;
+                gap: 8px !important;
+                justify-content: flex-start !important;
+            }
+            .card-header.d-flex.justify-content-between > div > .btn {
+                flex: 1 !important;
+                margin: 0 !important;
+                white-space: nowrap !important;
+                font-size: 0.8rem !important;
+                padding: 8px 12px !important;
+            }
+
+            /* Responsive tables padding */
+            .table:not(.table-sm) th, 
+            .table:not(.table-sm) td {
+                padding: 10px 12px !important;
+                font-size: 0.8rem !important;
+            }
+            
+            .profile-grid {
+                gap: 20px !important;
+            }
+            
+            .float-right {
+                float: none !important;
+            }
+        }
     </style>
 </head>
 
@@ -204,7 +276,7 @@
 
                             <img alt="image" src="{{ asset('assets/img/avatar/' . session('profile_picture'))}}"
                                 class="rounded-circle mr-1">
-                            <div class="d-sm-none d-lg-inline-block">Hi, {{ (Auth::user()->name == "" ?
+                            <div class="d-none d-lg-inline-block">Hi, {{ (Auth::user()->name == "" ?
                                 Auth::user()->email : Auth::user()->name ) }}</div>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right">
@@ -221,21 +293,21 @@
                 <aside id="sidebar-wrapper">
 
                     <div class="sidebar-brand">
-                        <a href="{{ Auth::user()->role_id == 1 ? url('/dashboard') : route('premium.katalog') }}">Lapaktifikasi</a>
+                        <a href="{{ Auth::user()->role_id == 1 ? url('/dashboard') : (Auth::user()->role_id == 3 ? url('/seller/dashboard') : route('premium.katalog')) }}">Lapaktifikasi</a>
                     </div>
 
                     <div class="sidebar-brand sidebar-brand-sm">
-                        <a href="{{ Auth::user()->role_id == 1 ? url('/dashboard') : route('premium.katalog') }}">LF</a>
+                        <a href="{{ Auth::user()->role_id == 1 ? url('/dashboard') : (Auth::user()->role_id == 3 ? url('/seller/dashboard') : route('premium.katalog')) }}">LF</a>
                     </div>
 
                     <ul class="sidebar-menu">
-                        <li class="menu-header">{{ (Auth::user()->role_id == 1 ? 'Dashboard' : 'Profile') }}</li>
+                        <li class="menu-header">{{ (Auth::user()->role_id == 1 || Auth::user()->role_id == 3 ? 'Dashboard' : 'Profile') }}</li>
 
-                        <li class="nav-item {{Request::path() == 'dashboard' || Request::path() == 'profile_customer/' . Session::get('id')
+                        <li class="nav-item {{Request::path() == 'dashboard' || Request::path() == 'seller/dashboard' || Request::path() == 'profile_customer/' . Session::get('id')
                          ? 'active' : ''}}"><a
-                                href="{{ (Auth::user()->role_id == 1 ? url('/dashboard') : url('profile_customer/' . Session::get('id')))  }}"
+                                href="{{ Auth::user()->role_id == 1 ? url('/dashboard') : (Auth::user()->role_id == 3 ? url('/seller/dashboard') : url('profile_customer/' . Session::get('id'))) }}"
                                 class="nav-link">
-                                @if(Auth::user()->role_id == 1)
+                                @if(Auth::user()->role_id == 1 || Auth::user()->role_id == 3)
                                 <i class="bi bi-speedometer pl-3"></i><span>Dashboard</span></a>
                             @else
                             <i class="bi bi-person-fill pl-3"></i><span>Profile</span></a>
@@ -245,24 +317,39 @@
 
                         <li class="menu-header">Produk</li>
 
+                        @if(Auth::user()->role_id == 2)
+                        <li class="nav-item @if(Request::path() == 'daftar_toko' 
+                            || Request::segment(1) == 'toko'
+                            || Request::segment(1) == 'beli' 
+                            || Request::segment(1) == 'metode_pembayaran') active @endif">
+                            <a href="{{ url('/daftar_toko') }}" class="nav-link"><i class="bi bi-shop pl-3"></i>
+                                <span>Daftar Toko</span></a>
+                        </li>
+                        @else
                         <li class="nav-item @if(Request::path() == 'menu_produk' 
                             || Request::path() == 'menu_produk/create'
-                            || Request::segment(1) == 'beli'  || Request::segment(1) == 'metode_pembayaran' 
                             || Request::segment(1) == 'menu_produk' ) active @endif">
                             <a href="{{url('/menu_produk')}}" class="nav-link"><i class="bi bi-cart-fill pl-3"></i>
                                 <span>Menu Produk</span></a>
                         </li>
+                        @endif
 
-                        @if(Auth::user()->role_id == 1)
+                        @if(Auth::user()->role_id == 1 || Auth::user()->role_id == 3)
                         <li class="nav-item @if(Request::path() == 'produk_terjual') active @endif"> <a
                                 href="{{url('produk_terjual')}}" class="nav-link"><i
                                     class="bi bi-cart-dash-fill pl-3"></i>
                                 <span>Produk Terjual</span></a></li>
+                        @endif
 
-                        <li class="menu-header">Premium Admin</li>
-                        <li class="nav-item @if(Request::segment(2) == 'produk') active @endif">
-                            <a href="{{ route('premium.produk.index') }}" class="nav-link"><i class="bi bi-box-seam pl-3"></i> <span>Produk Premium</span></a>
+                        @if(Auth::user()->role_id == 3)
+                        <li class="menu-header">Seller Menu</li>
+                        <li class="nav-item @if(Request::path() == 'seller/profil') active @endif">
+                            <a href="{{ url('seller/profil') }}" class="nav-link"><i class="bi bi-shop pl-3"></i> <span>Profil Toko</span></a>
                         </li>
+                        @endif
+
+                        @if(Auth::user()->role_id == 1 || Auth::user()->role_id == 3)
+                        <li class="menu-header">Premium Layanan</li>
                         <li class="nav-item @if(Request::segment(2) == 'tipe') active @endif">
                             <a href="{{ route('premium.tipe.index') }}" class="nav-link"><i class="bi bi-tags pl-3"></i> <span>Tipe Layanan</span></a>
                         </li>
@@ -275,8 +362,21 @@
                         <li class="nav-item @if(Request::segment(2) == 'histori') active @endif">
                             <a href="{{ route('premium.histori.index') }}" class="nav-link"><i class="bi bi-journal-text pl-3"></i> <span>Histori Penjualan</span></a>
                         </li>
+                        @endif
+
+                        @if(Auth::user()->role_id == 1)
+                        <li class="menu-header">Admin Menu</li>
                         <li class="nav-item @if(Request::segment(2) == 'laporan-admin') active @endif">
                             <a href="{{ route('admin.laporan') }}" class="nav-link"><i class="bi bi-exclamation-triangle-fill pl-3"></i> <span>Laporan Customer</span></a>
+                        </li>
+                        <li class="nav-item @if(Request::path() == 'kelola_seller') active @endif">
+                            <a href="{{ url('kelola_seller') }}" class="nav-link"><i class="bi bi-shop pl-3"></i> <span>Kelola Seller</span></a>
+                        </li>
+                        <li class="nav-item @if(Request::path() == 'setting_komisi') active @endif">
+                            <a href="{{ url('setting_komisi') }}" class="nav-link"><i class="bi bi-percent pl-3"></i> <span>Setting Komisi</span></a>
+                        </li>
+                        <li class="nav-item @if(Request::path() == 'saldo_toko' || Request::segment(1) == 'saldo_toko') active @endif">
+                            <a href="{{ url('saldo_toko') }}" class="nav-link"><i class="bi bi-wallet2 pl-3"></i> <span>Kelola Saldo Toko</span></a>
                         </li>
                         @endif
 
@@ -308,7 +408,7 @@
                                 <span>Ganti Password</span></a>
                         </li>
 
-                        @if(Auth::user()->role_id == 1)
+                        @if(Auth::user()->role_id == 3)
                         <li class="nav-item @if(Request::path() == 'extract_screenshots') active @endif">
                             <a href="{{url('extract_screenshots')}}" class="nav-link"><i
                                     class="bi bi-file-zip-fill pl-3"></i>
@@ -323,6 +423,40 @@
             <div class="main-content">
                 <section class="section mt-4">
                     <div class="section-body">
+                        @auth
+                            @if(Auth::user()->role_id == 2)
+                                @php
+                                    $customer = \App\Models\CustomerModel::where('user_id', Auth::id())->first();
+                                    $pendingPembelian = null;
+                                    if ($customer) {
+                                        $pendingPembelian = \Illuminate\Support\Facades\Cache::remember('pending_pembelian_' . $customer->id, 5, function() use ($customer) {
+                                            return \App\Models\Pembelian::where('id_customer', $customer->id)
+                                                ->where('status', \App\Enums\PembelianStatus::PENDING)
+                                                ->where('reserved_until', '>', now())
+                                                ->orderBy('created_at', 'desc')
+                                                ->first();
+                                        });
+                                    }
+                                @endphp
+                                @if($pendingPembelian)
+                                    <div class="alert alert-warning alert-dismissible fade show mb-4 d-flex align-items-center justify-content-between" role="alert" style="border: 1px solid #eed27a; background-color: #fffdf5; border-radius: 12px; padding: 16px 20px;">
+                                        <div style="color: #7d6318; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 8px;">
+                                            <i class="bi bi-exclamation-triangle-fill" style="font-size: 1.15rem;"></i>
+                                            <span>Anda memiliki transaksi pembayaran yang belum diselesaikan (Order ID: {{ $pendingPembelian->order_id }}).</span>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <a href="{{ route('bukti_pembayaran.status', ['order_id' => $pendingPembelian->order_id]) }}" class="btn btn-sm btn-warning font-weight-bold" style="color: #7d6318; border-radius: 6px; padding: 6px 14px;">
+                                                Selesaikan Pembayaran
+                                            </a>
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close" style="position: static; padding: 0 0 0 15px; color: #7d6318; opacity: 0.7;">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                @endif
+                            @endif
+                        @endauth
+
                         @yield('content')
                     </div>
                 </section>
@@ -364,7 +498,7 @@
     <script src="{{asset('assets/js/stisla.js')}}"></script>
 
     @if(Request::path() == '/' && Auth::user()->role_id == 1 || Request::path() == 'menu_produk' || Request::path() ==
-    'produk_terjual' || Request::path() == 'bukti_pembayaran' || Request::path() == 'extract_screenshots')
+    'produk_terjual' || Request::path() == 'bukti_pembayaran' || Request::path() == 'extract_screenshots' || Request::path() == 'kelola_seller' || Request::path() == 'saldo_toko' || Request::segment(1) == 'saldo_toko' || Request::path() == 'setting_komisi')
     <!-- JS Libraies -->
     <script src="{{asset('assets/datatables/media/js/jquery.dataTables.min.js')}}"></script>
     <script src="{{asset('assets/datatables.net-bs4/js/dataTables.bootstrap4.min.js')}}"></script>
@@ -376,7 +510,7 @@
     <script src="{{asset('assets/js/custom.js')}}"></script>
 
     @if(Request::path() == '/' && Auth::user()->role_id == 1 || Request::path() == 'menu_produk' || Request::path() ==
-    'produk_terjual' || Request::path() == 'bukti_pembayaran' || Request::path() == 'extract_screenshots')
+    'produk_terjual' || Request::path() == 'bukti_pembayaran' || Request::path() == 'extract_screenshots' || Request::path() == 'kelola_seller' || Request::path() == 'saldo_toko' || Request::segment(1) == 'saldo_toko' || Request::path() == 'setting_komisi')
     <!-- Page Specific JS File -->
     <script src="{{asset('assets/js/page/modules-datatables.js')}}"></script>
     @endif

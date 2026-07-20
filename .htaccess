@@ -1,0 +1,30 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # 1. Force HTTPS (Highly Recommended for Production)
+    # Uncomment the two lines below to force all traffic to use HTTPS
+    # RewriteCond %{HTTPS} off
+    # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # 2. Block Access to Sensitive Files and Directories
+    # Protects application files, configuration, and source code from public access
+    RewriteRule ^\.env - [F,L]
+    RewriteRule ^\.git - [F,L]
+    RewriteRule ^composer\.(json|lock) - [F,L]
+    RewriteRule ^package(-lock)?\.json - [F,L]
+    RewriteRule ^artisan - [F,L]
+    RewriteRule ^vite\.config\.js - [F,L]
+    RewriteRule ^(app|bootstrap|config|database|resources|routes|storage|tests|vendor)($|/) - [F,L]
+
+    # 3. Disable Directory Listing
+    # Prevents visitors from browsing folders that do not have an index file
+    Options -Indexes
+
+    # 4. Redirect Direct Requests from /public/ to Root (removes /public from URL)
+    RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /public/([^\ ]*)
+    RewriteRule ^public/(.*)$ /$1 [R=301,L]
+
+    # 5. Route All Remaining Traffic to the Public Directory
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>

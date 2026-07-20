@@ -4,53 +4,22 @@
 
 @section('content')
 
+@if($success = Session::get('success'))
+<script>
+    Swal.fire({ title: "Berhasil", text: "{{ $success }}", icon: "success" });
+</script>
+@endif
+
+@if($error = Session::get('error'))
+<script>
+    Swal.fire({ title: "Informasi", text: "{{ $error }}", icon: "info" });
+</script>
+@endif
+
 <div class="container">
-
-    @if($success = Session::get('success'))
-    <script>
-        const Toast = Swal.mixin({
-        toast: true,
-        position: "top-end",
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true,
-        didOpen: (toast) => {
-            toast.onmouseenter = Swal.stopTimer;
-            toast.onmouseleave = Swal.resumeTimer;
-        }
-    });
-
-        Toast.fire({
-        icon: "success",
-        title: "{{ $success }}"
-        });
-    </script>
-
-    @elseif($error = Session::get('error'))
-    <script>
-        const Toast = Swal.mixin({
-        toast: true,
-        position: "top-end",
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true,
-        didOpen: (toast) => {
-            toast.onmouseenter = Swal.stopTimer;
-            toast.onmouseleave = Swal.resumeTimer;
-        }
-    });
-
-        Toast.fire({
-        icon: "error",
-        title: "{{ $error }}"
-        });
-    </script>
-    @endif
-
     <div class="row">
         <div class="col-12">
             <div class="card">
-
                 <div class="ml-4">
                     <div class="row mt-3">
                         <div class="col">
@@ -58,13 +27,28 @@
                         </div>
                     </div>
 
-                    @if (Auth::user()->role_id == 1)
-                    <div class="row mt-3">
+                    @if(Auth::user()->role_id == 3)
+                    <div class="row mt-2">
                         <div class="col">
-                            <a href="{{ route('menu_produk.create') }}" class="btn btn-success mb-3"><i
-                                    class="bi bi-plus-circle-fill"></i> Tambah</a>
+                            <a href="{{ route('menu_produk.create') }}" class="btn btn-success mb-3">
+                                <i class="bi bi-plus-circle-fill"></i> Tambah Produk
+                            </a>
                         </div>
                     </div>
+
+                    {{-- Hint jika belum ada produk premium --}}
+                    @if($semuaProduk->isEmpty())
+                    <div class="alert alert-info py-2 d-flex align-items-center justify-content-between mb-3">
+                        <span>
+                            <i class="fas fa-lightbulb mr-1"></i>
+                            <strong>Tips:</strong> Tambah produk (contoh: <em>Netflix, Spotify</em>), lalu atur
+                            <a href="{{ route('premium.tipe.index') }}" class="font-weight-bold">Tipe Layanan</a> &amp; stok akun.
+                        </span>
+                        <a href="{{ route('menu_produk.create') }}" class="btn btn-info btn-sm ml-3 text-nowrap text-white">
+                            <i class="fas fa-plus mr-1"></i> Tambah Produk
+                        </a>
+                    </div>
+                    @endif
                     @endif
                 </div>
 
@@ -73,131 +57,74 @@
                         <table class="table table-striped text-center" id="table-1">
                             <thead>
                                 <tr>
-                                    <th>
-                                        No
-                                    </th>
-                                    <th>Nama</th>
+                                    <th>No</th>
+                                    <th>Nama Produk</th>
                                     <th>Deskripsi</th>
-                                    <th>Harga</th>
+                                    @if(Auth::user()->role_id == 1)
+                                        <th>Nama Toko</th>
+                                    @endif
                                     <th>Status</th>
                                     <th>Tanggal Buat</th>
                                     <th>Tanggal Ubah</th>
-                                    <th>Aksi</th>
+                                    @if(Auth::user()->role_id == 3)
+                                        <th>Aksi</th>
+                                    @endif
                                 </tr>
                             </thead>
-
                             <tbody>
-
-                                @php
-                                $no = 1;
-                                @endphp
-
-                                @foreach((Auth::user()->role_id == 1 ? $semuaProduk : $produkCustomer) as $item)
-
+                                @php $no = 1; @endphp
+                                @forelse($semuaProduk as $item)
                                 <tr>
-                                    <td>
-                                        {{ $no++ }}
-                                    </td>
-                                    <td>{{ (Auth::user()->role_id == 1 ? $item->nama : $item->nama_produk) }}</td>
-                                    <td>{{ (Auth::user()->role_id == 1 ? $item->deskripsi : $item->deskripsi_produk) }}
-                                    </td>
-                                    <td>Rp {{ number_format(Auth::user()->role_id == 1 ? $item->harga :
-                                        $item->harga_produk, 0, ',', '.') }}</td>
-                                    <td>
-
-                                        @if(Auth::user()->role_id == 1)
-                                        <span
-                                            class="{{ $item->status == 'tersedia' ? 'badge badge-success' : ($item->status == 'masih dalam pengembangan' ? 'badge badge-warning' : 'badge badge-danger') }}">
-                                            {{ $item->status == 'tersedia' ? ucfirst($item->status) :
-                                            ($item->status == 'masih dalam pengembangan' ? 'Dalam Pengembangan' :
-                                            'Tidak
-                                            Tersedia') }}
-                                        </span>
-
-                                        @else
-                                        <span
-                                            class="{{ $item->status_produk == 'tersedia' ? 'badge badge-success' : ($item->status_produk == 'masih dalam pengembangan' ? 'badge badge-warning' : 'badge badge-danger') }}">
-                                            {{ $item->status_produk == 'tersedia' ? ucfirst($item->status_produk) :
-                                            ($item->status_produk == 'masih dalam pengembangan' ? 'Dalam Pengembangan' :
-                                            'Tidak
-                                            Tersedia') }}
-                                        </span>
+                                    <td>{{ $no++ }}</td>
+                                    <td class="text-left">
+                                        @if($item->gambar)
+                                            <img src="{{ asset('assets/img/produk_premium/' . $item->gambar) }}"
+                                                alt="cover" style="max-height:36px;border-radius:4px;margin-right:8px;vertical-align:middle;">
                                         @endif
+                                        <strong>{{ $item->nama_produk }}</strong>
                                     </td>
+                                    <td class="text-left" style="max-width:220px;">{{ $item->deskripsi ?? '-' }}</td>
 
-                                    <td>{{ (Auth::user()->role_id == 1 ? $item->created_at : $item->tanggal_buat) }}
-                                    </td>
-                                    <td>{{ (Auth::user()->role_id == 1 ? $item->updated_at : $item->tanggal_ubah) }}
-                                    </td>
+                                    @if(Auth::user()->role_id == 1)
+                                        <td>{!! $item->toko->nama_toko ?? '<span class="text-muted">Tanpa Toko</span>' !!}</td>
+                                    @endif
+
                                     <td>
-                                        @if (Auth::user()->role_id == 1)
-                                        <div class="row">
-                                            <div class="col">
-                                                <a href="{{ route('menu_produk.edit', $item->id) }}"
-                                                    class="btn btn-warning text-white mb-2"><i
-                                                        class="bi bi-pen-fill"></i>
-                                                    Update</a>
-                                            </div>
-                                        </div>
+                                        <span class="badge {{ $item->status == 'aktif' ? 'badge-success' : 'badge-danger' }}">
+                                            {{ $item->status == 'aktif' ? 'Aktif' : 'Nonaktif' }}
+                                        </span>
+                                    </td>
+                                    <td>{{ $item->created_at->format('d-m-Y H:i') }}</td>
+                                    <td>{{ $item->updated_at->format('d-m-Y H:i') }}</td>
 
-                                        <div class="row mt-1 mb-1">
-                                            <div class="col">
-                                                <form action="{{ route('menu_produk.destroy', $item->id) }}"
-                                                    method="post">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger mb-2"
-                                                        onclick="return confirm('Apakah Anda yakin ingin menghapus produk ini?')"><i
-                                                            class="bi bi-trash-fill"></i> Delete</button>
-                                                </form>
-                                            </div>
-                                        </div>
-
-                                        <div class="row">
-                                            <div class="col">
-                                                <a href="{{ route('menu_produk.show', $item->id) }}"
-                                                    class="btn btn-info text-white mb-2"><i class="bi bi-eye-fill"></i>
-                                                    Lihat</a>
-                                            </div>
-                                        </div>
-
-                                        @else
-                                        <div class="row">
-
-                                            @if($item->status_beli == 'pending' || $item->status_beli == 'deny')
-                                            <div class="col">
-                                                <a href="{{ route('metode_pembayaran', $item->order_id) }}"
-                                                    class="btn btn-danger"><i
-                                                        class="bi bi-credit-card-fill mx-1"></i>Selesaikan
-                                                    Pembayaran
-                                                </a>
-                                            </div>
-
-                                            @elseif($item->status_beli != 'success')
-                                            <div class="col">
-                                                <a href="{{ route('beli', $item->id_produk) }}"
-                                                    class="btn btn-primary text-white mb-2"><i
-                                                        class="bi bi-bag-fill"></i>
-                                                    Beli</a>
-
-                                                <a href="{{ route('menu_produk.show', $item->id_produk) }}"
-                                                    class="btn btn-info text-white mb-2"><i class="bi bi-eye-fill"></i>
-                                                    Lihat</a>
-                                            </div>
-                                            @endif
-
-                                            @if($item->status_beli == 'success')
-                                            <div class="col">
-                                                <a href="{{ route('download_produk', $item->id_produk) }}"
-                                                    class="btn btn-success text-white"><i class="bi bi-download"></i>
-                                                    Unduh</a>
-                                            </div>
-                                            @endif
-                                        </div>
+                                    @if(Auth::user()->role_id == 3)
+                                    <td>
+                                        <a href="{{ route('menu_produk.edit', $item->id_produk) }}"
+                                            class="btn btn-warning btn-sm text-white mb-1">
+                                            <i class="bi bi-pen-fill"></i> Update
+                                        </a>
+                                        <form action="{{ route('menu_produk.destroy', $item->id_produk) }}" method="post" class="d-inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger btn-sm mb-1"
+                                                onclick="return confirm('Hapus produk \'{{ $item->nama_produk }}\'?')">
+                                                <i class="bi bi-trash-fill"></i> Hapus
+                                            </button>
+                                        </form>
+                                    </td>
+                                    @endif
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="8" class="text-center text-muted py-4">
+                                        <i class="fas fa-box-open fa-2x mb-2 d-block"></i>
+                                        Belum ada produk.
+                                        @if(Auth::user()->role_id == 3)
+                                            <a href="{{ route('menu_produk.create') }}">Tambah produk pertama Anda</a>
                                         @endif
                                     </td>
                                 </tr>
-                                @endforeach
+                                @endforelse
                             </tbody>
                         </table>
                     </div>

@@ -11,7 +11,11 @@ class CustomerModel extends Model
     use HasFactory;
 
     protected $table = "tbl_customer";
-    protected $guarded = [];
+    protected $fillable = [
+        'user_id',
+        'nama_customer',
+        'nomor_telepon',
+    ];
 
     public $timestamps = false;
 

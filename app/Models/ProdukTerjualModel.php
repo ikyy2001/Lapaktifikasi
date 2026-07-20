@@ -14,6 +14,6 @@ class ProdukTerjualModel extends Model
 
     public function produk(): BelongsTo
     {
-        return $this->belongsTo(ProdukModel::class);
+        return $this->belongsTo(ProdukModel::class, 'produk_id', 'id_produk');
     }
 }

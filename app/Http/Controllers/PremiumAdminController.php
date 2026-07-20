@@ -7,107 +7,59 @@ use App\Models\Produk;
 use App\Models\TipeLayanan;
 use App\Models\VarianLayanan;
 use App\Models\StokAkun;
-use App\Models\Pembelian;
+use App\Models\Toko;
 use App\Enums\StokStatus;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Pembayaran;
+use App\Enums\PembelianStatus;
+use App\Jobs\SendAccountInvoiceWhatsapp;
 
 class PremiumAdminController extends Controller
 {
-    // === 1. CRUD Produk ===
-    public function produk_index()
-    {
-        $produk = Produk::all();
-        return view('premium_admin.produk.index', compact('produk'));
-    }
-
-    public function produk_store(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'nama_produk' => 'required|max:100',
-            'deskripsi' => 'nullable',
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'status' => 'required|in:aktif,nonaktif',
-        ]);
-
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
-
-        $gambarName = null;
-        if ($request->hasFile('gambar')) {
-            $file = $request->file('gambar');
-            $gambarName = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('assets/img/produk_premium'), $gambarName);
-        }
-
-        Produk::create([
-            'nama_produk' => $request->nama_produk,
-            'deskripsi' => $request->deskripsi,
-            'gambar' => $gambarName,
-            'status' => $request->status,
-        ]);
-
-        Session::flash('success', 'Berhasil menambahkan produk premium.');
-        return redirect()->route('premium.produk.index');
-    }
-
-    public function produk_update(Request $request, $id)
-    {
-        $produk = Produk::findOrFail($id);
-
-        $validator = Validator::make($request->all(), [
-            'nama_produk' => 'required|max:100',
-            'deskripsi' => 'nullable',
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'status' => 'required|in:aktif,nonaktif',
-        ]);
-
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
-
-        if ($request->hasFile('gambar')) {
-            // Delete old image if exists
-            if ($produk->gambar && file_exists(public_path('assets/img/produk_premium/' . $produk->gambar))) {
-                @unlink(public_path('assets/img/produk_premium/' . $produk->gambar));
-            }
-
-            $file = $request->file('gambar');
-            $gambarName = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('assets/img/produk_premium'), $gambarName);
-            $produk->gambar = $gambarName;
-        }
-
-        $produk->update([
-            'nama_produk' => $request->nama_produk,
-            'deskripsi' => $request->deskripsi,
-            'status' => $request->status,
-        ]);
-
-        Session::flash('success', 'Berhasil memperbarui produk premium.');
-        return redirect()->route('premium.produk.index');
-    }
-
-    // === 2. CRUD Tipe Layanan ===
+    // === 1. CRUD Tipe Layanan ===
     public function tipe_index()
     {
-        $tipe = TipeLayanan::with('produk')->get();
-        $produk = Produk::where('status', 'aktif')->get();
+        $user = Auth::user();
+        if ($user->role_id == 1) {
+            $tipe = TipeLayanan::with('produk')->get();
+            $produk = Produk::where('status', 'aktif')->where('tipe_produk', 'premium')->get();
+        } else {
+            $toko = Toko::where('user_id', $user->id)->firstOrFail();
+            $tipe = TipeLayanan::whereHas('produk', function ($q) use ($toko) {
+                $q->where('id_toko', $toko->id_toko);
+            })->with('produk')->get();
+            $produk = Produk::where('status', 'aktif')
+                ->where('tipe_produk', 'premium')
+                ->where('id_toko', $toko->id_toko)
+                ->get();
+        }
         return view('premium_admin.tipe.index', compact('tipe', 'produk'));
     }
 
     public function tipe_store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $user = Auth::user();
+        $rules = [
             'id_produk' => 'required|exists:tbl_produk,id_produk',
             'nama_tipe' => 'required|max:50',
             'status' => 'required|in:aktif,nonaktif',
-        ]);
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        // Scope validation
+        if ($user->role_id != 1) {
+            $toko = Toko::where('user_id', $user->id)->firstOrFail();
+            $prod = Produk::where('id_produk', $request->id_produk)->where('id_toko', $toko->id_toko)->first();
+            if (!$prod) {
+                abort(403, 'Unauthorized access.');
+            }
         }
 
         TipeLayanan::create($request->only('id_produk', 'nama_tipe', 'status'));
@@ -118,16 +70,36 @@ class PremiumAdminController extends Controller
 
     public function tipe_update(Request $request, $id)
     {
+        $user = Auth::user();
         $tipe = TipeLayanan::findOrFail($id);
 
-        $validator = Validator::make($request->all(), [
+        // Scope check existing
+        if ($user->role_id != 1) {
+            $toko = Toko::where('user_id', $user->id)->firstOrFail();
+            if ($tipe->produk->id_toko != $toko->id_toko) {
+                abort(403, 'Unauthorized access.');
+            }
+        }
+
+        $rules = [
             'id_produk' => 'required|exists:tbl_produk,id_produk',
             'nama_tipe' => 'required|max:50',
             'status' => 'required|in:aktif,nonaktif',
-        ]);
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        // Scope validation for new product
+        if ($user->role_id != 1) {
+            $toko = Toko::where('user_id', $user->id)->firstOrFail();
+            $prod = Produk::where('id_produk', $request->id_produk)->where('id_toko', $toko->id_toko)->first();
+            if (!$prod) {
+                abort(403, 'Unauthorized access.');
+            }
         }
 
         $tipe->update($request->only('id_produk', 'nama_tipe', 'status'));
@@ -136,27 +108,73 @@ class PremiumAdminController extends Controller
         return redirect()->route('premium.tipe.index');
     }
 
-    // === 3. CRUD Varian Layanan ===
+    public function tipe_destroy($id)
+    {
+        $user = Auth::user();
+        $tipe = TipeLayanan::findOrFail($id);
+
+        // Scope check
+        if ($user->role_id != 1) {
+            $toko = Toko::where('user_id', $user->id)->firstOrFail();
+            if ($tipe->produk->id_toko != $toko->id_toko) {
+                abort(403, 'Unauthorized access.');
+            }
+        }
+
+        $tipe->delete();
+        Session::flash('success', 'Berhasil menghapus tipe layanan.');
+        return redirect()->route('premium.tipe.index');
+    }
+
+    // === 2. CRUD Varian Layanan ===
     public function varian_index()
     {
-        $varian = VarianLayanan::with('tipeLayanan.produk')->get();
-        $tipe = TipeLayanan::where('status', 'aktif')->get();
+        $user = Auth::user();
+        if ($user->role_id == 1) {
+            $varian = VarianLayanan::with('tipeLayanan.produk')->get();
+            $tipe = TipeLayanan::where('status', 'aktif')->get();
+        } else {
+            $toko = Toko::where('user_id', $user->id)->firstOrFail();
+            $varian = VarianLayanan::whereHas('tipeLayanan.produk', function ($q) use ($toko) {
+                $q->where('id_toko', $toko->id_toko);
+            })->with('tipeLayanan.produk')->get();
+            $tipe = TipeLayanan::where('status', 'aktif')
+                ->whereHas('produk', function ($q) use ($toko) {
+                    $q->where('id_toko', $toko->id_toko);
+                })
+                ->get();
+        }
         return view('premium_admin.varian.index', compact('varian', 'tipe'));
     }
 
     public function varian_store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $user = Auth::user();
+        $rules = [
             'id_tipe' => 'required|exists:tbl_tipe_layanan,id_tipe',
             'nama_varian' => 'required|max:50',
             'durasi_hari' => 'required|integer|min:1',
             'harga' => 'required|numeric|min:0',
             'deskripsi' => 'nullable',
             'status' => 'required|in:aktif,nonaktif',
-        ]);
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        // Scope check
+        if ($user->role_id != 1) {
+            $toko = Toko::where('user_id', $user->id)->firstOrFail();
+            $tipe = TipeLayanan::where('id_tipe', $request->id_tipe)
+                ->whereHas('produk', function($q) use ($toko) {
+                    $q->where('id_toko', $toko->id_toko);
+                })->first();
+            if (!$tipe) {
+                abort(403, 'Unauthorized access.');
+            }
         }
 
         VarianLayanan::create($request->only('id_tipe', 'nama_varian', 'durasi_hari', 'harga', 'deskripsi', 'status'));
@@ -167,19 +185,42 @@ class PremiumAdminController extends Controller
 
     public function varian_update(Request $request, $id)
     {
+        $user = Auth::user();
         $varian = VarianLayanan::findOrFail($id);
 
-        $validator = Validator::make($request->all(), [
+        // Scope check existing
+        if ($user->role_id != 1) {
+            $toko = Toko::where('user_id', $user->id)->firstOrFail();
+            if ($varian->tipeLayanan->produk->id_toko != $toko->id_toko) {
+                abort(403, 'Unauthorized access.');
+            }
+        }
+
+        $rules = [
             'id_tipe' => 'required|exists:tbl_tipe_layanan,id_tipe',
             'nama_varian' => 'required|max:50',
             'durasi_hari' => 'required|integer|min:1',
             'harga' => 'required|numeric|min:0',
             'deskripsi' => 'nullable',
             'status' => 'required|in:aktif,nonaktif',
-        ]);
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        // Scope check new tipe
+        if ($user->role_id != 1) {
+            $toko = Toko::where('user_id', $user->id)->firstOrFail();
+            $tipe = TipeLayanan::where('id_tipe', $request->id_tipe)
+                ->whereHas('produk', function($q) use ($toko) {
+                    $q->where('id_toko', $toko->id_toko);
+                })->first();
+            if (!$tipe) {
+                abort(403, 'Unauthorized access.');
+            }
         }
 
         $varian->update($request->only('id_tipe', 'nama_varian', 'durasi_hari', 'harga', 'deskripsi', 'status'));
@@ -188,31 +229,77 @@ class PremiumAdminController extends Controller
         return redirect()->route('premium.varian.index');
     }
 
-    // === 4. Input Stok Akun (Single + Bulk) ===
+    public function varian_destroy($id)
+    {
+        $user = Auth::user();
+        $varian = VarianLayanan::findOrFail($id);
+
+        // Scope check
+        if ($user->role_id != 1) {
+            $toko = Toko::where('user_id', $user->id)->firstOrFail();
+            if ($varian->tipeLayanan->produk->id_toko != $toko->id_toko) {
+                abort(403, 'Unauthorized access.');
+            }
+        }
+
+        $varian->delete();
+        Session::flash('success', 'Berhasil menghapus varian layanan.');
+        return redirect()->route('premium.varian.index');
+    }
+
+    // === 3. CRUD Stok Akun (Single + Bulk) ===
     public function stok_index()
     {
-        $stok = StokAkun::with('varianLayanan.tipeLayanan.produk')->get();
-        $varian = VarianLayanan::where('status', 'aktif')->get();
+        $user = Auth::user();
+        if ($user->role_id == 1) {
+            $stok = StokAkun::with('varianLayanan.tipeLayanan.produk')->get();
+            $varian = VarianLayanan::where('status', 'aktif')->get();
+        } else {
+            $toko = Toko::where('user_id', $user->id)->firstOrFail();
+            $stok = StokAkun::whereHas('varianLayanan.tipeLayanan.produk', function ($q) use ($toko) {
+                $q->where('id_toko', $toko->id_toko);
+            })->with('varianLayanan.tipeLayanan.produk')->get();
+            $varian = VarianLayanan::where('status', 'aktif')
+                ->whereHas('tipeLayanan.produk', function ($q) use ($toko) {
+                    $q->where('id_toko', $toko->id_toko);
+                })
+                ->get();
+        }
         return view('premium_admin.stok.index', compact('stok', 'varian'));
     }
 
     public function stok_store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $user = Auth::user();
+        $rules = [
             'id_varian' => 'required|exists:tbl_varian_layanan,id_varian',
             'email_username' => 'required|max:150',
             'password' => 'required',
             'catatan' => 'nullable',
-        ]);
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
+        // Scope check
+        if ($user->role_id != 1) {
+            $toko = Toko::where('user_id', $user->id)->firstOrFail();
+            $varian = VarianLayanan::where('id_varian', $request->id_varian)
+                ->whereHas('tipeLayanan.produk', function($q) use ($toko) {
+                    $q->where('id_toko', $toko->id_toko);
+                })->first();
+            if (!$varian) {
+                abort(403, 'Unauthorized access.');
+            }
+        }
+
         StokAkun::create([
             'id_varian' => $request->id_varian,
             'email_username' => $request->email_username,
-            'password_encrypted' => $request->password, // automatically encrypted via encrypted cast!
+            'password_encrypted' => $request->password,
             'catatan' => $request->catatan,
             'status' => StokStatus::TERSEDIA,
         ]);
@@ -223,13 +310,28 @@ class PremiumAdminController extends Controller
 
     public function stok_bulk_store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $user = Auth::user();
+        $rules = [
             'id_varian' => 'required|exists:tbl_varian_layanan,id_varian',
-            'bulk_data' => 'required', // Format: email_username|password[|catatan] per line
-        ]);
+            'bulk_data' => 'required',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        // Scope check
+        if ($user->role_id != 1) {
+            $toko = Toko::where('user_id', $user->id)->firstOrFail();
+            $varian = VarianLayanan::where('id_varian', $request->id_varian)
+                ->whereHas('tipeLayanan.produk', function($q) use ($toko) {
+                    $q->where('id_toko', $toko->id_toko);
+                })->first();
+            if (!$varian) {
+                abort(403, 'Unauthorized access.');
+            }
         }
 
         $lines = explode("\n", str_replace("\r", "", $request->bulk_data));
@@ -241,7 +343,7 @@ class PremiumAdminController extends Controller
                 StokAkun::create([
                     'id_varian' => $request->id_varian,
                     'email_username' => trim($parts[0]),
-                    'password_encrypted' => trim($parts[1]), // encrypted cast handles it
+                    'password_encrypted' => trim($parts[1]),
                     'catatan' => isset($parts[2]) ? trim($parts[2]) : null,
                     'status' => StokStatus::TERSEDIA,
                 ]);
@@ -253,12 +355,19 @@ class PremiumAdminController extends Controller
         return redirect()->route('premium.stok.index');
     }
 
-    // Explicit Decrypt On-demand Endpoint for Admin Detail (conforming to security guidelines)
     public function stok_decrypt($id)
     {
+        $user = Auth::user();
         $stok = StokAkun::findOrFail($id);
+
+        // Scope check
+        if ($user->role_id != 1) {
+            $toko = Toko::where('user_id', $user->id)->firstOrFail();
+            if ($stok->varianLayanan->tipeLayanan->produk->id_toko != $toko->id_toko) {
+                abort(403, 'Unauthorized access.');
+            }
+        }
         
-        // Decrypted password is read directly from model (Laravel automatically decrypts on attribute access)
         return response()->json([
             'email_username' => $stok->email_username,
             'password' => $stok->password_encrypted,
@@ -266,14 +375,132 @@ class PremiumAdminController extends Controller
         ]);
     }
 
-    // === 5. Halaman Histori Penjualan ===
-    public function histori_index()
+    public function stok_destroy($id)
     {
-        $stokTerjual = StokAkun::with(['varianLayanan.tipeLayanan.produk', 'pembelian.customer.user'])
-            ->where('status', StokStatus::TERJUAL)
-            ->orderBy('tanggal_terjual', 'desc')
-            ->get();
+        $user = Auth::user();
+        $stok = StokAkun::findOrFail($id);
 
-        return view('premium_admin.histori.index', compact('stokTerjual'));
+        // Scope check
+        if ($user->role_id != 1) {
+            $toko = Toko::where('user_id', $user->id)->firstOrFail();
+            if ($stok->varianLayanan->tipeLayanan->produk->id_toko != $toko->id_toko) {
+                abort(403, 'Unauthorized access.');
+            }
+        }
+
+        $stok->delete();
+        Session::flash('success', 'Berhasil menghapus stok akun.');
+        return redirect()->route('premium.stok.index');
+    }
+
+    // === 4. Halaman Histori Penjualan ===
+    public function histori_index(Request $request)
+    {
+        $user = Auth::user();
+        
+        $startDateInput = $request->input('start_date');
+        $endDateInput = $request->input('end_date');
+        $statusInput = $request->input('status');
+
+        $startDate = null;
+        $endDate = null;
+
+        if ($startDateInput && $endDateInput) {
+            try {
+                $startDate = \Illuminate\Support\Carbon::parse($startDateInput)->startOfDay();
+                $endDate = \Illuminate\Support\Carbon::parse($endDateInput)->endOfDay();
+                
+                if ($startDate->greaterThan($endDate)) {
+                    return redirect()->back()->with('error', 'Tanggal mulai tidak boleh lebih besar dari tanggal akhir.');
+                }
+                
+                if ($startDate->diffInDays($endDate) > 365) {
+                    return redirect()->back()->with('error', 'Rentang tanggal maksimal adalah 1 tahun.');
+                }
+            } catch (\Exception $e) {
+                return redirect()->back()->with('error', 'Format tanggal tidak valid.');
+            }
+        }
+
+        if ($user->role_id == 1) {
+            // Admin sees all Pembelian (orders)
+            $query = \App\Models\Pembelian::with(['customer.user', 'logs', 'pembayaran', 'stokAkun.varianLayanan.tipeLayanan.produk']);
+
+            if ($startDate && $endDate) {
+                $query->whereBetween('created_at', [$startDate, $endDate]);
+            }
+
+            if ($statusInput) {
+                $query->where('status', $statusInput);
+            }
+
+            $orders = $query->orderBy('created_at', 'desc')->get();
+            
+            return view('premium_admin.histori.index', compact('orders', 'user'));
+        } else {
+            // Seller sees only their sold premium accounts
+            $toko = Toko::where('user_id', $user->id)->firstOrFail();
+            $query = StokAkun::whereHas('varianLayanan.tipeLayanan.produk', function($q) use ($toko) {
+                $q->where('id_toko', $toko->id_toko);
+            })
+            ->with(['varianLayanan.tipeLayanan.produk', 'pembelian.customer.user', 'pembelian.logs', 'pembelian.pembayaran'])
+            ->where('status', StokStatus::TERJUAL);
+
+            if ($startDate && $endDate) {
+                $query->whereBetween('tanggal_terjual', [$startDate, $endDate]);
+            }
+
+            $stokTerjual = $query->orderBy('tanggal_terjual', 'desc')->get();
+
+            return view('premium_admin.histori.index', compact('stokTerjual', 'user'));
+        }
+    }
+
+    // === 5. Retry Kirim Notifikasi WhatsApp Manual ===
+    public function retryWa(Request $request, $id_pembayaran)
+    {
+        $pembayaran = Pembayaran::with('pembelian')->findOrFail($id_pembayaran);
+        $pembelian = $pembayaran->pembelian;
+
+        if ($pembelian->status !== PembelianStatus::SUCCESS) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Notifikasi WhatsApp hanya dapat dikirim untuk transaksi yang berstatus SUCCESS.'
+            ], 400);
+        }
+
+        // Rate limit 60 seconds
+        if ($pembayaran->wa_last_retry_at && $pembayaran->wa_last_retry_at->diffInSeconds(now()) < 60) {
+            $secondsLeft = 60 - $pembayaran->wa_last_retry_at->diffInSeconds(now());
+            return response()->json([
+                'success' => false,
+                'message' => "Mohon tunggu {$secondsLeft} detik lagi sebelum mencoba mengirim ulang."
+            ], 429);
+        }
+
+        // Update retry stats
+        $pembayaran->wa_retry_count = $pembayaran->wa_retry_count + 1;
+        $pembayaran->wa_last_retry_at = now();
+        $pembayaran->wa_last_retry_by = Auth::id();
+        $pembayaran->save();
+
+        // Dispatch WA job
+        SendAccountInvoiceWhatsapp::dispatch($pembelian->id_pembelian);
+
+        // Audit Trail Log
+        \App\Models\PembelianLog::create([
+            'id_pembelian' => $pembelian->id_pembelian,
+            'status_lama' => $pembelian->status->value ?? 'success',
+            'status_baru' => $pembelian->status->value ?? 'success',
+            'sumber_perubahan' => 'manual_admin',
+            'keterangan' => 'Retry pengiriman WA ke-' . $pembayaran->wa_retry_count,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Job pengiriman notifikasi WhatsApp berhasil didispatch!',
+            'wa_retry_count' => $pembayaran->wa_retry_count,
+            'wa_last_retry_at' => $pembayaran->wa_last_retry_at->toDateTimeString(),
+        ]);
     }
 }

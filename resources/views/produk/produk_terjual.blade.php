@@ -39,7 +39,7 @@
                                 <tr class="text-center">
 
                                     <td>{{ $no++ }}</td>
-                                    <td>{{ $item->nama }}</td>
+                                    <td>{{ $item->nama_produk }}</td>
                                     <td>{{ $item->deskripsi }}</td>
                                     <td>{{ $item->produk_terjual_sum_jumlah_terjual }}</td>
 
