@@ -305,6 +305,17 @@
                     </div>
                     <div class="col-lg-6 mb-3 mb-lg-0">
                         <h4 class="font-weight-bold text-dark mb-2">{{ $toko->nama_toko }}</h4>
+
+                        @if($toko->badges && $toko->badges->isNotEmpty())
+                        <div class="mb-2 d-flex flex-wrap align-items-center" style="gap: 6px;">
+                            @foreach($toko->badges as $b)
+                            <span class="badge badge-dark p-2" data-toggle="tooltip" data-placement="top" title="{{ $b->nama_badge }}: {{ $b->deskripsi }}" style="cursor: pointer; background: #0f172a; border: 1px solid #8b5cf6; color: #a78bfa; font-size: 0.78rem; border-radius: 6px;">
+                                <i class="bi bi-patch-check-fill text-warning mr-1"></i> {{ $b->nama_badge }}
+                            </span>
+                            @endforeach
+                        </div>
+                        @endif
+
                         <p class="text-muted mb-3" style="font-size: 0.9rem; line-height: 1.5;">
                             {{ $toko->informasi_toko ?? 'Belum ada deskripsi profil untuk toko ini.' }}
                         </p>

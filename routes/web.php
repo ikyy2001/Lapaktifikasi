@@ -14,6 +14,8 @@ use App\Http\Controllers\KelolaSellerController;
 use App\Http\Controllers\SettingKomisiController;
 use App\Http\Controllers\SaldoTokoController;
 use App\Http\Controllers\SellerTokoController;
+use App\Http\Controllers\AdminVoucherController;
+use App\Http\Controllers\SellerVoucherController;
 use App\Http\Middleware\OnlyCustomer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
@@ -80,8 +82,11 @@ Route::middleware('auth')->group(function () {
             Route::get('/download_bukti_pembayaran/{order_id}', 'download_bukti_pembayaran')->name('download_bukti_pembayaran');
             Route::get('/bukti_pembayaran', 'index');
             Route::get('/metode_pembayaran/{order_id}', 'metode_pembayaran')->name('metode_pembayaran');
+            Route::post('/metode_pembayaran/{order_id}/generate', 'generate_transaksi')->name('metode_pembayaran.generate');
             Route::get('/bukti_pembayaran/status/{order_id}', 'status')->name('bukti_pembayaran.status');
-            Route::get('/api/status/{order_id}', 'statusApi')->name('bukti_pembayaran.status_api');
+            Route::get('/api/status/{order_id}', 'statusApi')
+                 ->name('bukti_pembayaran.status_api')
+                 ->middleware('throttle:30,1'); // Max 30 requests per minute
         });
     });
 
@@ -91,22 +96,26 @@ Route::middleware('auth')->group(function () {
     // via PremiumAdminController (scoping ada di dalam controller)
     // ──────────────────────────────────────────────────────────
     Route::middleware('prevent.customer')->group(function () {
-        Route::get('/premium/tipe', [PremiumAdminController::class, 'tipe_index'])->name('premium.tipe.index');
+        // Halaman Inventaris (Gabungan Tipe, Varian, Stok)
+        Route::get('/premium/inventaris', [PremiumAdminController::class, 'inventaris_index'])->name('premium.inventaris.index');
+
+        // CRUD Tipe
         Route::post('/premium/tipe', [PremiumAdminController::class, 'tipe_store'])->name('premium.tipe.store');
         Route::put('/premium/tipe/{id}', [PremiumAdminController::class, 'tipe_update'])->name('premium.tipe.update');
         Route::delete('/premium/tipe/{id}', [PremiumAdminController::class, 'tipe_destroy'])->name('premium.tipe.destroy');
 
-        Route::get('/premium/varian', [PremiumAdminController::class, 'varian_index'])->name('premium.varian.index');
+        // CRUD Varian
         Route::post('/premium/varian', [PremiumAdminController::class, 'varian_store'])->name('premium.varian.store');
         Route::put('/premium/varian/{id}', [PremiumAdminController::class, 'varian_update'])->name('premium.varian.update');
         Route::delete('/premium/varian/{id}', [PremiumAdminController::class, 'varian_destroy'])->name('premium.varian.destroy');
 
-        Route::get('/premium/stok', [PremiumAdminController::class, 'stok_index'])->name('premium.stok.index');
+        // CRUD Stok
         Route::post('/premium/stok', [PremiumAdminController::class, 'stok_store'])->name('premium.stok.store');
         Route::post('/premium/stok/bulk', [PremiumAdminController::class, 'stok_bulk_store'])->name('premium.stok.bulk_store');
         Route::get('/premium/stok/detail/{id}', [PremiumAdminController::class, 'stok_decrypt'])->name('premium.stok.decrypt');
         Route::delete('/premium/stok/{id}', [PremiumAdminController::class, 'stok_destroy'])->name('premium.stok.destroy');
 
+        // Histori Penjualan
         Route::get('/premium/histori', [PremiumAdminController::class, 'histori_index'])->name('premium.histori.index');
     });
 
@@ -118,11 +127,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/premium/laporan-admin', [LaporanController::class, 'admin_index'])->name('admin.laporan');
         Route::post('/premium/laporan-admin/{id}/status', [LaporanController::class, 'update_status'])->name('admin.laporan.status');
 
-        // Kelola Seller
+        // Kelola Seller & Badges
         Route::get('/kelola_seller', [KelolaSellerController::class, 'index'])->name('admin.kelola_seller');
         Route::post('/kelola_seller/store', [KelolaSellerController::class, 'store'])->name('admin.kelola_seller.store');
         Route::post('/kelola_seller/update/{id_toko}', [KelolaSellerController::class, 'update'])->name('admin.kelola_seller.update');
         Route::post('/kelola_seller/toggle_status/{id_toko}', [KelolaSellerController::class, 'toggleStatus'])->name('admin.kelola_seller.toggle_status');
+        Route::post('/kelola_seller/badge/attach/{id_toko}', [KelolaSellerController::class, 'attachBadge'])->name('admin.kelola_seller.badge.attach');
+        Route::post('/kelola_seller/badge/detach/{id_toko}/{id_badge}', [KelolaSellerController::class, 'detachBadge'])->name('admin.kelola_seller.badge.detach');
+        Route::post('/kelola_seller/badge/custom/{id_toko}', [KelolaSellerController::class, 'createCustomBadge'])->name('admin.kelola_seller.badge.custom');
 
         // Setting Komisi
         Route::get('/setting_komisi', [SettingKomisiController::class, 'index'])->name('admin.setting_komisi');
@@ -133,11 +145,22 @@ Route::middleware('auth')->group(function () {
         Route::get('/saldo_toko/detail/{id_toko}', [SaldoTokoController::class, 'detail'])->name('admin.saldo_toko.detail');
         Route::post('/saldo_toko/withdraw/{id_toko}', [SaldoTokoController::class, 'withdraw'])->name('admin.saldo_toko.withdraw');
         Route::post('/premium/pembayaran/{id_pembayaran}/retry-wa', [PremiumAdminController::class, 'retryWa'])->name('admin.pembayaran.retry_wa');
+
+        // Kelola Voucher Admin
+        Route::get('/admin/voucher', [AdminVoucherController::class, 'index'])->name('admin.voucher.index');
+        Route::get('/admin/voucher/create', [AdminVoucherController::class, 'create'])->name('admin.voucher.create');
+        Route::post('/admin/voucher', [AdminVoucherController::class, 'store'])->name('admin.voucher.store');
+        Route::get('/admin/voucher/{id}/edit', [AdminVoucherController::class, 'edit'])->name('admin.voucher.edit');
+        Route::put('/admin/voucher/{id}', [AdminVoucherController::class, 'update'])->name('admin.voucher.update');
+        Route::post('/admin/voucher/{id}/toggle-status', [AdminVoucherController::class, 'toggleStatus'])->name('admin.voucher.toggle_status');
     });
 
     // Premium Customer Routes
     Route::middleware('only.customer')->group(function () {
         Route::get('/premium/katalog', [PremiumCustomerController::class, 'katalog'])->name('premium.katalog');
+        Route::get('/premium/member', [PremiumCustomerController::class, 'member'])->name('premium.member');
+        Route::get('/premium/referral', [PremiumCustomerController::class, 'referral'])->name('premium.referral');
+        Route::post('/premium/voucher/{id_voucher}/klaim', [PremiumCustomerController::class, 'klaimVoucher'])->name('premium.voucher.klaim');
         Route::get('/premium/riwayat', [PremiumCustomerController::class, 'riwayat'])->name('premium.riwayat');
         Route::get('/premium/kredensial/{order_id}', [PremiumCustomerController::class, 'kredensial'])->name('premium.kredensial');
         Route::get('/premium/invoice/{order_id}/download', [PremiumCustomerController::class, 'downloadInvoice'])->name('premium.invoice.download');
@@ -152,9 +175,18 @@ Route::middleware('auth')->group(function () {
         Route::get('/seller/dashboard', [DashboardController::class, 'seller_index'])->name('seller.dashboard');
         Route::get('/seller/mutasi', [DashboardController::class, 'seller_mutasi']);
 
-        // Seller Toko Profil
+        // Seller Toko Profil & Badges
         Route::get('/seller/profil', [SellerTokoController::class, 'index']);
         Route::post('/seller/profil/update', [SellerTokoController::class, 'update']);
+        Route::get('/seller/badges', [SellerTokoController::class, 'badges'])->name('seller.badges');
+
+        // Seller Voucher CRUD
+        Route::get('/seller/voucher', [SellerVoucherController::class, 'index'])->name('seller.voucher.index');
+        Route::get('/seller/voucher/create', [SellerVoucherController::class, 'create'])->name('seller.voucher.create');
+        Route::post('/seller/voucher', [SellerVoucherController::class, 'store'])->name('seller.voucher.store');
+        Route::get('/seller/voucher/{id}/edit', [SellerVoucherController::class, 'edit'])->name('seller.voucher.edit');
+        Route::put('/seller/voucher/{id}', [SellerVoucherController::class, 'update'])->name('seller.voucher.update');
+        Route::post('/seller/voucher/{id}/toggle-status', [SellerVoucherController::class, 'toggleStatus'])->name('seller.voucher.toggle_status');
 
         // Seller Product CRUD (premium only)
         Route::resource('menu_produk', ProductController::class, ['except' => ['index', 'show']]);

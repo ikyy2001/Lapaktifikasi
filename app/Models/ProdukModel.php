@@ -19,6 +19,7 @@ class ProdukModel extends Model
         'gambar',
         'status',
         'tipe_produk',
+        'kategori',
         'id_toko',
     ];
 

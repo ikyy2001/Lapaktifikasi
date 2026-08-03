@@ -22,6 +22,10 @@ class Pembelian extends Model
         'id_varian',
         'id_stok',
         'harga_saat_beli',
+        'id_voucher_dipakai',
+        'nominal_diskon',
+        'payment_gateway',
+        'gateway_reference',
         'status',
         'reserved_until',
     ];
@@ -43,6 +47,11 @@ class Pembelian extends Model
     public function customer()
     {
         return $this->belongsTo(CustomerModel::class, 'id_customer', 'id');
+    }
+
+    public function voucher()
+    {
+        return $this->belongsTo(Voucher::class, 'id_voucher_dipakai', 'id_voucher');
     }
 
     public function varianLayanan()

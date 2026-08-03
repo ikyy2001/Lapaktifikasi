@@ -68,8 +68,11 @@ class AuthController extends Controller
         return $randomString;
     }
 
-    public function index()
+    public function index(Request $request)
     {
+        if ($request->query('ref')) {
+            session(['ref' => strtoupper(trim($request->query('ref')))]);
+        }
         return view('auth.login');
     }
 
@@ -118,9 +121,13 @@ class AuthController extends Controller
         }
     }
 
-    public function pendaftaran()
+    public function pendaftaran(Request $request)
     {
-        return view('auth.pendaftaran');
+        $ref = $request->query('ref');
+        if ($ref) {
+            session(['ref' => strtoupper(trim($ref))]);
+        }
+        return view('auth.pendaftaran', compact('ref'));
     }
 
     public function proses_pendaftaran(Request $request)
@@ -149,9 +156,18 @@ class AuthController extends Controller
             ]);
 
             if ($newUser->role_id != 1) {
+                $refCode = strtoupper(trim((string) ($request->input('ref') ?? session('ref'))));
+                $referrer = null;
+                if (!empty($refCode)) {
+                    $referrer = CustomerModel::where('kode_referral', $refCode)->first();
+                }
+
                 CustomerModel::create([
-                    'user_id' => $newUser->id
+                    'user_id' => $newUser->id,
+                    'direferensikan_oleh' => $referrer?->id,
                 ]);
+
+                session()->forget('ref');
             }
 
             $this->setSessionFlash('success', 'Berhasil mendaftar. Silakan login terlebih dahulu.');
@@ -159,8 +175,11 @@ class AuthController extends Controller
         }
     }
 
-    public function redirect()
+    public function redirect(Request $request)
     {
+        if ($request->query('ref')) {
+            session(['ref' => strtoupper(trim($request->query('ref')))]);
+        }
         return Socialite::driver('google')->redirect();
     }
 
@@ -182,9 +201,18 @@ class AuthController extends Controller
             ]);
 
             if ($newUser->role_id != 1) {
+                $refCode = session('ref');
+                $referrer = null;
+                if (!empty($refCode)) {
+                    $referrer = CustomerModel::where('kode_referral', strtoupper(trim($refCode)))->first();
+                }
+
                 CustomerModel::create([
-                    'user_id' => $newUser->id
+                    'user_id' => $newUser->id,
+                    'direferensikan_oleh' => $referrer?->id,
                 ]);
+
+                session()->forget('ref');
             }
 
             Auth::login($newUser);

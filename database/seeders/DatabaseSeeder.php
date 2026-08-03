@@ -16,8 +16,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Seed Roles
-        DB::table('tbl_roles')->insert([
+        DB::table('tbl_roles')->insertOrIgnore([
             ['id' => 1, 'role' => 'admin'],
             ['id' => 2, 'role' => 'costumer'], // matching original spelling 'costumer'
             ['id' => 3, 'role' => 'seller'],
@@ -64,5 +63,6 @@ class DatabaseSeeder extends Seeder
         // 3. Call Legacy and Premium Seeders
         $this->call(LegacyTablesSeeder::class);
         $this->call(PremiumAccountSeeder::class);
+        $this->call(DummySellerSeeder::class);
     }
 }

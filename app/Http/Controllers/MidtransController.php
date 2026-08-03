@@ -13,6 +13,7 @@ use App\Models\Pembelian;
 use App\Models\ProdukModel;
 use App\Models\StokAkun;
 use App\Models\User;
+use App\Services\PaymentProcessingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -20,6 +21,13 @@ use Illuminate\Support\Facades\Mail;
 
 class MidtransController extends Controller
 {
+    protected $paymentProcessor;
+
+    public function __construct(PaymentProcessingService $paymentProcessor)
+    {
+        $this->paymentProcessor = $paymentProcessor;
+    }
+
     public function callback(Request $request)
     {
         $serverKey = config('midtrans.server_key');
@@ -42,9 +50,10 @@ class MidtransController extends Controller
         }
 
         try {
-            $midtransStatus = \Midtrans\Transaction::status($order_id);
-            $transaction_status = $midtransStatus->transaction_status;
-            $fraud_status = $midtransStatus->fraud_status ?? null;
+            $gateway = \App\Services\Gateways\PaymentGatewayFactory::make('midtrans');
+            $statusData = $gateway->verifyStatus($order_id);
+            $transaction_status = $statusData['raw_status'];
+            $fraud_status = $statusData['fraud_status'] ?? null;
         } catch (\Exception $e) {
             Log::error('Midtrans status check failed in webhook', ['order_id' => $order_id, 'error' => $e->getMessage()]);
             $transaction_status = $request->transaction_status;
@@ -79,111 +88,18 @@ class MidtransController extends Controller
             || ($transaction_status === 'capture' && $fraud_status === 'accept');
 
         if ($isPaymentSuccess) {
-            DB::transaction(function () use ($pembelian, $request, $order_id) {
-                Pembelian::$sumberPerubahan = 'webhook_midtrans';
-                $pembelian->update([
-                    'status' => PembelianStatus::SUCCESS,
-                    'reserved_until' => null,
-                ]);
-                Pembelian::$sumberPerubahan = null;
-
-                $pembayaranExists = Pembayaran::where('id_pembelian', $pembelian->id_pembelian)->exists();
-                if (! $pembayaranExists) {
-                    Pembayaran::create([
-                        'id_pembelian' => $pembelian->id_pembelian,
-                        'metode_pembayaran' => $request->payment_type,
-                        'jumlah_dibayar' => $request->gross_amount,
-                        'midtrans_transaction_id' => $request->transaction_id,
-                        'tanggal_bayar' => now(),
-                    ]);
-                }
-
-                $stok = StokAkun::find($pembelian->id_stok);
-
-                if ($stok) {
-                    $stok->update([
-                        'status' => StokStatus::TERJUAL,
-                        'tanggal_terjual' => now(),
-                    ]);
-                } else {
-                    // CASE edge case 4.3: reserved stock was released (status not reserved or assigned to another order)
-                    // Try to assign another available stock of the SAME id_varian
-                    $newStok = StokAkun::where('id_varian', $pembelian->id_varian)
-                        ->where('status', StokStatus::TERSEDIA)
-                        ->orderBy('created_at', 'asc')
-                        ->lockForUpdate()
-                        ->first();
-
-                    if ($newStok) {
-                        $newStok->update([
-                            'status' => StokStatus::TERJUAL,
-                            'id_pembelian' => $pembelian->id_pembelian,
-                            'tanggal_terjual' => now(),
-                        ]);
-
-                        $pembelian->update([
-                            'id_stok' => $newStok->id_stok,
-                        ]);
-                    } else {
-                        // No stock available at all
-                        try {
-                            Mail::raw(
-                                "Peringatan: Transaksi dengan Order ID {$order_id} berhasil dibayar, tetapi stok untuk varian tersebut telah habis. Silakan lakukan pengisian stok secara manual untuk pengguna.",
-                                function ($message) use ($order_id) {
-                                    $message->to('g4lihanggoro@gmail.com')
-                                        ->subject("Peringatan: Stok Akun Premium Habis (Order ID: {$order_id})");
-                                }
-                            );
-                        } catch (\Exception $mailEx) {
-                            Log::error('Failed to send admin out-of-stock notification: ' . $mailEx->getMessage());
-                        }
-                    }
-                }
-            });
-
-            SendAccountInvoiceWhatsapp::dispatch($pembelian->id_pembelian);
-
-            try {
-                $pembelian->refresh();
-                $customerUser = $pembelian->customer->user;
-                $varian = $pembelian->varianLayanan;
-                $namaProdukVarian = $varian->tipeLayanan->produk->nama_produk . ' - ' . $varian->tipeLayanan->nama_tipe . ' (' . $varian->nama_varian . ')';
-
-                Mail::to($customerUser->email)->send(new \App\Mail\MailPremiumBeli(
-                    $customerUser->name ?? $customerUser->email,
-                    $namaProdukVarian,
-                    $pembelian->harga_saat_beli,
-                    $pembelian->order_id
-                ));
-            } catch (\Exception $mailEx) {
-                Log::error('Failed to send premium purchase email in Midtrans callback: ' . $mailEx->getMessage());
-            }
+            $this->paymentProcessor->markAsSuccess($pembelian, [
+                'payment_type' => $request->payment_type,
+                'payment_gateway' => 'midtrans',
+                'gross_amount' => $request->gross_amount,
+                'transaction_id' => $request->transaction_id,
+            ]);
 
             return response()->json(['message' => 'payment processed']);
         }
 
         if (in_array($request->transaction_status, ['deny', 'expire', 'cancel'], true)) {
-            $statusPembelian = $request->transaction_status === 'expire'
-                ? PembelianStatus::EXPIRED
-                : PembelianStatus::FAILED;
-
-            DB::transaction(function () use ($pembelian, $statusPembelian) {
-                Pembelian::$sumberPerubahan = 'webhook_midtrans';
-                $pembelian->update(['status' => $statusPembelian]);
-                Pembelian::$sumberPerubahan = null;
-
-                if ($pembelian->id_stok) {
-                    $stok = StokAkun::find($pembelian->id_stok);
-                    if ($stok && $stok->status === StokStatus::RESERVED) {
-                        $stok->update([
-                            'status' => StokStatus::TERSEDIA,
-                            'reserved_at' => null,
-                            'reserved_expired_at' => null,
-                            'id_pembelian' => null,
-                        ]);
-                    }
-                }
-            });
+            $this->paymentProcessor->markAsFailed($pembelian, $request->transaction_status, 'midtrans');
 
             return response()->json(['message' => 'payment ' . $request->transaction_status]);
         }

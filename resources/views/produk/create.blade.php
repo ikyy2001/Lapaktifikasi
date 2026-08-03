@@ -98,7 +98,7 @@
                                 <div class="mt-3 p-2 rounded" style="background:#f0f4ff; font-size:0.85rem;">
                                     <i class="fas fa-info-circle text-primary mr-1"></i>
                                     <strong>Langkah berikutnya:</strong> Setelah produk tersimpan, buka
-                                    <a href="{{ route('premium.tipe.index') }}">Tipe Layanan</a>
+                                    <a href="{{ route('premium.inventaris.index', ['tab' => 'tipe']) }}">Tipe Layanan</a>
                                     dan tambahkan tipe seperti <em>"Private"</em> atau <em>"Sharing"</em>.
                                 </div>
                             </form>

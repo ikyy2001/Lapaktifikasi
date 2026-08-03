@@ -41,6 +41,9 @@ class Kernel extends ConsoleKernel
                 });
             }
         })->everyMinute();
+
+        $schedule->command('pakasir:expire-transactions')->everyFiveMinutes();
+        $schedule->command('seller:evaluate-badges')->daily();
     }
 
     /**

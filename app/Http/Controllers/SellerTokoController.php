@@ -71,4 +71,62 @@ class SellerTokoController extends Controller
         Session::flash('success', 'Profil toko Anda berhasil diperbarui.');
         return redirect('/seller/profil');
     }
+
+    public function badges()
+    {
+        $toko = Toko::with('badges')->where('user_id', Auth::id())->firstOrFail();
+        $allBadges = \App\Models\SellerBadge::all();
+
+        $rating = (float) ($toko->rating_rata_rata ?? 0);
+        $lamaBergabungHari = $toko->created_at ? (int) now()->diffInDays($toko->created_at) : 0;
+        $volumeTransaksi = \App\Models\Pembelian::whereHas('varianLayanan.tipeLayanan.produk', function ($q) use ($toko) {
+            $q->where('id_toko', $toko->id_toko);
+        })->where('status', \App\Enums\PembelianStatus::SUCCESS)->count();
+
+        $ownedBadgeIds = $toko->badges->pluck('id_badge')->toArray();
+
+        $badgeProgress = [];
+        foreach ($allBadges as $b) {
+            $isOwned = in_array($b->id_badge, $ownedBadgeIds);
+            $threshold = (float) $b->kriteria_nilai;
+            $currentVal = 0;
+            $progressText = '';
+            $percent = 0;
+
+            switch ($b->kriteria_tipe) {
+                case 'rating_minimal':
+                    $currentVal = $rating;
+                    $percent = min(100, round(($rating / max(1, $threshold)) * 100));
+                    $sisa = max(0, round($threshold - $rating, 2));
+                    $progressText = $isOwned ? 'Kriteria terpenuhi!' : "Rating saat ini {$rating}/{$threshold} (butuh +{$sisa} rating)";
+                    break;
+                case 'lama_bergabung':
+                    $currentVal = $lamaBergabungHari;
+                    $percent = min(100, round(($lamaBergabungHari / max(1, $threshold)) * 100));
+                    $sisa = max(0, (int) $threshold - $lamaBergabungHari);
+                    $progressText = $isOwned ? 'Kriteria terpenuhi!' : "Bergabung {$lamaBergabungHari}/{$threshold} hari (butuh {$sisa} hari lagi)";
+                    break;
+                case 'volume_transaksi':
+                    $currentVal = $volumeTransaksi;
+                    $percent = min(100, round(($volumeTransaksi / max(1, $threshold)) * 100));
+                    $sisa = max(0, (int) $threshold - $volumeTransaksi);
+                    $progressText = $isOwned ? 'Kriteria terpenuhi!' : "{$volumeTransaksi}/{$threshold} transaksi sukses (butuh {$sisa} transaksi lagi)";
+                    break;
+                default:
+                    $progressText = 'Fitur tracking otomatis kriteria ini belum tersedia.';
+                    $percent = $isOwned ? 100 : 0;
+                    break;
+            }
+
+            $badgeProgress[] = [
+                'badge' => $b,
+                'is_owned' => $isOwned,
+                'progress_text' => $progressText,
+                'percent' => $percent,
+                'diperoleh_pada' => $isOwned ? $toko->badges->where('id_badge', $b->id_badge)->first()?->pivot?->diperoleh_pada : null,
+            ];
+        }
+
+        return view('seller.badges', compact('toko', 'badgeProgress'));
+    }
 }

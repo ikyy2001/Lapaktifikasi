@@ -42,7 +42,7 @@
                         <span>
                             <i class="fas fa-lightbulb mr-1"></i>
                             <strong>Tips:</strong> Tambah produk (contoh: <em>Netflix, Spotify</em>), lalu atur
-                            <a href="{{ route('premium.tipe.index') }}" class="font-weight-bold">Tipe Layanan</a> &amp; stok akun.
+                            <a href="{{ route('premium.inventaris.index', ['tab' => 'tipe']) }}" class="font-weight-bold">Tipe Layanan</a> &amp; stok akun.
                         </span>
                         <a href="{{ route('menu_produk.create') }}" class="btn btn-info btn-sm ml-3 text-nowrap text-white">
                             <i class="fas fa-plus mr-1"></i> Tambah Produk

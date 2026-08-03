@@ -29,73 +29,109 @@
     <link rel="stylesheet" href="{{asset('assets/css/components.css')}}">
     <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{config('midtrans.client_key')}}"></script>
     <style>
-        /* Light Monochrome Layout Overrides */
+        /* Light Modern Background with subtle mesh gradient for glassmorphism pop */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: -10;
+            background-color: #f4f6f9 !important;
+            background-image: 
+                radial-gradient(at 40% 20%, hsla(220,100%,80%,0.2) 0px, transparent 50%),
+                radial-gradient(at 80% 0%, hsla(280,100%,80%,0.2) 0px, transparent 50%),
+                radial-gradient(at 0% 50%, hsla(180,100%,80%,0.2) 0px, transparent 50%),
+                radial-gradient(at 80% 50%, hsla(320,100%,80%,0.2) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, hsla(40,100%,80%,0.2) 0px, transparent 50%),
+                radial-gradient(at 80% 100%, hsla(120,100%,80%,0.2) 0px, transparent 50%);
+            /* Hardware acceleration to prevent mobile lag */
+            transform: translateZ(0); 
+            will-change: transform;
+        }
+        
         body {
-            background-color: #fafafa !important;
-            color: #000000 !important;
+            background-color: transparent !important;
+            color: #2d3748 !important;
+        }
+        
+        @keyframes cardEntrance {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Sidebar Styling */
+        /* Sidebar Glassmorphism Styling */
         .main-sidebar {
-            background-color: #ffffff !important;
-            border-right: 1px solid #e5e5e5 !important;
-            box-shadow: none !important;
+            background: rgba(255, 255, 255, 0.45) !important;
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-right: 1px solid rgba(255, 255, 255, 0.4) !important;
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.03) !important;
+            z-index: 890;
         }
 
         .main-sidebar .sidebar-brand {
-            border-bottom: 1px solid #e5e5e5 !important;
-            background-color: #ffffff !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3) !important;
+            background: transparent !important;
         }
 
         .main-sidebar .sidebar-brand a {
-            color: #000000 !important;
-            font-weight: 800 !important;
-            letter-spacing: -0.5px !important;
+            color: #1a1a1a !important;
+            font-weight: 900 !important;
+            letter-spacing: -0.3px !important;
             text-transform: uppercase !important;
+            background: linear-gradient(135deg, #000000, #434343);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .main-sidebar .sidebar-menu li.menu-header {
-            color: #a0a0a0 !important;
-            font-weight: 700 !important;
-            letter-spacing: 0.8px !important;
+            color: rgba(0, 0, 0, 0.45) !important;
+            font-weight: 800 !important;
+            letter-spacing: 1px !important;
             font-size: 10px !important;
             text-transform: uppercase !important;
-            padding: 3px 20px !important;
+            padding: 5px 20px !important;
             margin-top: 15px !important;
         }
 
         .main-sidebar .sidebar-menu li a {
-            color: #444444 !important;
+            color: #4a5568 !important;
             font-weight: 600 !important;
-            border-radius: 8px !important;
-            margin: 4px 12px !important;
+            border-radius: 12px !important;
+            margin: 4px 14px !important;
             padding: 0 15px !important;
-            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-            font-size: 13px !important;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+            font-size: 13.5px !important;
+            background: transparent !important;
+            border: 1px solid transparent !important;
         }
 
         .main-sidebar .sidebar-menu li a i {
-            color: #444444 !important;
-            transition: color 0.2s ease !important;
+            color: rgba(0, 0, 0, 0.5) !important;
+            transition: all 0.3s ease !important;
+            font-size: 16px !important;
         }
 
         .main-sidebar .sidebar-menu li.active a {
-            background-color: #000000 !important;
-            color: #ffffff !important;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15) !important;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.5)) !important;
+            border: 1px solid rgba(255, 255, 255, 0.7) !important;
+            color: #000000 !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05), inset 0 0 0 1px rgba(255, 255, 255, 0.2) !important;
         }
 
         .main-sidebar .sidebar-menu li.active a i {
-            color: #ffffff !important;
+            color: #000000 !important;
         }
 
         .main-sidebar .sidebar-menu li a:hover {
-            background-color: #f2f2f2 !important;
+            background: rgba(255, 255, 255, 0.5) !important;
             color: #000000 !important;
+            transform: translateX(4px);
+            border-color: rgba(255, 255, 255, 0.4) !important;
         }
 
         .main-sidebar .sidebar-menu li a:hover i {
             color: #000000 !important;
+            transform: scale(1.1);
         }
 
         /* Navbar & Header Overrides */
@@ -129,9 +165,12 @@
 
         /* Dropdown menu overrides */
         .dropdown-menu {
-            border: 1px solid #e5e5e5 !important;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08) !important;
-            border-radius: 12px !important;
+            background: rgba(255, 255, 255, 0.85) !important;
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.5) !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+            border-radius: 16px !important;
             padding: 10px !important;
         }
 
@@ -139,9 +178,10 @@
             color: #333333 !important;
             font-weight: 600 !important;
             padding: 10px 20px !important;
-            border-radius: 8px !important;
+            border-radius: 10px !important;
             transition: all 0.2s ease !important;
-            font-size: 13px !important;
+            font-size: 13.5px !important;
+            background: transparent !important;
         }
 
         .dropdown-item i {
@@ -150,8 +190,9 @@
         }
 
         .dropdown-item:hover {
-            background-color: #f2f2f2 !important;
+            background-color: rgba(0, 0, 0, 0.04) !important;
             color: #000000 !important;
+            transform: translateX(4px);
         }
 
         .dropdown-item.text-danger {
@@ -159,28 +200,112 @@
         }
         
         .dropdown-item.text-danger:hover {
-            background-color: #fff5f5 !important;
+            background-color: rgba(252, 84, 75, 0.1) !important;
             color: #fc544b !important;
+        }
+        
+        /* Glassmorphism for Cards (Dashboard Content) */
+        .card, .mono-card {
+            background: rgba(255, 255, 255, 0.6) !important;
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.5) !important;
+            border-radius: 18px !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.03) !important;
+            animation: cardEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+            transform: translateZ(0); 
+            will-change: transform, opacity;
+        }
+        
+        .card .card-header, .mono-card .card-header {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04) !important;
+            background-color: transparent !important;
+            padding-top: 20px !important;
+            padding-bottom: 20px !important;
+        }
+        
+        .card .card-footer, .mono-card .card-footer {
+            border-top: 1px solid rgba(0, 0, 0, 0.04) !important;
+            background-color: transparent !important;
+        }
+
+        /* Glassmorphism for Form Controls & Inputs */
+        .form-control, .custom-select, .selectric {
+            background: rgba(255, 255, 255, 0.6) !important;
+            border: 1px solid rgba(0, 0, 0, 0.08) !important;
+            border-radius: 12px !important;
+            color: #2d3748 !important;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+        }
+        
+        .form-control:focus, .custom-select:focus {
+            background: rgba(255, 255, 255, 0.9) !important;
+            border-color: rgba(103, 119, 239, 0.5) !important;
+            box-shadow: 0 0 0 0.2rem rgba(103, 119, 239, 0.15) !important;
+        }
+
+        /* Input Group Addons (Icons in forms) */
+        .input-group-text {
+            background: rgba(255, 255, 255, 0.4) !important;
+            border: 1px solid rgba(0, 0, 0, 0.08) !important;
+            border-right: none !important;
+            border-radius: 12px 0 0 12px !important;
+        }
+        .input-group .form-control {
+            border-left: none !important;
+        }
+
+        /* Buttons Enhancement */
+        .btn {
+            border-radius: 10px !important;
+            font-weight: 600 !important;
+            transition: all 0.3s ease !important;
+            border: none !important;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1) !important;
+        }
+
+        /* Tables Enhancements */
+        .table {
+            color: #2d3748 !important;
+        }
+        .table th, .table td {
+            border-color: rgba(0, 0, 0, 0.04) !important;
+        }
+        .table thead th {
+            background-color: rgba(0, 0, 0, 0.02) !important;
+            color: #4a5568 !important;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.05) !important;
+        }
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(0, 0, 0, 0.015) !important;
         }
         
         /* Modals overrides */
         .modal-content {
-            border: 1px solid #000000 !important;
-            border-radius: 16px !important;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+            background: rgba(255, 255, 255, 0.85) !important;
+            backdrop-filter: blur(25px) saturate(200%);
+            -webkit-backdrop-filter: blur(25px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.6) !important;
+            border-radius: 20px !important;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1) !important;
         }
         
         .modal-header {
-            border-bottom: 1px solid #e5e5e5 !important;
+            border-bottom: 1px solid rgba(0,0,0,0.05) !important;
         }
         
         .modal-footer {
-            border-top: 1px solid #e5e5e5 !important;
+            border-top: 1px solid rgba(0,0,0,0.05) !important;
         }
         
         .modal-title {
-            font-weight: 700 !important;
-            color: #000000 !important;
+            font-weight: 800 !important;
+            color: #1a1a1a !important;
             text-transform: uppercase !important;
         }
 
@@ -346,18 +471,18 @@
                         <li class="nav-item @if(Request::path() == 'seller/profil') active @endif">
                             <a href="{{ url('seller/profil') }}" class="nav-link"><i class="bi bi-shop pl-3"></i> <span>Profil Toko</span></a>
                         </li>
+                        <li class="nav-item @if(Request::path() == 'seller/badges') active @endif">
+                            <a href="{{ route('seller.badges') }}" class="nav-link"><i class="bi bi-patch-check-fill pl-3"></i> <span>Badge Toko</span></a>
+                        </li>
+                        <li class="nav-item @if(Request::segment(2) == 'voucher') active @endif">
+                            <a href="{{ route('seller.voucher.index') }}" class="nav-link"><i class="bi bi-ticket-detailed-fill pl-3"></i> <span>Voucher Toko</span></a>
+                        </li>
                         @endif
 
                         @if(Auth::user()->role_id == 1 || Auth::user()->role_id == 3)
                         <li class="menu-header">Premium Layanan</li>
-                        <li class="nav-item @if(Request::segment(2) == 'tipe') active @endif">
-                            <a href="{{ route('premium.tipe.index') }}" class="nav-link"><i class="bi bi-tags pl-3"></i> <span>Tipe Layanan</span></a>
-                        </li>
-                        <li class="nav-item @if(Request::segment(2) == 'varian') active @endif">
-                            <a href="{{ route('premium.varian.index') }}" class="nav-link"><i class="bi bi-layers pl-3"></i> <span>Varian Layanan</span></a>
-                        </li>
-                        <li class="nav-item @if(Request::segment(2) == 'stok') active @endif">
-                            <a href="{{ route('premium.stok.index') }}" class="nav-link"><i class="bi bi-key pl-3"></i> <span>Stok Akun</span></a>
+                        <li class="nav-item @if(Request::segment(2) == 'inventaris') active @endif">
+                            <a href="{{ route('premium.inventaris.index') }}" class="nav-link"><i class="bi bi-box-seam pl-3"></i> <span>Kelola Inventaris</span></a>
                         </li>
                         <li class="nav-item @if(Request::segment(2) == 'histori') active @endif">
                             <a href="{{ route('premium.histori.index') }}" class="nav-link"><i class="bi bi-journal-text pl-3"></i> <span>Histori Penjualan</span></a>
@@ -378,6 +503,9 @@
                         <li class="nav-item @if(Request::path() == 'saldo_toko' || Request::segment(1) == 'saldo_toko') active @endif">
                             <a href="{{ url('saldo_toko') }}" class="nav-link"><i class="bi bi-wallet2 pl-3"></i> <span>Kelola Saldo Toko</span></a>
                         </li>
+                        <li class="nav-item @if(Request::segment(2) == 'voucher') active @endif">
+                            <a href="{{ route('admin.voucher.index') }}" class="nav-link"><i class="bi bi-ticket-perforated-fill pl-3"></i> <span>Kelola Voucher</span></a>
+                        </li>
                         @endif
 
                         @if(Auth::user()->role_id == 2)
@@ -392,6 +520,12 @@
                         <li class="menu-header">Akun Premium</li>
                         <li class="nav-item @if(Request::path() == 'premium/katalog') active @endif">
                             <a href="{{ route('premium.katalog') }}" class="nav-link"><i class="bi bi-shop pl-3"></i> <span>Katalog Premium</span></a>
+                        </li>
+                        <li class="nav-item @if(Request::path() == 'premium/member') active @endif">
+                            <a href="{{ route('premium.member') }}" class="nav-link"><i class="bi bi-award-fill pl-3"></i> <span>Level Saya</span></a>
+                        </li>
+                        <li class="nav-item @if(Request::path() == 'premium/referral') active @endif">
+                            <a href="{{ route('premium.referral') }}" class="nav-link"><i class="bi bi-people-fill pl-3"></i> <span>Ajak Teman</span></a>
                         </li>
                         <li class="nav-item @if(Request::path() == 'premium/riwayat') active @endif">
                             <a href="{{ route('premium.riwayat') }}" class="nav-link"><i class="bi bi-receipt pl-3"></i> <span>Riwayat Premium</span></a>
@@ -545,54 +679,7 @@
     </script>
     @endif
 
-    @if (isset($snapToken) && isset($pathId) && Request::path() ==
-    "metode_pembayaran/{$pathId}")
-    <script>
-        document.getElementById("pay-button").onclick = function () {
-            // SnapToken acquired from previous step
-            snap.pay("{{ $snapToken }}", {
-                // Optional
-                onSuccess: function (result) {
-                    const Toast = Swal.mixin({
-                            toast: true,
-                            position: "top-end",
-                            showConfirmButton: false,
-                            timer: 3000,
-                            timerProgressBar: true,
-                            didOpen: (toast) => {
-                                toast.onmouseenter = Swal.stopTimer;
-                                toast.onmouseleave = Swal.resumeTimer;
-                            }
-                            });
-                            Toast.fire({
-                            icon: "success",
-                            title: "Pembayaran midtrans telah berhasil pada order id {{ $orderIdProduk }}."
-                            });
 
-                    setTimeout(() => {
-                        window.location.href = "{{ url('bukti_pembayaran') }}";
-                    }, 3000);
-                },
-                // Optional
-                onPending: function (result) {
-                    Swal.fire({
-                        title: "Pending",
-                        text: "Pembayaran Anda pending.",
-                        icon: "warning"
-                    });
-                },
-                // Optional
-                onError: function (result) {
-                    Swal.fire({
-                        title: "Gagal",
-                        text: "Pembayaran Anda gagal.",
-                        icon: "error"
-                    });
-                },
-            });
-        };
-    </script>
-    @endif
     <script>
         $(document).ready(function() {
             $('.modal').appendTo('body');

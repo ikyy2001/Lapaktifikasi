@@ -24,7 +24,8 @@ class SendAccountInvoiceWhatsapp implements ShouldQueue
 
     public function __construct(
         public int $idPembelian
-    ) {}
+    ) {
+    }
 
     public function handle(FonnteService $fonnte): void
     {
@@ -34,7 +35,7 @@ class SendAccountInvoiceWhatsapp implements ShouldQueue
             'stokAkun',
         ])->find($this->idPembelian);
 
-        if (! $pembelian) {
+        if (!$pembelian) {
             Log::warning('SendAccountInvoiceWhatsapp: pembelian tidak ditemukan', [
                 'id_pembelian' => $this->idPembelian,
             ]);
@@ -53,7 +54,7 @@ class SendAccountInvoiceWhatsapp implements ShouldQueue
             return;
         }
 
-        if (! $pembelian->stokAkun) {
+        if (!$pembelian->stokAkun) {
             Log::warning('SendAccountInvoiceWhatsapp: stok akun tidak ditemukan', [
                 'id_pembelian' => $this->idPembelian,
                 'order_id' => $pembelian->order_id,
@@ -76,7 +77,7 @@ class SendAccountInvoiceWhatsapp implements ShouldQueue
 
         $pembayaran = Pembayaran::where('id_pembelian', $this->idPembelian)->first();
 
-        if (! $pembayaran) {
+        if (!$pembayaran) {
             Log::warning('SendAccountInvoiceWhatsapp: pembayaran tidak ditemukan', [
                 'id_pembelian' => $this->idPembelian,
                 'order_id' => $pembelian->order_id,

@@ -11,20 +11,16 @@ use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\MailProdukBeli;
+use App\Services\PaymentProcessingService;
 
 class PembayaranController extends Controller
 {
 
-    public function __construct()
+    protected $paymentProcessor;
+
+    public function __construct(PaymentProcessingService $paymentProcessor)
     {
-        // Set your Merchant Server Key
-        \Midtrans\Config::$serverKey = config('midtrans.server_key');
-        // Set to Development/Sandbox Environment (default). Set to true for Production Environment (accept real transaction).
-        \Midtrans\Config::$isProduction = false;
-        // Set sanitization on (default)
-        \Midtrans\Config::$isSanitized = true;
-        // Set 3DS transaction for credit card to true
-        \Midtrans\Config::$is3ds = true;
+        $this->paymentProcessor = $paymentProcessor;
     }
 
     private function syncTransactionStatus(string $order_id, $beli_produk = null)
@@ -37,55 +33,19 @@ class PembayaranController extends Controller
             }
 
             try {
-                $status = \Midtrans\Transaction::status($order_id);
-                if ($status->transaction_status == 'settlement' || ($status->transaction_status == 'capture' && $status->fraud_status == 'accept')) {
-                    $pembayaranExists = \App\Models\Pembayaran::where('id_pembelian', $pembelian->id_pembelian)->exists();
-                    if (!$pembayaranExists) {
-                        \App\Models\Pembayaran::create([
-                            'id_pembelian' => $pembelian->id_pembelian,
-                            'metode_pembayaran' => $status->payment_type ?? 'midtrans',
-                            'jumlah_dibayar' => $status->gross_amount,
-                            'midtrans_transaction_id' => $status->transaction_id ?? null,
-                            'tanggal_bayar' => now(),
-                        ]);
-                    }
-
-                    \App\Models\Pembelian::$sumberPerubahan = 'webhook_midtrans';
-                    $pembelian->update(['status' => \App\Enums\PembelianStatus::SUCCESS]);
-                    \App\Models\Pembelian::$sumberPerubahan = null;
-
-                    // Send Email to Customer
-                    try {
-                        $customerUser = $pembelian->customer->user;
-                        $varian = $pembelian->varianLayanan;
-                        $namaProdukVarian = $varian->tipeLayanan->produk->nama_produk . ' - ' . $varian->tipeLayanan->nama_tipe . ' (' . $varian->nama_varian . ')';
-
-                        \Illuminate\Support\Facades\Mail::to($customerUser->email)->send(new \App\Mail\MailPremiumBeli(
-                            $customerUser->name ?? $customerUser->email,
-                            $namaProdukVarian,
-                            $pembelian->harga_saat_beli,
-                            $pembelian->order_id
-                        ));
-                    } catch (\Exception $mailEx) {
-                        \Log::error('Failed to send premium purchase email in syncTransactionStatus: ' . $mailEx->getMessage());
-                    }
-
-                    if ($pembelian->id_stok) {
-                        $stok = \App\Models\StokAkun::find($pembelian->id_stok);
-                        if ($stok) {
-                            $stok->update([
-                                'status' => \App\Enums\StokStatus::TERJUAL,
-                                'tanggal_terjual' => now(),
-                            ]);
-                        }
-                    }
-
-                    // Dispatch WA Invoice Job
-                    \App\Jobs\SendAccountInvoiceWhatsapp::dispatch($pembelian->id_pembelian);
-                } elseif (in_array($status->transaction_status, ['deny', 'expire', 'cancel'])) {
-                    \App\Models\Pembelian::$sumberPerubahan = 'webhook_midtrans';
-                    $pembelian->update(['status' => \App\Enums\PembelianStatus::FAILED]);
-                    \App\Models\Pembelian::$sumberPerubahan = null;
+                $gatewayName = $pembelian->payment_gateway ?? 'midtrans';
+                $gateway = \App\Services\Gateways\PaymentGatewayFactory::make($gatewayName);
+                $statusData = $gateway->verifyStatus($order_id, (int)$pembelian->harga_saat_beli);
+                
+                if ($statusData['status'] === \App\Enums\PembelianStatus::SUCCESS) {
+                    $this->paymentProcessor->markAsSuccess($pembelian, [
+                        'payment_type' => $statusData['payment_type'] ?? 'unknown',
+                        'payment_gateway' => $gatewayName,
+                        'gross_amount' => $statusData['gross_amount'] ?? $pembelian->harga_saat_beli,
+                        'transaction_id' => $statusData['transaction_id'] ?? null,
+                    ]);
+                } elseif (in_array($statusData['status'], [\App\Enums\PembelianStatus::FAILED, \App\Enums\PembelianStatus::EXPIRED])) {
+                    $this->paymentProcessor->markAsFailed($pembelian, $statusData['status']->value ?? 'failed', $gatewayName);
                 }
             } catch (\Exception $e) {
                 // Ignore status check failure
@@ -104,15 +64,16 @@ class PembayaranController extends Controller
         }
 
         try {
-            $status = \Midtrans\Transaction::status($order_id);
-            if ($status->transaction_status == 'settlement' || ($status->transaction_status == 'capture' && $status->fraud_status == 'accept')) {
+            $gateway = \App\Services\Gateways\PaymentGatewayFactory::make('midtrans');
+            $statusData = $gateway->verifyStatus($order_id);
+            if ($statusData['status'] === \App\Enums\PembelianStatus::SUCCESS) {
                 $tanggal_saat_ini = date('Y-m-d');
 
                 $pembayaranExists = PembayaranModel::where('order_id', $order_id)->exists();
                 if (!$pembayaranExists) {
                     PembayaranModel::create([
-                        'total' => $status->gross_amount,
-                        'metode' => $status->payment_type ?? 'midtrans',
+                        'total' => $statusData['gross_amount'],
+                        'metode' => $statusData['payment_type'] ?? 'midtrans',
                         'order_id' => $order_id
                     ]);
                 }
@@ -137,7 +98,7 @@ class PembayaranController extends Controller
                 } catch (\Exception $mailEx) {
                     \Log::error('Failed to send mail in syncTransactionStatus: ' . $mailEx->getMessage());
                 }
-            } elseif (in_array($status->transaction_status, ['deny', 'expire', 'cancel'])) {
+            } elseif (in_array($statusData['raw_status'], ['deny', 'expire', 'cancel'])) {
                 $beli_produk->update(['status' => 'deny']);
             }
         } catch (\Exception $e) {
@@ -202,52 +163,17 @@ class PembayaranController extends Controller
             $tipe = $varian->tipeLayanan;
             $produk = $tipe->produk;
 
-            $items = array(
-                array(
-                    'id' => $varian->id_varian,
-                    'price' => $pembelian->harga_saat_beli,
-                    'quantity' => 1,
-                    'name' => $produk->nama_produk . ' - ' . $tipe->nama_tipe . ' (' . $varian->nama_varian . ')'
-                )
-            );
-
-            $params = array(
-                'item_details' => $items,
-                'transaction_details' => array(
-                    'order_id' => $pembelian->order_id,
-                    'gross_amount' => $pembelian->harga_saat_beli,
-                ),
-                'customer_details' => array(
-                    'first_name' => $user->name,
-                    'phone' => $nomorTeleponCustomer->nomor_telepon ?? '',
-                ),
-                'callbacks' => array(
-                    'finish' => route('bukti_pembayaran.status', ['order_id' => $pembelian->order_id])
-                )
-            );
-
             $pathId = $pembelian->order_id;
             $orderIdProduk = $pembelian->order_id;
-
-            try {
-                $snapToken = \Midtrans\Snap::getSnapToken($params);
-            } catch (\Exception $e) {
-                if (str_contains($e->getMessage(), 'has already been taken')) {
-                    try {
-                        $status = \Midtrans\Transaction::status($orderIdProduk);
-                        if ($status->transaction_status == 'pending') {
-                            return redirect('/bukti_pembayaran')->with('error', 'Pembayaran sedang ditangguhkan (pending) di Midtrans. Harap selesaikan pembayaran Anda.');
-                        }
-                    } catch (\Exception $statusEx) {
-                        // ignore status check failure
-                    }
-                }
-                return redirect('/bukti_pembayaran')->with('error', 'Gagal memproses pembayaran Midtrans: ' . $e->getMessage());
+            
+            $reserved_expired_at = $pembelian->reserved_until;
+            
+            $hasActiveTransaction = false;
+            if ($pembelian->payment_gateway === 'pakasir' && $pembelian->gateway_reference && $reserved_expired_at > now()) {
+                $hasActiveTransaction = true;
             }
 
-            $reserved_expired_at = $pembelian->reserved_until;
-
-            return view('pembayaran.metode_pembayaran', compact('produk', 'snapToken', 'pathId', 'orderIdProduk', 'user', 'nomorTeleponCustomer', 'pembelian', 'varian', 'reserved_expired_at'));
+            return view('pembayaran.metode_pembayaran', compact('produk', 'pathId', 'orderIdProduk', 'user', 'nomorTeleponCustomer', 'pembelian', 'varian', 'reserved_expired_at', 'hasActiveTransaction'));
         }
 
         // Old ZIP product order code follows...
@@ -308,6 +234,54 @@ class PembayaranController extends Controller
             }
 
             return view('pembayaran.metode_pembayaran', compact('produk', 'snapToken', 'pathId', 'orderIdProduk', 'user', 'nomorTeleponCustomer'));
+        }
+    }
+
+    public function generate_transaksi(Request $request, string $order_id)
+    {
+        $id = session('id');
+        $pembelian = \App\Models\Pembelian::where('order_id', $order_id)->first();
+        
+        if (!$pembelian) {
+            return response()->json(['error' => 'Pesanan tidak ditemukan.'], 404);
+        }
+
+        $this->authorize('view', $pembelian);
+
+        $gateway_name = $request->input('gateway', 'midtrans');
+        
+        // Prevent re-creating if active Pakasir transaction exists
+        if ($gateway_name === 'pakasir' && $pembelian->payment_gateway === 'pakasir' && $pembelian->gateway_reference && $pembelian->reserved_until > now()) {
+            return response()->json(['success' => true]);
+        }
+
+        $pembelian->payment_gateway = $gateway_name;
+        $pembelian->save();
+
+        try {
+            if ($gateway_name === 'pakasir') {
+                $slug = config('pakasir.project_slug');
+                $amount = (int) $pembelian->harga_saat_beli;
+                $redirectUrl = rtrim(config('pakasir.base_url', 'https://app.pakasir.com'), '/') . "/pay/{$slug}/{$amount}?order_id={$order_id}";
+                
+                $pembelian->gateway_reference = 'redirect';
+                $pembelian->save();
+                
+                return response()->json([
+                    'success' => true,
+                    'redirect_url' => $redirectUrl
+                ]);
+            } else {
+                $gateway = \App\Services\Gateways\PaymentGatewayFactory::make($gateway_name);
+                $transactionData = $gateway->createTransaction($pembelian, 'qris');
+                
+                return response()->json([
+                    'success' => true,
+                    'snapToken' => $transactionData['token'] ?? null
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Gagal memproses pembayaran: ' . $e->getMessage()], 500);
         }
     }
 

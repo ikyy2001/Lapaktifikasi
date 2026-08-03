@@ -9,6 +9,9 @@ use App\Models\VarianLayanan;
 use App\Models\StokAkun;
 use App\Models\Pembelian;
 use App\Models\CustomerModel;
+use App\Models\CustomerTier;
+use App\Models\Voucher;
+use App\Models\VoucherKlaim;
 use App\Models\Toko;
 use App\Enums\PembelianStatus;
 use App\Enums\StokStatus;
@@ -63,11 +66,23 @@ class PremiumCustomerController extends Controller
         $idCustomerUser = session('id');
         $customer = CustomerModel::where('user_id', $idCustomerUser)->first();
 
-        $toko = $id_toko ? Toko::find($id_toko) : null;
+        $toko = $id_toko ? Toko::with('badges')->find($id_toko) : null;
 
         $reviews = null;
         $ratingDistribution = [];
         if ($id_toko && $toko) {
+            $avgRating = \App\Models\Review::where('id_toko', $id_toko)->avg('rating') ?? 0;
+            $countReviews = \App\Models\Review::where('id_toko', $id_toko)->count();
+
+            // Sync rating and review count on Toko model if out of sync
+            if ((float)$toko->rating_rata_rata !== (float)round($avgRating, 2) || (int)$toko->jumlah_review !== (int)$countReviews) {
+                $toko->update([
+                    'rating_rata_rata' => round($avgRating, 2),
+                    'jumlah_review' => $countReviews,
+                ]);
+                $toko->refresh();
+            }
+
             $reviews = \App\Models\Review::with('customer.user')
                 ->where('id_toko', $id_toko)
                 ->orderBy('created_at', 'desc')
@@ -81,7 +96,7 @@ class PremiumCustomerController extends Controller
                 ->toArray();
 
             for ($i = 1; $i <= 5; $i++) {
-                $ratingDistribution[$i] = $distributionRaw[$i] ?? 0;
+                $ratingDistribution[$i] = (int)($distributionRaw[$i] ?? 0);
             }
         }
 
@@ -248,5 +263,141 @@ class PremiumCustomerController extends Controller
         ]);
 
         return redirect()->route('premium.riwayat')->with('success', 'Terima kasih! Review kamu berhasil disimpan.');
+    }
+
+    // === 5. Member / Level Saya ===
+    public function member(Request $request)
+    {
+        $idCustomerUser = session('id');
+        $customer = CustomerModel::with('tier')->where('user_id', $idCustomerUser)->first();
+
+        if (!$customer) {
+            return redirect('/')->with('error', 'Profil pelanggan tidak ditemukan.');
+        }
+
+        // 1. Progress ke tier berikutnya
+        $progressInfo = $customer->progressKeTierBerikutnya();
+
+        // 2. Daftar semua tier
+        $allTiers = CustomerTier::orderBy('urutan', 'asc')->get();
+
+        // 3. Voucher yang eligible (aktif, kuota belum habis, belum expired)
+        $vouchers = Voucher::with('toko')
+            ->where('is_active', true)
+            ->where(function ($q) {
+                $q->whereNull('berlaku_sampai')->orWhere('berlaku_sampai', '>=', now());
+            })
+            ->where(function ($q) {
+                $q->whereNull('kuota_total')->orWhereColumn('kuota_terpakai', '<', 'kuota_total');
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Customer's claimed voucher IDs
+        $claimedVoucherIds = VoucherKlaim::where('id_customer', $customer->id)
+            ->pluck('id_voucher')
+            ->toArray();
+
+        return view('premium_customer.member', compact(
+            'customer',
+            'progressInfo',
+            'allTiers',
+            'vouchers',
+            'claimedVoucherIds'
+        ));
+    }
+
+    // === 6. Klaim Voucher Customer ===
+    public function klaimVoucher(Request $request, $id_voucher)
+    {
+        $idCustomerUser = \Illuminate\Support\Facades\Auth::id();
+        $customer = CustomerModel::where('user_id', $idCustomerUser)->first();
+
+        if (!$customer) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['status' => false, 'message' => 'Profil pelanggan tidak ditemukan.'], 404);
+            }
+            return redirect()->back()->with('error', 'Profil pelanggan tidak ditemukan.');
+        }
+
+        $voucher = Voucher::find($id_voucher);
+
+        if (!$voucher || !$voucher->is_active) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['status' => false, 'message' => 'Voucher tidak aktif atau tidak ditemukan.'], 400);
+            }
+            return redirect()->back()->with('error', 'Voucher tidak aktif atau tidak ditemukan.');
+        }
+
+        $now = now();
+        if ($voucher->berlaku_dari && $now->lt($voucher->berlaku_dari)) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['status' => false, 'message' => 'Voucher belum berlaku.'], 400);
+            }
+            return redirect()->back()->with('error', 'Voucher belum berlaku.');
+        }
+
+        if ($voucher->berlaku_sampai && $now->gt($voucher->berlaku_sampai)) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['status' => false, 'message' => 'Voucher telah kedaluwarsa.'], 400);
+            }
+            return redirect()->back()->with('error', 'Voucher telah kedaluwarsa.');
+        }
+
+        if ($voucher->kuota_total !== null && $voucher->kuota_terpakai >= $voucher->kuota_total) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['status' => false, 'message' => 'Kuota voucher telah habis.'], 400);
+            }
+            return redirect()->back()->with('error', 'Kuota voucher telah habis.');
+        }
+
+        $alreadyClaimed = VoucherKlaim::where('id_voucher', $id_voucher)
+            ->where('id_customer', $customer->id)
+            ->exists();
+
+        if ($alreadyClaimed) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['status' => false, 'message' => 'Anda sudah mengklaim voucher ini.'], 400);
+            }
+            return redirect()->back()->with('error', 'Anda sudah mengklaim voucher ini.');
+        }
+
+        VoucherKlaim::create([
+            'id_voucher' => $id_voucher,
+            'id_customer' => $customer->id,
+            'id_pembelian' => null,
+            'created_at' => now(),
+        ]);
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json(['status' => true, 'message' => 'Voucher berhasil diklaim!']);
+        }
+
+        return redirect()->back()->with('success', 'Voucher berhasil diklaim!');
+    }
+
+    // === 7. Referral Dashboard ===
+    public function referral(Request $request)
+    {
+        $idCustomerUser = \Illuminate\Support\Facades\Auth::id();
+        $customer = CustomerModel::with('tier')->where('user_id', $idCustomerUser)->first();
+
+        if (!$customer) {
+            return redirect('/')->with('error', 'Profil pelanggan tidak ditemukan.');
+        }
+
+        if (empty($customer->kode_referral)) {
+            $customer->kode_referral = 'REF-' . strtoupper(\Illuminate\Support\Str::random(6));
+            $customer->save();
+        }
+
+        $shareUrl = url('/pendaftaran?ref=' . $customer->kode_referral);
+        $bonusAmount = (float) config('referral.bonus_akumulasi', 50000);
+
+        $referredCustomers = CustomerModel::with('user')
+            ->where('direferensikan_oleh', $customer->id)
+            ->get();
+
+        return view('premium_customer.referral', compact('customer', 'shareUrl', 'bonusAmount', 'referredCustomers'));
     }
 }

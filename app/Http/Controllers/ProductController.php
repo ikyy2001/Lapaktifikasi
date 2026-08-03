@@ -264,6 +264,7 @@ class ProductController extends Controller
     public function proses_checkout_premium(Request $request)
     {
         $id_varian = $request->input('id_varian');
+        $kode_voucher = strtoupper(trim((string) $request->input('kode_voucher')));
         $idCustomerUser = Auth::id();
 
         $customer = CustomerModel::where('user_id', $idCustomerUser)->first();
@@ -278,7 +279,7 @@ class ProductController extends Controller
         $id_customer = $customer->id;
 
         try {
-            $pembelian = \Illuminate\Support\Facades\DB::transaction(function () use ($id_varian, $id_customer) {
+            $pembelian = \Illuminate\Support\Facades\DB::transaction(function () use ($id_varian, $id_customer, $kode_voucher) {
                 $stok = \App\Models\StokAkun::where('id_varian', $id_varian)
                     ->where('status', \App\Enums\StokStatus::TERSEDIA)
                     ->orderBy('created_at', 'asc')
@@ -289,8 +290,73 @@ class ProductController extends Controller
                     throw new \App\Exceptions\StokHabisException('Stok Habis');
                 }
 
-                $varian = \App\Models\VarianLayanan::findOrFail($id_varian);
-                $harga_saat_beli = $varian->harga;
+                $varian = \App\Models\VarianLayanan::with('tipeLayanan.produk')->findOrFail($id_varian);
+                $harga_varian = (float) $varian->harga;
+                $harga_saat_beli = $harga_varian;
+                $nominal_diskon = 0;
+                $voucher_dipakai = null;
+
+                // Process Voucher if provided
+                if (!empty($kode_voucher)) {
+                    $voucher = \App\Models\Voucher::where('kode', $kode_voucher)->first();
+
+                    if (!$voucher || !$voucher->is_active) {
+                        throw new \Exception("Kode voucher '{$kode_voucher}' tidak valid atau tidak aktif.");
+                    }
+
+                    $now = now();
+                    if ($voucher->berlaku_dari && $now->lt($voucher->berlaku_dari)) {
+                        throw new \Exception("Voucher '{$kode_voucher}' belum berlaku.");
+                    }
+
+                    if ($voucher->berlaku_sampai && $now->gt($voucher->berlaku_sampai)) {
+                        throw new \Exception("Voucher '{$kode_voucher}' sudah kedaluwarsa.");
+                    }
+
+                    if ($voucher->kuota_total !== null && $voucher->kuota_terpakai >= $voucher->kuota_total) {
+                        throw new \Exception("Kuota voucher '{$kode_voucher}' telah habis.");
+                    }
+
+                    // Scope check
+                    $idTokoProduk = $varian->tipeLayanan?->produk?->id_toko;
+                    if ($voucher->scope === 'toko_spesifik' && $voucher->id_toko != $idTokoProduk) {
+                        throw new \Exception("Voucher '{$kode_voucher}' tidak berlaku untuk toko produk ini.");
+                    }
+
+                    // Minimal transaction check
+                    if ($harga_varian < (float) $voucher->minimal_transaksi) {
+                        $minRp = number_format((float) $voucher->minimal_transaksi, 0, ',', '.');
+                        throw new \Exception("Minimal transaksi untuk voucher ini adalah Rp {$minRp}.");
+                    }
+
+                    // Auto-claim if not claimed yet
+                    $existingKlaim = \App\Models\VoucherKlaim::where('id_voucher', $voucher->id_voucher)
+                        ->where('id_customer', $id_customer)
+                        ->first();
+
+                    if (!$existingKlaim) {
+                        \App\Models\VoucherKlaim::create([
+                            'id_voucher' => $voucher->id_voucher,
+                            'id_customer' => $id_customer,
+                            'id_pembelian' => null,
+                            'created_at' => now(),
+                        ]);
+                    }
+
+                    // Calculate discount
+                    if ($voucher->tipe_diskon === 'persen') {
+                        $potongan = ($harga_varian * (float) $voucher->nilai_diskon) / 100.0;
+                        if ($voucher->maksimal_potongan !== null) {
+                            $potongan = min($potongan, (float) $voucher->maksimal_potongan);
+                        }
+                    } else {
+                        $potongan = (float) $voucher->nilai_diskon;
+                    }
+
+                    $nominal_diskon = min($harga_varian, max(0.0, $potongan));
+                    $harga_saat_beli = max(0.0, $harga_varian - $nominal_diskon);
+                    $voucher_dipakai = $voucher->id_voucher;
+                }
 
                 $reserved_expired_at = now()->addMinutes(15);
 
@@ -306,6 +372,8 @@ class ProductController extends Controller
                     'id_varian' => $id_varian,
                     'id_stok' => $stok->id_stok,
                     'harga_saat_beli' => $harga_saat_beli,
+                    'id_voucher_dipakai' => $voucher_dipakai,
+                    'nominal_diskon' => $nominal_diskon,
                     'status' => \App\Enums\PembelianStatus::PENDING,
                     'reserved_until' => $reserved_expired_at,
                 ]);
@@ -322,7 +390,7 @@ class ProductController extends Controller
         } catch (\App\Exceptions\StokHabisException $e) {
             return redirect()->back()->with('error', 'Stok Habis');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal memproses checkout: ' . $e->getMessage());
+            return redirect()->back()->with('error', $e->getMessage());
         }
     }
 

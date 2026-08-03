@@ -18,24 +18,44 @@ use App\Jobs\SendAccountInvoiceWhatsapp;
 
 class PremiumAdminController extends Controller
 {
-    // === 1. CRUD Tipe Layanan ===
-    public function tipe_index()
+    // === Halaman Inventaris Gabungan ===
+    public function inventaris_index()
     {
         $user = Auth::user();
         if ($user->role_id == 1) {
-            $tipe = TipeLayanan::with('produk')->get();
             $produk = Produk::where('status', 'aktif')->where('tipe_produk', 'premium')->get();
+            $tipeSemua = TipeLayanan::with('produk')->get();
+            $tipeAktif = TipeLayanan::where('status', 'aktif')->with('produk')->get();
+            $varianSemua = VarianLayanan::with('tipeLayanan.produk')->get();
+            $varianAktif = VarianLayanan::where('status', 'aktif')->with('tipeLayanan.produk')->get();
+            $stok = StokAkun::with('varianLayanan.tipeLayanan.produk')->get();
         } else {
             $toko = Toko::where('user_id', $user->id)->firstOrFail();
-            $tipe = TipeLayanan::whereHas('produk', function ($q) use ($toko) {
-                $q->where('id_toko', $toko->id_toko);
-            })->with('produk')->get();
             $produk = Produk::where('status', 'aktif')
                 ->where('tipe_produk', 'premium')
                 ->where('id_toko', $toko->id_toko)
                 ->get();
+            $tipeSemua = TipeLayanan::whereHas('produk', function ($q) use ($toko) {
+                $q->where('id_toko', $toko->id_toko);
+            })->with('produk')->get();
+            $tipeAktif = TipeLayanan::where('status', 'aktif')
+                ->whereHas('produk', function ($q) use ($toko) {
+                    $q->where('id_toko', $toko->id_toko);
+                })
+                ->get();
+            $varianSemua = VarianLayanan::whereHas('tipeLayanan.produk', function ($q) use ($toko) {
+                $q->where('id_toko', $toko->id_toko);
+            })->with('tipeLayanan.produk')->get();
+            $varianAktif = VarianLayanan::where('status', 'aktif')
+                ->whereHas('tipeLayanan.produk', function ($q) use ($toko) {
+                    $q->where('id_toko', $toko->id_toko);
+                })
+                ->get();
+            $stok = StokAkun::whereHas('varianLayanan.tipeLayanan.produk', function ($q) use ($toko) {
+                $q->where('id_toko', $toko->id_toko);
+            })->with('varianLayanan.tipeLayanan.produk')->get();
         }
-        return view('premium_admin.tipe.index', compact('tipe', 'produk'));
+        return view('premium_admin.inventaris.index', compact('produk', 'tipeSemua', 'tipeAktif', 'varianSemua', 'varianAktif', 'stok'));
     }
 
     public function tipe_store(Request $request)
@@ -65,7 +85,7 @@ class PremiumAdminController extends Controller
         TipeLayanan::create($request->only('id_produk', 'nama_tipe', 'status'));
 
         Session::flash('success', 'Berhasil menambahkan tipe layanan.');
-        return redirect()->route('premium.tipe.index');
+        return redirect()->route('premium.inventaris.index', ['tab' => 'tipe']);
     }
 
     public function tipe_update(Request $request, $id)
@@ -105,7 +125,7 @@ class PremiumAdminController extends Controller
         $tipe->update($request->only('id_produk', 'nama_tipe', 'status'));
 
         Session::flash('success', 'Berhasil memperbarui tipe layanan.');
-        return redirect()->route('premium.tipe.index');
+        return redirect()->route('premium.inventaris.index', ['tab' => 'tipe']);
     }
 
     public function tipe_destroy($id)
@@ -123,29 +143,10 @@ class PremiumAdminController extends Controller
 
         $tipe->delete();
         Session::flash('success', 'Berhasil menghapus tipe layanan.');
-        return redirect()->route('premium.tipe.index');
+        return redirect()->route('premium.inventaris.index', ['tab' => 'tipe']);
     }
 
     // === 2. CRUD Varian Layanan ===
-    public function varian_index()
-    {
-        $user = Auth::user();
-        if ($user->role_id == 1) {
-            $varian = VarianLayanan::with('tipeLayanan.produk')->get();
-            $tipe = TipeLayanan::where('status', 'aktif')->get();
-        } else {
-            $toko = Toko::where('user_id', $user->id)->firstOrFail();
-            $varian = VarianLayanan::whereHas('tipeLayanan.produk', function ($q) use ($toko) {
-                $q->where('id_toko', $toko->id_toko);
-            })->with('tipeLayanan.produk')->get();
-            $tipe = TipeLayanan::where('status', 'aktif')
-                ->whereHas('produk', function ($q) use ($toko) {
-                    $q->where('id_toko', $toko->id_toko);
-                })
-                ->get();
-        }
-        return view('premium_admin.varian.index', compact('varian', 'tipe'));
-    }
 
     public function varian_store(Request $request)
     {
@@ -180,7 +181,7 @@ class PremiumAdminController extends Controller
         VarianLayanan::create($request->only('id_tipe', 'nama_varian', 'durasi_hari', 'harga', 'deskripsi', 'status'));
 
         Session::flash('success', 'Berhasil menambahkan varian layanan.');
-        return redirect()->route('premium.varian.index');
+        return redirect()->route('premium.inventaris.index', ['tab' => 'varian']);
     }
 
     public function varian_update(Request $request, $id)
@@ -226,7 +227,7 @@ class PremiumAdminController extends Controller
         $varian->update($request->only('id_tipe', 'nama_varian', 'durasi_hari', 'harga', 'deskripsi', 'status'));
 
         Session::flash('success', 'Berhasil memperbarui varian layanan.');
-        return redirect()->route('premium.varian.index');
+        return redirect()->route('premium.inventaris.index', ['tab' => 'varian']);
     }
 
     public function varian_destroy($id)
@@ -244,29 +245,10 @@ class PremiumAdminController extends Controller
 
         $varian->delete();
         Session::flash('success', 'Berhasil menghapus varian layanan.');
-        return redirect()->route('premium.varian.index');
+        return redirect()->route('premium.inventaris.index', ['tab' => 'varian']);
     }
 
     // === 3. CRUD Stok Akun (Single + Bulk) ===
-    public function stok_index()
-    {
-        $user = Auth::user();
-        if ($user->role_id == 1) {
-            $stok = StokAkun::with('varianLayanan.tipeLayanan.produk')->get();
-            $varian = VarianLayanan::where('status', 'aktif')->get();
-        } else {
-            $toko = Toko::where('user_id', $user->id)->firstOrFail();
-            $stok = StokAkun::whereHas('varianLayanan.tipeLayanan.produk', function ($q) use ($toko) {
-                $q->where('id_toko', $toko->id_toko);
-            })->with('varianLayanan.tipeLayanan.produk')->get();
-            $varian = VarianLayanan::where('status', 'aktif')
-                ->whereHas('tipeLayanan.produk', function ($q) use ($toko) {
-                    $q->where('id_toko', $toko->id_toko);
-                })
-                ->get();
-        }
-        return view('premium_admin.stok.index', compact('stok', 'varian'));
-    }
 
     public function stok_store(Request $request)
     {
@@ -305,7 +287,7 @@ class PremiumAdminController extends Controller
         ]);
 
         Session::flash('success', 'Berhasil menambahkan stok akun.');
-        return redirect()->route('premium.stok.index');
+        return redirect()->route('premium.inventaris.index', ['tab' => 'stok']);
     }
 
     public function stok_bulk_store(Request $request)
@@ -352,7 +334,7 @@ class PremiumAdminController extends Controller
         }
 
         Session::flash('success', "Berhasil menambahkan {$count} stok akun secara bulk.");
-        return redirect()->route('premium.stok.index');
+        return redirect()->route('premium.inventaris.index', ['tab' => 'stok']);
     }
 
     public function stok_decrypt($id)
@@ -390,7 +372,7 @@ class PremiumAdminController extends Controller
 
         $stok->delete();
         Session::flash('success', 'Berhasil menghapus stok akun.');
-        return redirect()->route('premium.stok.index');
+        return redirect()->route('premium.inventaris.index', ['tab' => 'stok']);
     }
 
     // === 4. Halaman Histori Penjualan ===

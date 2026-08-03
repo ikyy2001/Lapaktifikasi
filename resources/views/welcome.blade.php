@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lapaktifikasi - E-Commerce Akun Premium Terpercaya</title>
-    <meta name="description" content="Lapaktifikasi adalah platform terpercaya untuk membeli akun premium Spotify, Netflix, YouTube Premium, dan lainnya secara instan dan aman dengan pembayaran otomatis.">
-    <meta name="keywords" content="akun premium, spotify premium, netflix, youtube premium, lapaktifikasi, beli akun premium murah">
+    <title>Lapaktifikasi x SMK Plus Pelita Nusantara Bogor</title>
+    <meta name="description" content="Lapaktifikasi bersama SMK Plus Pelita Nusantara Bogor hadir sebagai solusi terpercaya untuk membeli akun premium secara instan dan aman.">
+    <meta name="keywords" content="akun premium, smk plus pelita nusantara, lapaktifikasi, beli akun premium">
     <meta name="robots" content="index, follow">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,9 +31,25 @@
         }
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: -10;
+            background-color: #f4f6f9;
+            background-image: 
+                radial-gradient(at 40% 20%, hsla(220,100%,80%,0.2) 0px, transparent 50%),
+                radial-gradient(at 80% 0%, hsla(280,100%,80%,0.2) 0px, transparent 50%),
+                radial-gradient(at 0% 50%, hsla(180,100%,80%,0.2) 0px, transparent 50%),
+                radial-gradient(at 80% 50%, hsla(320,100%,80%,0.2) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, hsla(40,100%,80%,0.2) 0px, transparent 50%),
+                radial-gradient(at 80% 100%, hsla(120,100%,80%,0.2) 0px, transparent 50%);
+            transform: translateZ(0);
+            will-change: transform;
+        }
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: var(--dark-bg);
+            background: transparent;
             color: var(--text-main);
             overflow-x: hidden;
             line-height: 1.6;
@@ -56,8 +72,8 @@
         .grad-text { background: none; -webkit-background-clip: unset; -webkit-text-fill-color: currentColor; background-clip: unset; color: #000000; font-weight: 800; }
 
         /* GLASS CARD */
-        .glass-card { background: #ffffff; border: 1px solid #000000; border-radius: var(--radius-lg); transition: all 0.35s ease; }
-        .glass-card:hover { transform: translateY(-6px); border-color: #000000; box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
+        .glass-card { background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border: 1px solid rgba(255, 255, 255, 0.5); border-radius: var(--radius-lg); transition: all 0.35s ease; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.03); transform: translateZ(0); will-change: transform; }
+        .glass-card:hover { transform: translateY(-6px) translateZ(0); border-color: rgba(255, 255, 255, 0.8); box-shadow: 0 20px 40px rgba(0,0,0,0.08); }
 
         /* BUTTONS */
         .btn-primary { display: inline-flex; align-items: center; gap: 10px; background: #000000; color: #ffffff !important; font-weight: 700; font-size: 1rem; padding: 15px 32px; border-radius: 14px; text-decoration: none !important; border: 1px solid #000000; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.1); font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -66,8 +82,8 @@
         .btn-secondary:hover { background: #000000; color: #ffffff !important; transform: translateY(-2px); }
 
         /* NAVBAR */
-        #navbar { position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; padding: 20px 5%; display: flex; align-items: center; justify-content: space-between; transition: all 0.4s ease; }
-        #navbar.scrolled { background: rgba(255,255,255,0.95); border-bottom: 1px solid #e5e5e5; padding: 14px 5%; box-shadow: 0 4px 30px rgba(0,0,0,0.02); }
+        #navbar { position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; padding: 20px 5%; display: flex; align-items: center; justify-content: space-between; transition: all 0.4s ease; transform: translateZ(0); will-change: transform; }
+        #navbar.scrolled { background: rgba(255,255,255,0.7); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border-bottom: 1px solid rgba(255,255,255,0.4); padding: 14px 5%; box-shadow: 0 4px 30px rgba(0,0,0,0.05); }
         .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none !important; }
         .nav-logo-icon { width: 42px; height: 42px; background: #000000; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.3rem; color: #ffffff; }
         .nav-logo-text { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.5rem; color: #000000; }
@@ -96,9 +112,9 @@
         .card-badge-live { display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.12); color: #000000; font-size: 0.75rem; font-weight: 700; padding: 5px 12px; border-radius: 50px; }
         .card-badge-live::before { content: ''; width: 7px; height: 7px; background: #000000; border-radius: 50%; }
         .card-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; }
-        .product-row { display: flex; align-items: center; gap: 16px; padding: 14px; border-radius: 16px; background: #ffffff; border: 1px solid #e5e5e5; margin-bottom: 10px; transition: all 0.3s; }
-        .product-row:hover { background: #fafafa; border-color: #000000; }
-        .product-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; background: #fafafa; border: 1px solid #e5e5e5; }
+        .product-row { display: flex; align-items: center; gap: 16px; padding: 14px; border-radius: 16px; background: rgba(255, 255, 255, 0.5); border: 1px solid rgba(255, 255, 255, 0.4); margin-bottom: 10px; transition: all 0.3s; }
+        .product-row:hover { background: rgba(255, 255, 255, 0.8); border-color: rgba(255, 255, 255, 0.8); }
+        .product-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; background: rgba(255, 255, 255, 0.5); border: 1px solid rgba(255, 255, 255, 0.4); }
         .product-info { flex: 1; }
         .product-info h6 { font-weight: 700; font-size: 0.9rem; margin-bottom: 2px; }
         .product-info small { color: var(--text-muted); font-size: 0.78rem; }
@@ -118,7 +134,7 @@
 
         /* SECTION WRAPPERS */
         .section-wrap { position: relative; z-index: 1; padding: 100px 5%; }
-        .section-wrap.alt { background: #fafafa; border-top: 1px solid #e5e5e5; border-bottom: 1px solid #e5e5e5; }
+        .section-wrap.alt { background: rgba(255, 255, 255, 0.3); border-top: 1px solid rgba(255, 255, 255, 0.4); border-bottom: 1px solid rgba(255, 255, 255, 0.4); backdrop-filter: blur(10px); transform: translateZ(0); will-change: transform; }
         .section-header { margin-bottom: 64px; }
         .section-header.centered { text-align: center; }
         .section-header.centered .section-subtitle { margin: 0 auto; }
@@ -186,14 +202,14 @@
         .faq-answer p { color: var(--text-muted); font-size: 0.93rem; line-height: 1.7; }
 
         /* FAQ AND CTA */
-        .cta-box { max-width: 1200px; margin: 0 auto; padding: 80px 60px; border-radius: 40px; background: #ffffff; border: 1px solid #000000; text-align: center; position: relative; overflow: hidden; }
+        .cta-box { max-width: 1200px; margin: 0 auto; padding: 80px 60px; border-radius: 40px; background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(25px) saturate(180%); -webkit-backdrop-filter: blur(25px) saturate(180%); border: 1px solid rgba(255, 255, 255, 0.5); box-shadow: 0 10px 40px rgba(0,0,0,0.05); text-align: center; position: relative; overflow: hidden; transform: translateZ(0); will-change: transform; }
         .cta-box::before { display: none; }
         .cta-box h2 { font-family: 'Space Grotesk', sans-serif; font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 700; margin-bottom: 16px; position: relative; color: #000000; }
         .cta-box p { color: var(--text-muted); font-size: 1.05rem; margin-bottom: 36px; max-width: 500px; margin-left: auto; margin-right: auto; position: relative; }
         .cta-actions { display: flex; justify-content: center; align-items: center; gap: 16px; flex-wrap: wrap; position: relative; }
 
         /* FOOTER */
-        footer { position: relative; z-index: 1; background: #ffffff; border-top: 1px solid #000000; padding: 72px 5% 36px; color: #000000; }
+        footer { position: relative; z-index: 1; background: rgba(255, 255, 255, 0.5); backdrop-filter: blur(20px); border-top: 1px solid rgba(255, 255, 255, 0.4); padding: 72px 5% 36px; color: #000000; transform: translateZ(0); will-change: transform; }
         .footer-inner { max-width: 1200px; margin: 0 auto; }
         .footer-top-row { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 60px; }
         .footer-brand p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.7; margin: 18px 0 24px; }
@@ -214,8 +230,8 @@
         /* MODAL */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 10000; opacity: 0; transition: opacity 0.3s ease; }
         .modal-overlay.open { display: flex; opacity: 1; }
-        .modal-box { background: #ffffff; border: 1px solid #000000; border-radius: var(--radius-xl); padding: 44px; width: 100%; max-width: 460px; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.1); transform: scale(0.92) translateY(20px); transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1); color: #000000; }
-        .modal-overlay.open .modal-box { transform: scale(1) translateY(0); }
+        .modal-box { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(25px) saturate(200%); -webkit-backdrop-filter: blur(25px) saturate(200%); border: 1px solid rgba(255, 255, 255, 0.5); border-radius: var(--radius-xl); padding: 44px; width: 100%; max-width: 460px; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.1); transform: scale(0.92) translateY(20px) translateZ(0); transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1); color: #000000; will-change: transform; }
+        .modal-overlay.open .modal-box { transform: scale(1) translateY(0) translateZ(0); }
         .modal-close { position: absolute; top: 20px; right: 20px; background: #ffffff; border: 1px solid #e5e5e5; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; cursor: pointer; color: var(--text-muted); transition: all 0.2s; }
         .modal-close:hover { background: #000000; color: #ffffff !important; }
         .modal-logo { width: 54px; height: 54px; background: #000000; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.6rem; color: #ffffff; margin: 0 auto 16px; }
@@ -474,8 +490,8 @@
     <div class="hero-inner">
         <div class="hero-content">
             <div class="hero-badge"><i class="bi bi-lightning-charge-fill"></i> Platform Premium Instan &amp; Terpercaya</div>
-            <h1 class="hero-title">Dapatkan Akun Premium<br><span class="grad-text">Instan &amp; Otomatis</span></h1>
-            <p class="hero-desc">Lapaktifikasi hadir sebagai solusi terpercaya bagi Anda yang ingin menikmati layanan digital premium — Spotify, Netflix, YouTube, dan lainnya — dengan harga terjangkau dan pengiriman seketika.</p>
+            <h1 class="hero-title">Lapaktifikasi Bersama<br><span class="grad-text">SMK PLUS PELITA NUSANTARA BOGOR</span></h1>
+            <p class="hero-desc">Bekerja sama dengan 5 Jurusan dan staff tata usaha SMK Plus Pelita Nusantara, Lapaktifikasi hadir menyediakan penawaran layanan digital premium dengan harga terjangkau, pengiriman seketika, dan transaksi yang sangat aman.</p>
             <div class="hero-cta">
                 @auth
                     @if(Auth::user()->role_id == 2)
@@ -568,8 +584,8 @@
             </div>
             <div class="glass-card feature-card reveal" style="transition-delay:.1s">
                 <div class="feature-icon fi-2"><i class="bi bi-shield-lock-fill"></i></div>
-                <h3>Pembayaran Aman</h3>
-                <p>Integrasi Midtrans menyediakan belasan metode pembayaran yang terenkripsi dan terpercaya — tanpa transfer manual.</p>
+                <h3>3 Payment Gateway Terpercaya</h3>
+                <p>Bekerja sama dengan Midtrans, Duitku, dan Pakasir. Transaksi menggunakan Midtrans tersertifikasi oleh Bank Indonesia, Kominfo, AES, dan PCI DSS serta memiliki standar internasional ISO/IEC 27001.</p>
             </div>
             <div class="glass-card feature-card reveal" style="transition-delay:.2s">
                 <div class="feature-icon fi-3"><i class="bi bi-clock-history"></i></div>

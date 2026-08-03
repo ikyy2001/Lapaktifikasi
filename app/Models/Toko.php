@@ -51,4 +51,10 @@ class Toko extends Model
     {
         return $this->hasMany(Review::class, 'id_toko', 'id_toko');
     }
+
+    public function badges(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(SellerBadge::class, 'tbl_toko_badge', 'id_toko', 'id_badge')
+            ->withPivot('diperoleh_pada');
+    }
 }

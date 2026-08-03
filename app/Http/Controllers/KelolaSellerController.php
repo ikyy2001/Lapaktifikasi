@@ -14,8 +14,9 @@ class KelolaSellerController extends Controller
 {
     public function index()
     {
-        $sellers = Toko::with('user')->get();
-        return view('admin.kelola_seller.index', compact('sellers'));
+        $sellers = Toko::with(['user', 'badges'])->get();
+        $allBadges = \App\Models\SellerBadge::all();
+        return view('admin.kelola_seller.index', compact('sellers', 'allBadges'));
     }
 
     public function store(Request $request)
@@ -127,6 +128,57 @@ class KelolaSellerController extends Controller
         $toko->update(['status' => $newStatus]);
 
         Session::flash('success', 'Status Toko berhasil diubah menjadi ' . $newStatus . '.');
+        return redirect('/kelola_seller');
+    }
+
+    public function attachBadge(Request $request, $id_toko)
+    {
+        $request->validate([
+            'id_badge' => 'required|exists:tbl_seller_badge,id_badge',
+        ]);
+
+        $toko = Toko::findOrFail($id_toko);
+        if (!$toko->badges()->where('tbl_toko_badge.id_badge', $request->id_badge)->exists()) {
+            $toko->badges()->attach($request->id_badge, ['diperoleh_pada' => now()]);
+            Session::flash('success', 'Badge berhasil ditambahkan ke toko ' . $toko->nama_toko . '.');
+        } else {
+            Session::flash('info', 'Toko sudah memiliki badge tersebut.');
+        }
+
+        return redirect('/kelola_seller');
+    }
+
+    public function detachBadge(Request $request, $id_toko, $id_badge)
+    {
+        $toko = Toko::findOrFail($id_toko);
+        $toko->badges()->detach($id_badge);
+
+        Session::flash('success', 'Badge berhasil dihapus dari toko ' . $toko->nama_toko . '.');
+        return redirect('/kelola_seller');
+    }
+
+    public function createCustomBadge(Request $request, $id_toko)
+    {
+        $request->validate([
+            'nama_badge' => 'required|string|max:150',
+            'deskripsi' => 'nullable|string|max:500',
+        ], [
+            'nama_badge.required' => 'Nama badge harus diisi.',
+            'nama_badge.max' => 'Nama badge maksimal 150 karakter.',
+        ]);
+
+        $toko = Toko::findOrFail($id_toko);
+
+        $badge = \App\Models\SellerBadge::create([
+            'nama_badge' => $request->nama_badge,
+            'deskripsi' => $request->deskripsi ?? 'Badge khusus dari Admin',
+            'kriteria_tipe' => 'custom_admin',
+            'kriteria_nilai' => 0,
+        ]);
+
+        $toko->badges()->attach($badge->id_badge, ['diperoleh_pada' => now()]);
+
+        Session::flash('success', "Badge custom '{$badge->nama_badge}' berhasil dibuat dan diberikan ke toko {$toko->nama_toko}.");
         return redirect('/kelola_seller');
     }
 }

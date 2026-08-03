@@ -49,18 +49,61 @@
                     </div>
                     @endif
 
-                    <div class="form-group">
-                        <label for="metode_pembayaran">Pilih metode pembayaran</label>
+                    @if(isset($hasActiveTransaction) && $hasActiveTransaction && $pembelian->payment_gateway === 'pakasir')
+                        <div class="alert alert-primary text-center">
+                            <h5>Status: Menunggu Pembayaran</h5>
+                            <p>Anda sebelumnya telah memilih pembayaran via Pakasir. Sistem akan otomatis mengecek status pembayaran Anda.</p>
+                            
+                            @php
+                                $slug = config('pakasir.project_slug');
+                                $amount = (int) $pembelian->harga_saat_beli;
+                                $redirectUrl = rtrim(config('pakasir.base_url', 'https://app.pakasir.com'), '/') . "/pay/{$slug}/{$amount}?order_id={$pembelian->order_id}";
+                            @endphp
+                            <a href="{{ $redirectUrl }}" class="btn btn-success mt-3 mb-2 d-block mx-auto" style="max-width: 250px;">Buka Halaman Pembayaran</a>
+                            
+                            <button onclick="window.location.reload();" class="btn btn-outline-primary d-block mx-auto mb-3" style="max-width: 250px;">Cek Status Manual</button>
 
-                        <select class="form-control mb-3" id="metode_pembayaran">
-                            <option value="midtrans">Midtrans</option>
-                        </select>
-                        <i>* Saat ini hanya tersedia metode pembayaran dengan Midtrans.</i>
-                    </div>
+                            <a href="{{url('/menu_produk')}}" class="btn btn-danger mt-1">Kembali</a>
+                        </div>
+                        
+                        <script>
+                            // Force reload if loaded from browser cache (back button)
+                            window.addEventListener("pageshow", function(event) {
+                                if (event.persisted) {
+                                    window.location.reload();
+                                }
+                            });
 
-                    <a href="{{url('/menu_produk')}}" class="btn btn-danger mt-3 me-3">Kembali</a>
-                    <button type="button" id="pay-button" class="btn btn-success mt-3 float-right">Pilih
-                        Pembayaran</button>
+                            // Auto poll status every 5 seconds
+                            setInterval(function() {
+                                fetch("{{ route('bukti_pembayaran.status_api', $pembelian->order_id) }}")
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        if (data.status === 'success') {
+                                            window.location.href = "{{ url('bukti_pembayaran') }}";
+                                        }
+                                    })
+                                    .catch(err => console.error('Polling error:', err));
+                            }, 5000);
+                        </script>
+                    @else
+                        <div class="form-group">
+                            <label for="metode_pembayaran">Pilih metode pembayaran</label>
+
+                            <select class="form-control mb-3" id="metode_pembayaran" name="gateway">
+                                <option value="midtrans">Midtrans</option>
+                                @if(isset($pembelian))
+                                <option value="pakasir">Pakasir (QRIS)</option>
+                                @endif
+                            </select>
+                        </div>
+
+                        <a href="{{url('/menu_produk')}}" class="btn btn-danger mt-3 me-3">Kembali</a>
+                        <button type="button" id="pay-button" class="btn btn-success mt-3 float-right">
+                            <span id="pay-text">Pilih Pembayaran</span>
+                            <span id="pay-loading" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                        </button>
+                    @endif
                 </div>
             </div>
         </div>
@@ -98,6 +141,78 @@
                 (seconds < 10 ? "0" + seconds : seconds);
         }, 1000);
     })();
+</script>
+@endif
+
+@if(isset($pembelian) && (!isset($hasActiveTransaction) || !$hasActiveTransaction))
+<script>
+    document.getElementById("pay-button").onclick = function () {
+        const gateway = document.getElementById("metode_pembayaran").value;
+        const btnText = document.getElementById("pay-text");
+        const btnLoading = document.getElementById("pay-loading");
+        const btn = document.getElementById("pay-button");
+        
+        btn.disabled = true;
+        btnText.classList.add('d-none');
+        btnLoading.classList.remove('d-none');
+        
+        fetch("{{ route('metode_pembayaran.generate', $pembelian->order_id) }}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+            },
+            body: JSON.stringify({ gateway: gateway })
+        })
+        .then(response => response.json())
+        .then(data => {
+            btn.disabled = false;
+            btnText.classList.remove('d-none');
+            btnLoading.classList.add('d-none');
+            
+            if (data.error) {
+                Swal.fire("Error", data.error, "error");
+                return;
+            }
+            
+            if (gateway === 'midtrans' && data.snapToken) {
+                snap.pay(data.snapToken, {
+                    onSuccess: function (result) {
+                        Swal.fire("Sukses", "Pembayaran midtrans berhasil.", "success");
+                        setTimeout(() => { window.location.href = "{{ url('bukti_pembayaran') }}"; }, 3000);
+                    },
+                    onPending: function (result) { Swal.fire("Pending", "Pembayaran Anda pending.", "warning"); },
+                    onError: function (result) { Swal.fire("Gagal", "Pembayaran Anda gagal.", "error"); },
+                    onClose: function () { Swal.fire("Tertutup", "Anda menutup popup tanpa menyelesaikan pembayaran.", "info"); }
+                });
+            } else if (gateway === 'pakasir' && data.success) {
+                if (data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                } else {
+                    window.location.reload();
+                }
+            }
+        })
+        .catch(err => {
+            btn.disabled = false;
+            btnText.classList.remove('d-none');
+            btnLoading.classList.add('d-none');
+            Swal.fire("Error", "Terjadi kesalahan pada server.", "error");
+        });
+    };
+</script>
+@elseif(isset($snapToken) && !isset($pembelian))
+<script>
+    document.getElementById("pay-button").onclick = function () {
+        snap.pay("{{ $snapToken }}", {
+            onSuccess: function (result) {
+                Swal.fire("Sukses", "Pembayaran midtrans berhasil.", "success");
+                setTimeout(() => { window.location.href = "{{ url('bukti_pembayaran') }}"; }, 3000);
+            },
+            onPending: function (result) { Swal.fire("Pending", "Pembayaran Anda pending.", "warning"); },
+            onError: function (result) { Swal.fire("Gagal", "Pembayaran Anda gagal.", "error"); }
+        });
+    };
 </script>
 @endif
 

@@ -28,5 +28,6 @@ class AppServiceProvider extends ServiceProvider
 
         BeliProdukModel::observe(BeliProdukObserver::class);
         \App\Models\Pembelian::observe(\App\Observers\PembelianObserver::class);
+        \App\Models\Review::observe(\App\Observers\ReviewObserver::class);
     }
 }
