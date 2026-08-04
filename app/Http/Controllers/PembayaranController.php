@@ -10,6 +10,7 @@ use App\Models\PembayaranModel;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Cache;
 use App\Mail\MailProdukBeli;
 use App\Services\PaymentProcessingService;
 
@@ -25,6 +26,12 @@ class PembayaranController extends Controller
 
     private function syncTransactionStatus(string $order_id, $beli_produk = null)
     {
+        $cacheKey = 'sync_status_' . $order_id;
+        if (Cache::has($cacheKey)) {
+            return null;
+        }
+        Cache::put($cacheKey, true, 20); // Cooldown 20 detik untuk mencegah API blocking delay
+
         // 1. Check if the order is for a Premium Account (Pembelian)
         $pembelian = \App\Models\Pembelian::where('order_id', $order_id)->first();
         if ($pembelian) {
@@ -112,20 +119,26 @@ class PembayaranController extends Controller
     {
         $id = session('id');
 
-        // Sync pending ZIP product transactions
+        // Sync pending ZIP product transactions (hanya yang dibuat 24 jam terakhir, max 2)
         $pending_purchases = BeliProdukModel::where('user_id', $id)
             ->whereIn('status', ['pending', 'deny'])
+            ->where('created_at', '>=', now()->subHours(24))
+            ->orderBy('created_at', 'desc')
+            ->limit(2)
             ->get();
 
         foreach ($pending_purchases as $purchase) {
             $this->syncTransactionStatus($purchase->order_id, $purchase);
         }
 
-        // Sync pending Premium Account purchases
+        // Sync pending Premium Account purchases (hanya yang dibuat 24 jam terakhir, max 2)
         $customer = CustomerModel::where('user_id', $id)->first();
         if ($customer) {
             $pending_pembelian = \App\Models\Pembelian::where('id_customer', $customer->id)
                 ->where('status', \App\Enums\PembelianStatus::PENDING)
+                ->where('created_at', '>=', now()->subHours(24))
+                ->orderBy('created_at', 'desc')
+                ->limit(2)
                 ->get();
             foreach ($pending_pembelian as $pembelian) {
                 $this->syncTransactionStatus($pembelian->order_id);

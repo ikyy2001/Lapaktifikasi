@@ -179,7 +179,7 @@
                 snap.pay(data.snapToken, {
                     onSuccess: function (result) {
                         Swal.fire("Sukses", "Pembayaran midtrans berhasil.", "success");
-                        setTimeout(() => { window.location.href = "{{ url('bukti_pembayaran') }}"; }, 3000);
+                        setTimeout(() => { window.location.href = "{{ isset($pembelian) ? route('premium.riwayat') : url('bukti_pembayaran') }}"; }, 1000);
                     },
                     onPending: function (result) { Swal.fire("Pending", "Pembayaran Anda pending.", "warning"); },
                     onError: function (result) { Swal.fire("Gagal", "Pembayaran Anda gagal.", "error"); },
@@ -207,7 +207,7 @@
         snap.pay("{{ $snapToken }}", {
             onSuccess: function (result) {
                 Swal.fire("Sukses", "Pembayaran midtrans berhasil.", "success");
-                setTimeout(() => { window.location.href = "{{ url('bukti_pembayaran') }}"; }, 3000);
+                setTimeout(() => { window.location.href = "{{ url('bukti_pembayaran') }}"; }, 1000);
             },
             onPending: function (result) { Swal.fire("Pending", "Pembayaran Anda pending.", "warning"); },
             onError: function (result) { Swal.fire("Gagal", "Pembayaran Anda gagal.", "error"); }
