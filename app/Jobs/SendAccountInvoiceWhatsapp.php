@@ -54,25 +54,29 @@ class SendAccountInvoiceWhatsapp implements ShouldQueue
             return;
         }
 
-        if (!$pembelian->stokAkun) {
-            Log::warning('SendAccountInvoiceWhatsapp: stok akun tidak ditemukan', [
-                'id_pembelian' => $this->idPembelian,
-                'order_id' => $pembelian->order_id,
-            ]);
+        $isDigital = $pembelian->varianLayanan?->tipeLayanan?->produk?->tipe_produk === 'digital';
 
-            return;
-        }
+        if (!$isDigital) {
+            if (!$pembelian->stokAkun) {
+                Log::warning('SendAccountInvoiceWhatsapp: stok akun tidak ditemukan', [
+                    'id_pembelian' => $this->idPembelian,
+                    'order_id' => $pembelian->order_id,
+                ]);
+                return;
+            }
 
-        try {
-            $password = Crypt::decryptString($pembelian->stokAkun->getRawOriginal('password_encrypted'));
-        } catch (\Throwable $e) {
-            Log::error('SendAccountInvoiceWhatsapp: gagal decrypt password', [
-                'id_pembelian' => $this->idPembelian,
-                'order_id' => $pembelian->order_id,
-                'error' => $e->getMessage(),
-            ]);
-
-            return;
+            try {
+                $password = Crypt::decryptString($pembelian->stokAkun->getRawOriginal('password_encrypted'));
+            } catch (\Throwable $e) {
+                Log::error('SendAccountInvoiceWhatsapp: gagal decrypt password', [
+                    'id_pembelian' => $this->idPembelian,
+                    'order_id' => $pembelian->order_id,
+                    'error' => $e->getMessage(),
+                ]);
+                return;
+            }
+        } else {
+            $password = ''; // Digital products don't have password
         }
 
         $pembayaran = Pembayaran::where('id_pembelian', $this->idPembelian)->first();
@@ -82,11 +86,10 @@ class SendAccountInvoiceWhatsapp implements ShouldQueue
                 'id_pembelian' => $this->idPembelian,
                 'order_id' => $pembelian->order_id,
             ]);
-
             return;
         }
 
-        $message = $this->buildMessage($pembelian, $password);
+        $message = $this->buildMessage($pembelian, $password, $isDigital);
         $response = $fonnte->sendText($nomorTelepon, $message);
         $isSuccess = ($response['status'] ?? false) === true;
 
@@ -96,7 +99,7 @@ class SendAccountInvoiceWhatsapp implements ShouldQueue
         ]);
     }
 
-    private function buildMessage(Pembelian $pembelian, string $password): string
+    private function buildMessage(Pembelian $pembelian, string $password, bool $isDigital): string
     {
         $varian = $pembelian->varianLayanan;
         $tipe = $varian?->tipeLayanan;
@@ -108,11 +111,8 @@ class SendAccountInvoiceWhatsapp implements ShouldQueue
         $namaTipe = $tipe?->nama_tipe ?? '-';
         $namaVarian = $varian?->nama_varian ?? '-';
         $totalHarga = 'Rp ' . number_format((float) $pembelian->harga_saat_beli, 0, ',', '.');
-        $emailUsername = $pembelian->stokAkun->email_username;
-        $durasiHari = (int) ($varian?->durasi_hari ?? 0);
-        $tanggalAktifSampai = Carbon::now()->addDays($durasiHari)->format('d/m/Y');
-
-        return implode("\n", [
+        
+        $lines = [
             '✅ *INVOICE LAPAKTIFIKASI — LUNAS*',
             '',
             'Order ID: ' . $pembelian->order_id,
@@ -123,14 +123,33 @@ class SendAccountInvoiceWhatsapp implements ShouldQueue
             'Total: ' . $totalHarga,
             'Status: *LUNAS*',
             '',
-            '--- Detail Akun ---',
-            'Email/Username: ' . $emailUsername,
-            'Password: ' . $password,
-            'Aktif sampai: ' . $tanggalAktifSampai,
-            '',
-            '⚠️ Mohon *jangan ganti password* akun agar layanan tetap berjalan dengan baik.',
-            '',
-            'Terima kasih telah berbelanja di Lapaktifikasi! 🙏',
-        ]);
+        ];
+
+        if ($isDigital) {
+            $lines = array_merge($lines, [
+                '--- Detail Pesanan ---',
+                'Pesanan Digital Anda telah berhasil diproses.',
+                'Silakan login ke dashboard Lapaktifikasi untuk mengunduh file Anda di menu *Riwayat Premium*.',
+                '',
+            ]);
+        } else {
+            $emailUsername = $pembelian->stokAkun?->email_username ?? '-';
+            $durasiHari = (int) ($varian?->durasi_hari ?? 0);
+            $tanggalAktifSampai = Carbon::now()->addDays($durasiHari)->format('d/m/Y');
+            
+            $lines = array_merge($lines, [
+                '--- Detail Akun ---',
+                'Email/Username: ' . $emailUsername,
+                'Password: ' . $password,
+                'Aktif sampai: ' . $tanggalAktifSampai,
+                '',
+                '⚠️ Mohon *jangan ganti password* akun agar layanan tetap berjalan dengan baik.',
+                '',
+            ]);
+        }
+
+        $lines[] = 'Terima kasih telah berbelanja di Lapaktifikasi! 🙏';
+
+        return implode("\n", $lines);
     }
 }

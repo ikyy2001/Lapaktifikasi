@@ -57,4 +57,19 @@ class Toko extends Model
         return $this->belongsToMany(SellerBadge::class, 'tbl_toko_badge', 'id_toko', 'id_badge')
             ->withPivot('diperoleh_pada');
     }
+
+    public function syncRatings()
+    {
+        $reviews = $this->reviews()->get();
+        
+        $this->update([
+            'jumlah_review' => $reviews->count(),
+            'rating_rata_rata' => $reviews->avg('rating') ?? 0,
+            'rating_1_star' => $reviews->where('rating', 1)->count(),
+            'rating_2_star' => $reviews->where('rating', 2)->count(),
+            'rating_3_star' => $reviews->where('rating', 3)->count(),
+            'rating_4_star' => $reviews->where('rating', 4)->count(),
+            'rating_5_star' => $reviews->where('rating', 5)->count(),
+        ]);
+    }
 }

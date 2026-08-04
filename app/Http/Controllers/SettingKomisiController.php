@@ -22,12 +22,16 @@ class SettingKomisiController extends Controller
     {
         $rules = [
             'komisi_default' => 'required|numeric|between:0,100',
+            'digital_file_limit_mb' => 'required|numeric|min:1',
         ];
 
         $messages = [
             'komisi_default.required' => 'Komisi default harus diisi.',
             'komisi_default.numeric' => 'Komisi default harus berupa angka.',
             'komisi_default.between' => 'Komisi default harus berada di antara 0 dan 100%.',
+            'digital_file_limit_mb.required' => 'Batas ukuran file harus diisi.',
+            'digital_file_limit_mb.numeric' => 'Batas ukuran file harus berupa angka.',
+            'digital_file_limit_mb.min' => 'Batas ukuran file minimal 1 MB.',
         ];
 
         $validator = Validator::make($request->all(), $rules, $messages);
@@ -43,6 +47,7 @@ class SettingKomisiController extends Controller
             $setting = new SettingKomisi();
         }
         $setting->komisi_default = $request->input('komisi_default');
+        $setting->digital_file_limit_mb = $request->input('digital_file_limit_mb');
         $setting->save();
 
         Session::flash('success', 'Komisi default platform berhasil diperbarui.');

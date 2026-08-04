@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use ZipArchive;
 
-class ProductController extends Controller
+class ProductDigitalController extends Controller
 {
     protected $messages = [
         'nama_produk.required' => 'Nama tidak boleh kosong.',
@@ -63,7 +63,7 @@ class ProductController extends Controller
             return redirect('/daftar_toko');
         }
 
-        return view('produk.index', ($role->role_id == 1 || $role->role_id == 3 ? compact('semuaProduk') : []));
+        return view('produk_digital.index', ($role->role_id == 1 || $role->role_id == 3 ? compact('semuaProduk') : []));
     }
 
     /**
@@ -74,7 +74,7 @@ class ProductController extends Controller
         if (Auth::user()->role_id != 3) {
             abort(403, 'Forbidden access. Only sellers can manage products.');
         }
-        return view('produk.create');
+        return view('produk_digital.create');
     }
 
     /**
@@ -100,7 +100,7 @@ class ProductController extends Controller
 
         $validator = Validator::make($request->all(), $rules, $this->messages);
         if ($validator->fails()) {
-            return redirect('/menu_produk/create')->withErrors($validator)->withInput();
+            return redirect('/menu_produk_digital/create')->withErrors($validator)->withInput();
         }
 
         $gambarName = null;
@@ -112,7 +112,7 @@ class ProductController extends Controller
 
         ProdukModel::create([
             'nama_produk' => $request->input('nama_produk'),
-            'tipe_produk' => 'premium',
+            'tipe_produk' => 'digital',
             'deskripsi'   => $request->input('deskripsi'),
             'gambar'      => $gambarName,
             'file'        => null,
@@ -122,21 +122,16 @@ class ProductController extends Controller
         ]);
 
         $this->setSessionFlash('success', 'Produk berhasil ditambahkan.');
-        return redirect('/menu_produk');
+        return redirect('/menu_produk_digital');
     }
 
     /**
-     * Redirect to SEO-friendly product detail route.
+     * show() — tidak digunakan lagi (semua produk premium, tidak ada screenshots ZIP).
+     * Route ini sudah dihapus dari resource route. Redirect saja jika diakses langsung.
      */
     public function show(string $id)
     {
-        $produk = Produk::with(['toko'])->find($id);
-        if ($produk && $produk->toko) {
-            $storeSlug = \Illuminate\Support\Str::slug($produk->toko->nama_toko) . '-' . $produk->toko->id_toko;
-            $productSlug = \Illuminate\Support\Str::slug($produk->nama_produk) . '-' . $produk->id_produk;
-            return redirect()->route('toko.produk.detail', ['store_slug' => $storeSlug, 'product_slug' => $productSlug]);
-        }
-        return redirect()->route('premium.katalog');
+        return redirect('/menu_produk_digital');
     }
 
     /**
@@ -155,7 +150,7 @@ class ProductController extends Controller
             abort(403, 'Forbidden access. Anda bukan pemilik produk ini.');
         }
 
-        return view('produk.edit', compact('data'));
+        return view('produk_digital.edit', compact('data'));
     }
 
     /**
@@ -183,11 +178,11 @@ class ProductController extends Controller
 
         $validator = Validator::make($request->all(), $rules, $this->messages);
         if ($validator->fails()) {
-            return redirect('/menu_produk/' . $id . '/edit')->withErrors($validator)->withInput();
+            return redirect('/menu_produk_digital/' . $id . '/edit')->withErrors($validator)->withInput();
         }
 
         $updateProduct->nama_produk = $request->input('nama_produk');
-        $updateProduct->tipe_produk = 'premium';
+        $updateProduct->tipe_produk = 'digital';
         $updateProduct->deskripsi   = $request->input('deskripsi');
         $updateProduct->status      = $request->input('status');
         $updateProduct->harga       = null;
@@ -207,7 +202,7 @@ class ProductController extends Controller
         $updateProduct->save();
 
         $this->setSessionFlash('success', 'Produk berhasil diupdate.');
-        return redirect('/menu_produk');
+        return redirect('/menu_produk_digital');
     }
 
     /**
@@ -236,16 +231,14 @@ class ProductController extends Controller
             $hasPurchases = \App\Models\Pembelian::whereIn('id_varian', $varianIds)->exists();
 
             if ($hasPurchases) {
-                StokAkun::whereIn('id_varian', $varianIds)->where('status', \App\Enums\StokStatus::TERSEDIA)->delete();
                 VarianLayanan::whereIn('id_tipe', $tipeIds)->update(['status' => 'nonaktif']);
                 TipeLayanan::where('id_produk', $produk->id_produk)->update(['status' => 'nonaktif']);
                 $produk->update(['status' => 'nonaktif']);
 
-                $this->setSessionFlash('success', 'Produk ini memiliki riwayat transaksi. Status produk & varian diubah menjadi non-aktif agar data pembeli tetap aman.');
-                return redirect('/menu_produk');
+                $this->setSessionFlash('success', 'Produk ini memiliki riwayat transaksi. Status produk diubah menjadi non-aktif agar data transaksi pembeli tetap aman.');
+                return redirect('/menu_produk_digital');
             }
 
-            StokAkun::whereIn('id_varian', $varianIds)->delete();
             VarianLayanan::whereIn('id_tipe', $tipeIds)->delete();
             TipeLayanan::where('id_produk', $produk->id_produk)->delete();
 
@@ -254,14 +247,14 @@ class ProductController extends Controller
             }
 
             $produk->delete();
-            $this->setSessionFlash('success', 'Produk berhasil dihapus.');
+            $this->setSessionFlash('success', 'Produk digital berhasil dihapus.');
         } catch (\Exception $e) {
             TipeLayanan::where('id_produk', $produk->id_produk)->update(['status' => 'nonaktif']);
             $produk->update(['status' => 'nonaktif']);
             $this->setSessionFlash('success', 'Produk diubah menjadi non-aktif agar data transaksi tetap aman.');
         }
 
-        return redirect('/menu_produk');
+        return redirect('/menu_produk_digital');
     }
 
     // beli() dan proses_checkout() dihapus — platform hanya pakai proses_checkout_premium()
@@ -292,7 +285,7 @@ class ProductController extends Controller
             abort(403);
         }
 
-        return view('produk.produk_terjual', compact('produk'));
+        return view('produk_digital.produk_terjual', compact('produk'));
     }
 
     // download_produk() dihapus — tidak ada lagi produk biasa/ZIP
@@ -316,22 +309,17 @@ class ProductController extends Controller
 
         try {
             $pembelian = \Illuminate\Support\Facades\DB::transaction(function () use ($id_varian, $id_customer, $kode_voucher) {
-                $varian = \App\Models\VarianLayanan::with('tipeLayanan.produk')->findOrFail($id_varian);
-                $isDigital = $varian->tipeLayanan?->produk?->tipe_produk === 'digital';
+                $stok = \App\Models\StokAkun::where('id_varian', $id_varian)
+                    ->where('status', \App\Enums\StokStatus::TERSEDIA)
+                    ->orderBy('created_at', 'asc')
+                    ->lockForUpdate()
+                    ->first();
 
-                $stok = null;
-                if (!$isDigital) {
-                    $stok = \App\Models\StokAkun::where('id_varian', $id_varian)
-                        ->where('status', \App\Enums\StokStatus::TERSEDIA)
-                        ->orderBy('created_at', 'asc')
-                        ->lockForUpdate()
-                        ->first();
-
-                    if (!$stok) {
-                        throw new \App\Exceptions\StokHabisException('Stok Habis');
-                    }
+                if (!$stok) {
+                    throw new \App\Exceptions\StokHabisException('Stok Habis');
                 }
 
+                $varian = \App\Models\VarianLayanan::with('tipeLayanan.produk')->findOrFail($id_varian);
                 $harga_varian = (float) $varian->harga;
                 $harga_saat_beli = $harga_varian;
                 $nominal_diskon = 0;
@@ -379,13 +367,14 @@ class ProductController extends Controller
                         \App\Models\VoucherKlaim::create([
                             'id_voucher' => $voucher->id_voucher,
                             'id_customer' => $id_customer,
-                            'diklaim_pada' => now(),
+                            'id_pembelian' => null,
+                            'created_at' => now(),
                         ]);
                     }
 
                     // Calculate discount
-                    if ($voucher->tipe_diskon === 'persentase') {
-                        $potongan = ($harga_varian * (float) $voucher->nilai_diskon) / 100;
+                    if ($voucher->tipe_diskon === 'persen') {
+                        $potongan = ($harga_varian * (float) $voucher->nilai_diskon) / 100.0;
                         if ($voucher->maksimal_potongan !== null) {
                             $potongan = min($potongan, (float) $voucher->maksimal_potongan);
                         }
@@ -400,19 +389,17 @@ class ProductController extends Controller
 
                 $reserved_expired_at = now()->addMinutes(15);
 
-                if ($stok) {
-                    $stok->update([
-                        'status' => \App\Enums\StokStatus::RESERVED,
-                        'reserved_at' => now(),
-                        'reserved_expired_at' => $reserved_expired_at,
-                    ]);
-                }
+                $stok->update([
+                    'status' => \App\Enums\StokStatus::RESERVED,
+                    'reserved_at' => now(),
+                    'reserved_expired_at' => $reserved_expired_at,
+                ]);
 
                 $pembelian = \App\Models\Pembelian::create([
                     'order_id' => (string) \Illuminate\Support\Str::ulid(),
                     'id_customer' => $id_customer,
                     'id_varian' => $id_varian,
-                    'id_stok' => $stok?->id_stok,
+                    'id_stok' => $stok->id_stok,
                     'harga_saat_beli' => $harga_saat_beli,
                     'id_voucher_dipakai' => $voucher_dipakai,
                     'nominal_diskon' => $nominal_diskon,
@@ -420,11 +407,9 @@ class ProductController extends Controller
                     'reserved_until' => $reserved_expired_at,
                 ]);
 
-                if ($stok) {
-                    $stok->update([
-                        'id_pembelian' => $pembelian->id_pembelian,
-                    ]);
-                }
+                $stok->update([
+                    'id_pembelian' => $pembelian->id_pembelian,
+                ]);
 
                 return $pembelian;
             });
@@ -440,14 +425,6 @@ class ProductController extends Controller
 
     public function get_stok_varian(int $id_varian)
     {
-        $varian = \App\Models\VarianLayanan::with('tipeLayanan.produk')->find($id_varian);
-        if ($varian && $varian->tipeLayanan?->produk?->tipe_produk === 'digital') {
-            return response()->json([
-                'id_varian' => $id_varian,
-                'stok' => 999
-            ]);
-        }
-
         $stok = \App\Models\StokAkun::where('id_varian', $id_varian)
             ->where('status', \App\Enums\StokStatus::TERSEDIA)
             ->count();

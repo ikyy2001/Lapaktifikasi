@@ -102,7 +102,7 @@
         .hero-inner { display: flex; align-items: center; gap: 60px; max-width: 1200px; margin: 0 auto; width: 100%; }
         .hero-content { flex: 1; }
         .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.12); color: #000000; font-size: 0.82rem; font-weight: 700; letter-spacing: 1px; padding: 8px 18px; border-radius: 50px; margin-bottom: 28px; animation: fadeInDown 0.7s ease both; }
-        .hero-title { font-family: 'Space Grotesk', sans-serif; font-size: clamp(2.5rem, 5.5vw, 4rem); font-weight: 700; line-height: 1.1; margin-bottom: 24px; animation: fadeInUp 0.7s ease 0.1s both; }
+        .hero-title { font-family: 'Space Grotesk', sans-serif; font-size: clamp(1.7rem, 3.2vw, 2.4rem); font-weight: 700; line-height: 1.2; margin-bottom: 24px; animation: fadeInUp 0.7s ease 0.1s both; }
         .hero-desc { font-size: 1.1rem; color: var(--text-muted); line-height: 1.75; margin-bottom: 42px; max-width: 500px; animation: fadeInUp 0.7s ease 0.2s both; }
         .hero-cta { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 48px; animation: fadeInUp 0.7s ease 0.3s both; }
         .hero-trust { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; animation: fadeInUp 0.7s ease 0.4s both; }
@@ -377,7 +377,7 @@
             padding: 10px;
         }
 
-        /* RESPONSIVE */
+        /* RESPONSIVE ENHANCEMENTS */
         @media (max-width: 1024px) {
             .features-grid { grid-template-columns: repeat(2,1fr); }
             .products-grid { grid-template-columns: repeat(2,1fr); }
@@ -388,7 +388,13 @@
             .stats-grid { grid-template-columns: repeat(2,1fr); }
         }
         @media (max-width: 768px) {
-            .hero-inner { flex-direction: column; gap: 40px; }
+            .hero-inner { flex-direction: column; gap: 40px; text-align: center; }
+            #hero { padding: 120px 5% 60px; }
+            .section-wrap { padding: 60px 5%; }
+            .hero-badge { margin: 0 auto 20px; }
+            .hero-desc { margin-left: auto; margin-right: auto; }
+            .hero-cta { justify-content: center; }
+            .hero-trust { justify-content: center; text-align: left; }
             .hero-visual { width: 100%; }
             .nav-links { display: none; }
             .nav-actions { display: none; }
@@ -399,7 +405,20 @@
             .steps-grid { grid-template-columns: 1fr; }
             .products-grid { grid-template-columns: 1fr; }
             .footer-top-row { grid-template-columns: 1fr; gap: 32px; }
-            .cta-box { padding: 48px 28px; }
+            .cta-box { padding: 36px 20px !important; text-align: center !important; }
+        }
+        @media (max-width: 480px) {
+            .hero-title { font-size: 1.5rem !important; line-height: 1.25 !important; }
+            .section-title { font-size: 1.7rem !important; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .hero-cards-mini { flex-direction: column; gap: 10px; }
+            .hero-cta { flex-direction: column; width: 100%; }
+            .btn-primary, .btn-secondary { width: 100%; justify-content: center; }
+            .cta-actions { flex-direction: column; width: 100%; }
+            .cta-actions .btn-primary, .cta-actions .btn-secondary { width: 100%; justify-content: center; }
+            .modal-box { padding: 28px 20px !important; width: 92% !important; }
+            .product-row { flex-direction: column; text-align: center; }
+            .product-price { margin-top: 4px; }
         }
     </style>
 </head>
@@ -489,54 +508,54 @@
 <header id="hero">
     <div class="hero-inner">
         <div class="hero-content">
-            <div class="hero-badge"><i class="bi bi-lightning-charge-fill"></i> Platform Premium Instan &amp; Terpercaya</div>
+            <div class="hero-badge"><i class="bi bi-mortarboard-fill"></i> Sinergi Digital SMK Plus Pelita Nusantara Bogor</div>
             <h1 class="hero-title">Lapaktifikasi Bersama<br><span class="grad-text">SMK PLUS PELITA NUSANTARA BOGOR</span></h1>
-            <p class="hero-desc">Bekerja sama dengan 5 Jurusan dan staff tata usaha SMK Plus Pelita Nusantara, Lapaktifikasi hadir menyediakan penawaran layanan digital premium dengan harga terjangkau, pengiriman seketika, dan transaksi yang sangat aman.</p>
+            <p class="hero-desc">Pusat Marketplace Digital &amp; Akun Premium Terpercaya. Hasil kolaborasi strategis dalam membangun ekosistem digital mandiri, mengasah jiwa kewirausahaan siswa 5 Jurusan &amp; Staff, serta mendorong pertumbuhan ekonomi kreatif digital di SMK Plus Pelita Nusantara Bogor.</p>
             <div class="hero-cta">
                 @auth
                     @if(Auth::user()->role_id == 2)
-                        <a href="{{ route('premium.katalog') }}" class="btn-primary"><i class="bi bi-bag-fill"></i> Mulai Belanja</a>
-                        <a href="{{ route('premium.riwayat') }}" class="btn-secondary"><i class="bi bi-clock-history"></i> Riwayat</a>
+                        <a href="{{ route('premium.katalog') }}" class="btn-primary"><i class="bi bi-bag-fill"></i> Mulai Jelajah Katalog</a>
+                        <a href="{{ route('premium.riwayat') }}" class="btn-secondary"><i class="bi bi-clock-history"></i> Riwayat Pembelian</a>
                     @else
-                        <a href="{{ url('/dashboard') }}" class="btn-primary"><i class="bi bi-speedometer2"></i> Dashboard</a>
+                        <a href="{{ url('/dashboard') }}" class="btn-primary"><i class="bi bi-speedometer2"></i> Masuk Dashboard</a>
                     @endif
                 @else
-                    <a href="#" class="btn-primary" onclick="openModal(); return false;"><i class="bi bi-bag-fill"></i> Beli Sekarang</a>
-                    <a href="{{ url('/pendaftaran') }}" class="btn-secondary"><i class="bi bi-person-plus"></i> Daftar Gratis</a>
+                    <a href="#" class="btn-primary" onclick="openModal(); return false;"><i class="bi bi-bag-fill"></i> Belanja Produk Digital</a>
+                    <a href="{{ url('/pendaftaran') }}" class="btn-secondary"><i class="bi bi-person-plus"></i> Daftar Akun Gratis</a>
                 @endauth
             </div>
             <div class="hero-trust">
-                <div class="trust-item"><i class="bi bi-check-circle-fill"></i> Pengiriman Instan</div>
-                <div class="trust-item"><i class="bi bi-check-circle-fill"></i> Pembayaran Aman</div>
-                <div class="trust-item"><i class="bi bi-check-circle-fill"></i> 24/7 Stok Tersedia</div>
+                <div class="trust-item"><i class="bi bi-check-circle-fill"></i> Akun Premium &amp; File Digital</div>
+                <div class="trust-item"><i class="bi bi-check-circle-fill"></i> Download ZIP / File Instan</div>
+                <div class="trust-item"><i class="bi bi-check-circle-fill"></i> Pembayaran QRIS &amp; Bank</div>
             </div>
         </div>
         <div class="hero-visual">
             <div class="glass-card" style="padding:28px;border-radius:28px;">
                 <div class="card-header-row">
-                    <span style="font-weight:700;font-size:1rem;">Produk Terlaris</span>
-                    <span class="card-badge-live">Live</span>
+                    <span style="font-weight:700;font-size:1rem;">Produk Digital &amp; Premium</span>
+                    <span class="card-badge-live">Ekosistem SMK</span>
+                </div>
+                <div class="product-row">
+                    <div class="product-icon" style="background:rgba(59,130,246,0.15);">&#128187;</div>
+                    <div class="product-info"><h6>Source Code &amp; ZIP File</h6><small>Script Aplikasi, Web, &amp; Template</small></div>
+                    <div class="product-price">Instan</div>
                 </div>
                 <div class="product-row">
                     <div class="product-icon" style="background:rgba(30,215,96,0.15);">&#127925;</div>
-                    <div class="product-info"><h6>Spotify Premium</h6><small>Musik tanpa iklan, kualitas tinggi</small></div>
+                    <div class="product-info"><h6>Spotify &amp; Netflix Premium</h6><small>Akses hiburan &amp; produktivitas</small></div>
                     <div class="product-price">Rp 15rb</div>
                 </div>
                 <div class="product-row">
-                    <div class="product-icon" style="background:rgba(229,9,20,0.15);">&#127916;</div>
-                    <div class="product-info"><h6>Netflix Premium</h6><small>Streaming 4K tanpa batas</small></div>
-                    <div class="product-price">Rp 25rb</div>
-                </div>
-                <div class="product-row">
-                    <div class="product-icon" style="background:rgba(255,0,0,0.12);">&#9654;</div>
-                    <div class="product-info"><h6>YouTube Premium</h6><small>Tanpa iklan, video offline</small></div>
-                    <div class="product-price">Rp 12rb</div>
+                    <div class="product-icon" style="background:rgba(168,85,247,0.15);">&#128218;</div>
+                    <div class="product-info"><h6>E-Book &amp; Aset Kreatif</h6><small>Modul, desain, &amp; dokumen digital</small></div>
+                    <div class="product-price">Unduh</div>
                 </div>
             </div>
             <div class="hero-cards-mini">
-                <div class="glass-card mini-card"><div class="num">2.5K+</div><div class="lbl">Pelanggan Aktif</div></div>
-                <div class="glass-card mini-card"><div class="num">99%</div><div class="lbl">Kepuasan</div></div>
-                <div class="glass-card mini-card"><div class="num">&lt;5s</div><div class="lbl">Waktu Kirim</div></div>
+                <div class="glass-card mini-card"><div class="num">5</div><div class="lbl">Jurusan SMK Pelita</div></div>
+                <div class="glass-card mini-card"><div class="num">2.5K+</div><div class="lbl">Pengguna Aktif</div></div>
+                <div class="glass-card mini-card"><div class="num">100%</div><div class="lbl">Legal &amp; Aman</div></div>
             </div>
         </div>
     </div>
@@ -615,25 +634,25 @@
 <section id="visimisi" class="section-wrap alt">
     <div class="container-custom">
         <div class="section-header centered">
-            <div class="section-tag"><i class="bi bi-eye-fill"></i> Visi &amp; Misi</div>
-            <h2 class="section-title">Landasan <span class="highlight-cyan">Kami Bergerak</span></h2>
-            <p class="section-subtitle">Lapaktifikasi dibangun di atas fondasi kepercayaan, inovasi, dan komitmen untuk memberikan layanan terbaik bagi setiap pelanggan.</p>
+            <div class="section-tag"><i class="bi bi-eye-fill"></i> Sinergi &amp; Komitmen</div>
+            <h2 class="section-title">Visi &amp; Misi <span class="highlight-cyan">Sinergi Digital</span></h2>
+            <p class="section-subtitle">Lapaktifikasi bersama SMK Plus Pelita Nusantara Bogor berkomitmen membangun ekosistem digital mandiri yang memberdayakan karya siswa dan menggerakkan potensi ekonomi sekolah.</p>
         </div>
         <div class="vm-grid">
             <div class="glass-card vm-card vm-visi reveal">
                 <div class="vm-icon">&#127919;</div>
                 <h3>Visi Kami</h3>
-                <p>Menjadi platform distribusi akun digital premium terdepan di Indonesia yang paling dipercaya, memberikan akses mudah ke layanan hiburan dan produktivitas berkualitas bagi seluruh lapisan masyarakat.</p>
+                <p>Menjadi platform marketplace produk digital &amp; akun premium terdepan berbasis kolaborasi pendidikan yang menginspirasi kemandirian ekonomi digital, inovasi karya siswa 5 Jurusan &amp; Staff, serta mempermudah akses produk kreatif di seluruh Indonesia.</p>
             </div>
             <div class="glass-card vm-card vm-misi reveal" style="transition-delay:.15s">
                 <div class="vm-icon">&#128640;</div>
-                <h3>Misi Kami</h3>
+                <h3>Misi Utama</h3>
                 <ul>
-                    <li><i class="bi bi-chevron-right"></i> Menyediakan produk digital premium dengan harga transparan dan terjangkau</li>
-                    <li><i class="bi bi-chevron-right"></i> Membangun sistem pengiriman otomatis yang cepat dan andal berbasis teknologi modern</li>
-                    <li><i class="bi bi-chevron-right"></i> Menjaga kepercayaan pelanggan dengan keamanan transaksi berlapis</li>
-                    <li><i class="bi bi-chevron-right"></i> Terus berinovasi menghadirkan produk dan fitur baru sesuai kebutuhan pengguna</li>
-                    <li><i class="bi bi-chevron-right"></i> Memberikan pengalaman belanja digital yang menyenangkan dan efisien</li>
+                    <li><i class="bi bi-chevron-right"></i> Membuka wadah distribusi karya digital siswa (Source Code, ZIP, E-Book, Desain) &amp; Akun Premium</li>
+                    <li><i class="bi bi-chevron-right"></i> Mengembangkan jiwa kewirausahaan digital siswa 5 Jurusan &amp; Staff SMK Plus Pelita Nusantara Bogor</li>
+                    <li><i class="bi bi-chevron-right"></i> Menyediakan sistem pengiriman otomatis &amp; unduh file digital instan yang aman dan terpercaya</li>
+                    <li><i class="bi bi-chevron-right"></i> Mendorong pertumbuhan ekonomi kreatif sekolah melalui skema komisi &amp; bagi hasil transparan</li>
+                    <li><i class="bi bi-chevron-right"></i> Menyediakan layanan pembuatan website &amp; portal digital custom untuk komunitas &amp; institusi</li>
                 </ul>
             </div>
         </div>
@@ -645,29 +664,29 @@
     <div class="container-custom">
         <div class="section-header centered">
             <div class="section-tag"><i class="bi bi-diagram-3-fill"></i> Cara Kerja</div>
-            <h2 class="section-title">Belanja Semudah <span class="highlight">4 Langkah</span></h2>
-            <p class="section-subtitle">Proses yang cepat dan sederhana — dari daftar hingga mendapatkan akun premium hanya dalam hitungan menit.</p>
+            <h2 class="section-title">Transaksi Semudah <span class="highlight">4 Langkah</span></h2>
+            <p class="section-subtitle">Proses belanja cepat dan sederhana — dari memilih file digital / akun hingga mengunduh langsung di akun Anda.</p>
         </div>
         <div class="steps-grid">
             <div class="glass-card step-card reveal">
                 <div class="step-num">1</div>
                 <h4>Daftar Akun</h4>
-                <p>Buat akun Lapaktifikasi gratis hanya dengan email dan kata sandi. Proses verifikasi instan, langsung bisa digunakan.</p>
+                <p>Buat akun Lapaktifikasi gratis hanya dengan email dan kata sandi. Proses verifikasi instan tanpa ribet.</p>
             </div>
             <div class="glass-card step-card reveal" style="transition-delay:.12s">
                 <div class="step-num">2</div>
                 <h4>Pilih Produk</h4>
-                <p>Jelajahi katalog lengkap kami dan pilih akun premium yang sesuai dengan kebutuhan dan anggaran Anda.</p>
+                <p>Jelajahi berbagai pilihan akun premium, source code (ZIP), e-book, hingga file digital bermanfaat lainnya.</p>
             </div>
             <div class="glass-card step-card reveal" style="transition-delay:.24s">
                 <div class="step-num">3</div>
-                <h4>Bayar Aman</h4>
-                <p>Lakukan pembayaran melalui berbagai metode tersedia — transfer bank, e-wallet, QRIS, dan lainnya via Midtrans.</p>
+                <h4>Bayar Otomatis</h4>
+                <p>Lakukan pembayaran aman via QRIS, e-Wallet, atau Transfer Bank otomatis yang diproses dalam hitungan detik.</p>
             </div>
             <div class="glass-card step-card reveal" style="transition-delay:.36s">
                 <div class="step-num">4</div>
-                <h4>Terima Instan</h4>
-                <p>Kredensial akun premium langsung muncul di halaman riwayat belanja Anda. Siap digunakan seketika!</p>
+                <h4>Unduh / Akses Instan</h4>
+                <p>Unduh file ZIP/dokumen secara langsung atau lihat kredensial akun di halaman riwayat belanja Anda seketika!</p>
             </div>
         </div>
     </div>
@@ -677,58 +696,58 @@
 <section id="produk" class="section-wrap alt">
     <div class="container-custom">
         <div class="section-header centered">
-            <div class="section-tag"><i class="bi bi-grid-fill"></i> Katalog</div>
-            <h2 class="section-title">Produk <span class="highlight">Unggulan</span> Kami</h2>
-            <p class="section-subtitle">Pilihan lengkap layanan digital premium terpopuler dengan harga kompetitif dan ketersediaan stok terjaga.</p>
+            <div class="section-tag"><i class="bi bi-grid-fill"></i> Produk &amp; Layanan</div>
+            <h2 class="section-title">Kategori Produk <span class="highlight">Digital Kami</span></h2>
+            <p class="section-subtitle">Temukan berbagai ragam produk digital terlengkap — dari aplikasi premium hingga karya file digital buatan creator &amp; siswa.</p>
         </div>
         <div class="products-grid">
             <div class="glass-card product-card reveal">
-                <span class="product-card-icon">&#127925;</span>
-                <h3>Spotify Premium</h3>
-                <p>Nikmati jutaan lagu tanpa iklan, kualitas audio tinggi, dan unduhan untuk mendengarkan secara offline.</p>
+                <span class="product-card-icon">&#128187;</span>
+                <h3>Source Code &amp; ZIP File</h3>
+                <p>Script web, project laravel/php, source code absensi, template, &amp; modul siap pakai dalam format ZIP/RAR.</p>
                 <div class="product-card-footer">
-                    <div class="product-card-price"><small>Mulai dari</small><strong>Rp 15.000</strong></div>
+                    <div class="product-card-price"><small>File Digital</small><strong>Unduh Instan</strong></div>
                     @auth
-                        <a href="{{ route('premium.katalog') }}" class="btn-see">Lihat <i class="bi bi-arrow-right"></i></a>
+                        <a href="{{ route('premium.katalog', ['kategori' => 'digital']) }}" class="btn-see">Lihat <i class="bi bi-arrow-right"></i></a>
                     @else
-                        <a href="#" onclick="openModal(); return false;" class="btn-see">Beli <i class="bi bi-arrow-right"></i></a>
+                        <a href="#" onclick="openModal(); return false;" class="btn-see">Cek File <i class="bi bi-arrow-right"></i></a>
                     @endauth
                 </div>
             </div>
             <div class="glass-card product-card reveal" style="transition-delay:.1s">
-                <span class="product-card-icon">&#127916;</span>
-                <h3>Netflix Premium</h3>
-                <p>Streaming film dan serial TV favorit dalam kualitas 4K Ultra HD dengan konten original eksklusif Netflix.</p>
+                <span class="product-card-icon">&#127925;</span>
+                <h3>Spotify &amp; Netflix Premium</h3>
+                <p>Nikmati akses streaming musik tanpa iklan dan film 4K Ultra HD dengan harga ramah kantong.</p>
                 <div class="product-card-footer">
-                    <div class="product-card-price"><small>Mulai dari</small><strong>Rp 25.000</strong></div>
+                    <div class="product-card-price"><small>Akun Premium</small><strong>Mulai Rp 15.000</strong></div>
                     @auth
-                        <a href="{{ route('premium.katalog') }}" class="btn-see">Lihat <i class="bi bi-arrow-right"></i></a>
+                        <a href="{{ route('premium.katalog', ['kategori' => 'premium']) }}" class="btn-see">Lihat <i class="bi bi-arrow-right"></i></a>
                     @else
                         <a href="#" onclick="openModal(); return false;" class="btn-see">Beli <i class="bi bi-arrow-right"></i></a>
                     @endauth
                 </div>
             </div>
             <div class="glass-card product-card reveal" style="transition-delay:.2s">
-                <span class="product-card-icon">&#9654;</span>
-                <h3>YouTube Premium</h3>
-                <p>YouTube bebas iklan, unduhan video, dan akses YouTube Music tanpa biaya tambahan.</p>
+                <span class="product-card-icon">&#128444;</span>
+                <h3>Gambar &amp; Desain Grafis</h3>
+                <p>Elemen desain, template Canva/Photoshop, ilustrasi, foto, dan aset grafis berkualitas tinggi untuk kebutuhan konten.</p>
                 <div class="product-card-footer">
-                    <div class="product-card-price"><small>Mulai dari</small><strong>Rp 12.000</strong></div>
+                    <div class="product-card-price"><small>Aset Kreatif</small><strong>Download Direct</strong></div>
                     @auth
-                        <a href="{{ route('premium.katalog') }}" class="btn-see">Lihat <i class="bi bi-arrow-right"></i></a>
+                        <a href="{{ route('premium.katalog', ['kategori' => 'digital']) }}" class="btn-see">Lihat <i class="bi bi-arrow-right"></i></a>
                     @else
                         <a href="#" onclick="openModal(); return false;" class="btn-see">Beli <i class="bi bi-arrow-right"></i></a>
                     @endauth
                 </div>
             </div>
             <div class="glass-card product-card reveal" style="transition-delay:.3s">
-                <span class="product-card-icon">&#127918;</span>
-                <h3>Layanan Gaming</h3>
-                <p>Akses layanan gaming premium dengan koleksi game terlengkap dan harga terjangkau.</p>
+                <span class="product-card-icon">&#128221;</span>
+                <h3>Dokumen &amp; Notepad (TXT)</h3>
+                <p>Modul pembelajaran, catatan penting, daftar prompt AI, &amp; script text yang dapat diakses langsung setelah order.</p>
                 <div class="product-card-footer">
-                    <div class="product-card-price"><small>Mulai dari</small><strong>Rp 20.000</strong></div>
+                    <div class="product-card-price"><small>File Teks / TXT</small><strong>Akses Langsung</strong></div>
                     @auth
-                        <a href="{{ route('premium.katalog') }}" class="btn-see">Lihat <i class="bi bi-arrow-right"></i></a>
+                        <a href="{{ route('premium.katalog', ['kategori' => 'digital']) }}" class="btn-see">Lihat <i class="bi bi-arrow-right"></i></a>
                     @else
                         <a href="#" onclick="openModal(); return false;" class="btn-see">Beli <i class="bi bi-arrow-right"></i></a>
                     @endauth
@@ -736,12 +755,12 @@
             </div>
             <div class="glass-card product-card reveal" style="transition-delay:.4s">
                 <span class="product-card-icon">&#128218;</span>
-                <h3>Platform Edukasi</h3>
-                <p>Tingkatkan skill dengan akses ke platform pembelajaran digital premium pilihan.</p>
+                <h3>E-Book &amp; Modul Edukasi</h3>
+                <p>Panduan praktis, e-book pembelajaran 5 Jurusan SMK, hingga materi pengembangan karir &amp; teknologi.</p>
                 <div class="product-card-footer">
-                    <div class="product-card-price"><small>Mulai dari</small><strong>Rp 18.000</strong></div>
+                    <div class="product-card-price"><small>Format PDF</small><strong>Unduh Seketika</strong></div>
                     @auth
-                        <a href="{{ route('premium.katalog') }}" class="btn-see">Lihat <i class="bi bi-arrow-right"></i></a>
+                        <a href="{{ route('premium.katalog', ['kategori' => 'digital']) }}" class="btn-see">Lihat <i class="bi bi-arrow-right"></i></a>
                     @else
                         <a href="#" onclick="openModal(); return false;" class="btn-see">Beli <i class="bi bi-arrow-right"></i></a>
                     @endauth
@@ -749,10 +768,10 @@
             </div>
             <div class="glass-card product-card reveal" style="transition-delay:.5s">
                 <span class="product-card-icon">&#10024;</span>
-                <h3>Dan Masih Banyak Lagi</h3>
-                <p>Katalog kami terus berkembang. Temukan lebih banyak produk premium digital pilihan di halaman katalog.</p>
+                <h3>Karya Siswa SMK Pelita</h3>
+                <p>Dukung kreativitas dan jiwa wirausaha para siswa SMK Plus Pelita Nusantara Bogor dengan membeli karya terbaik mereka.</p>
                 <div class="product-card-footer">
-                    <div class="product-card-price"><small>Lihat semua</small><strong>Katalog Penuh</strong></div>
+                    <div class="product-card-price"><small>Karya Siswa</small><strong>Dukungan Ekonomi</strong></div>
                     @auth
                         <a href="{{ route('premium.katalog') }}" class="btn-see">Jelajahi <i class="bi bi-arrow-right"></i></a>
                     @else
@@ -764,37 +783,64 @@
     </div>
 </section>
 
+<!-- JASA PEMBUATAN WEBSITE & KEMITRAAN BANNER -->
+<section id="jasa-website" class="section-wrap">
+    <div class="container-custom">
+        <div class="cta-box reveal" style="background: rgba(255, 255, 255, 0.7); border: 2px solid #000000; text-align: left; padding: 60px 50px;">
+            <div class="row align-items-center" style="display: flex; flex-wrap: wrap; gap: 30px;">
+                <div style="flex: 1; min-width: 300px;">
+                    <div class="section-tag" style="background: #000; color: #fff;"><i class="bi bi-code-slash"></i> Jasa Pembuatan Website &amp; Software</div>
+                    <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: clamp(1.8rem, 3.5vw, 2.5rem); font-weight: 700; color: #000; margin-bottom: 16px;">
+                        Mau Memiliki Website Marketplace / Portal Digital Seperti Ini?
+                    </h2>
+                    <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.7; margin-bottom: 24px;">
+                        Tim Lapaktifikasi bersama pengembang SMK Plus Pelita Nusantara Bogor siap membantu Anda membangun website custom, sistem e-commerce, portal sekolah/komunitas, hingga aplikasi bisnis terintegrasi sesuai kebutuhan Anda!
+                    </p>
+                    <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                        <a href="https://wa.me/6289692583434?text=Halo%20Tim%20Lapaktifikasi,%20saya%20tertarik%20untuk%20konsultasi%20jasa%20pembuatan%20website%20/%20platform%20digital." target="_blank" class="btn-primary">
+                            <i class="bi bi-whatsapp"></i> Hubungi Tim Lapaktifikasi
+                        </a>
+                        <a href="{{ route('join.partner') }}" class="btn-secondary">
+                            <i class="bi bi-people"></i> Program Kemitraan Gratis
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- TESTIMONI -->
-<section id="testimoni" class="section-wrap">
+<section id="testimoni" class="section-wrap alt">
     <div class="container-custom">
         <div class="section-header centered">
             <div class="section-tag"><i class="bi bi-chat-quote-fill"></i> Testimoni</div>
             <h2 class="section-title">Kata Mereka yang <span class="highlight">Sudah Merasakan</span></h2>
-            <p class="section-subtitle">Ribuan pelanggan telah mempercayai Lapaktifikasi sebagai platform akun digital premium pilihan mereka.</p>
+            <p class="section-subtitle">Ribuan pelanggan &amp; seller telah merasakan kemudahan bertransaksi file digital dan akun premium di Lapaktifikasi.</p>
         </div>
         <div class="testi-grid">
             <div class="glass-card testi-card reveal">
                 <div class="testi-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-                <p class="testi-text">"Awalnya saya ragu, tapi ternyata luar biasa! Beli Spotify Premium dan dalam 5 detik sudah langsung bisa dipakai. Prosesnya gampang dan aman banget."</p>
+                <p class="testi-text">"Beli Source Code Laravel buat tugas akhir di Lapaktifikasi. Setelah bayar via QRIS, file ZIP langsung bisa di-download detik itu juga. Mantap!"</p>
                 <div class="testi-author">
                     <div class="testi-avatar" style="background:rgba(91,94,244,0.2);color:#818CF8;">A</div>
-                    <div><div class="testi-name">Andi Firmansyah</div><div class="testi-role">Pelanggan Setia &middot; Jakarta</div></div>
+                    <div><div class="testi-name">Andi Firmansyah</div><div class="testi-role">Siswa &middot; Bogor</div></div>
                 </div>
             </div>
             <div class="glass-card testi-card reveal" style="transition-delay:.12s">
                 <div class="testi-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-                <p class="testi-text">"Sudah 6 bulan berlangganan Netflix lewat Lapaktifikasi, tidak pernah ada masalah. Harga jauh lebih murah, pengirimannya otomatis. Sangat recommended!"</p>
+                <p class="testi-text">"Sangat bangga ada platform kolaborasi seperti Lapaktifikasi di SMK Plus Pelita Nusantara. Sekarang siswa dan staff bisa memajang &amp; menjual karya digital secara profesional."</p>
                 <div class="testi-author">
                     <div class="testi-avatar" style="background:rgba(6,182,212,0.2);color:#06b6d4;">S</div>
-                    <div><div class="testi-name">Sari Dewi Lestari</div><div class="testi-role">Pengguna Aktif &middot; Surabaya</div></div>
+                    <div><div class="testi-name">Hanifan Nurfauzi</div><div class="testi-role">Guru SMK PENUS &middot; Bogor</div></div>
                 </div>
             </div>
             <div class="glass-card testi-card reveal" style="transition-delay:.24s">
                 <div class="testi-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-                <p class="testi-text">"Lapaktifikasi adalah yang terbaik! Pernah ada masalah kecil dan tim CS langsung bantu selesaikan dalam waktu singkat. Pelayanannya profesional."</p>
+                <p class="testi-text">"Proses checkout cepat, invoice masuk ke WhatsApp, dan riwayat belanja tersimpan rapi. Tim CS juga sangat ramah dan responsif!"</p>
                 <div class="testi-author">
                     <div class="testi-avatar" style="background:rgba(244,114,182,0.2);color:#F472B6;">R</div>
-                    <div><div class="testi-name">Rizal Maulana</div><div class="testi-role">Member Premium &middot; Bandung</div></div>
+                    <div><div class="testi-name">Iqbal Haris Juna</div><div class="testi-role">Pelanggan Aktif &middot; Jakarta</div></div>
                 </div>
             </div>
         </div>
@@ -802,14 +848,14 @@
 </section>
 
 <!-- JOIN PARTNER PROMO -->
-<section id="join-partner-promo" class="section-wrap alt">
+<section id="join-partner-promo" class="section-wrap">
     <div class="container-custom">
         <div class="vm-grid">
             <div class="hero-content reveal">
-                <div class="section-tag"><i class="bi bi-people-fill"></i> Program Kemitraan Komunitas</div>
+                <div class="section-tag"><i class="bi bi-people-fill"></i> Program Kemitraan Komunitas &amp; Sekolah</div>
                 <h2 class="section-title">Website Toko Komunitas <span class="highlight">100% Gratis</span></h2>
                 <p class="hero-desc" style="margin-bottom:28px;">
-                    Miliki platform e-commerce produk digital khusus untuk komunitas Anda secara gratis (contoh: <code>nusabogor.lapaktifikasi.my.id</code>). Ajak para seller digital di dalam komunitas Anda untuk bergabung berjualan, dan nikmati bagi hasil keuntungan dari komisi transaksi secara otomatis dan transparan.
+                    Miliki platform e-commerce produk digital khusus untuk komunitas atau sekolah Anda secara gratis (contoh: <code>nusabogor.lapaktifikasi.my.id</code>). Ajak para seller digital di dalam komunitas Anda untuk bergabung berjualan, dan nikmati bagi hasil keuntungan dari komisi transaksi secara otomatis dan transparan.
                 </p>
                 <div class="hero-trust" style="margin-bottom:36px; display:flex; flex-direction:column; align-items:flex-start; gap:12px;">
                     <div class="trust-item"><i class="bi bi-patch-check-fill"></i> Subdomain Khusus Komunitas (e.g., <code>nusabogor.lapaktifikasi.my.id</code>)</div>

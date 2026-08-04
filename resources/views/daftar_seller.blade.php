@@ -92,7 +92,7 @@
         #hero-seller { min-height: 70vh; display: flex; align-items: center; padding: 160px 5% 80px; position: relative; z-index: 1; text-align: center; }
         .hero-seller-inner { max-width: 900px; margin: 0 auto; width: 100%; display: flex; flex-direction: column; align-items: center; }
         .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.12); color: #000000; font-size: 0.82rem; font-weight: 700; letter-spacing: 1px; padding: 8px 18px; border-radius: 50px; margin-bottom: 28px; animation: fadeInDown 0.7s ease both; }
-        .hero-title { font-family: 'Space Grotesk', sans-serif; font-size: clamp(2.5rem, 5.5vw, 3.8rem); font-weight: 700; line-height: 1.1; margin-bottom: 24px; animation: fadeInUp 0.7s ease 0.1s both; }
+        .hero-title { font-family: 'Space Grotesk', sans-serif; font-size: clamp(1.7rem, 3.2vw, 2.4rem); font-weight: 700; line-height: 1.2; margin-bottom: 24px; animation: fadeInUp 0.7s ease 0.1s both; }
         .hero-desc { font-size: 1.15rem; color: var(--text-muted); line-height: 1.75; margin-bottom: 32px; max-width: 700px; animation: fadeInUp 0.7s ease 0.2s both; }
 
         /* SECTION WRAPPERS */
@@ -184,13 +184,20 @@
             .footer-top-row { grid-template-columns: 1fr 1fr; }
         }
         @media (max-width: 768px) {
+            .hero-seller-inner { padding: 0 10px; }
             .nav-links { display: none; }
             .benefits-grid { grid-template-columns: 1fr; }
             .steps-grid { grid-template-columns: 1fr; }
             .footer-top-row { grid-template-columns: 1fr; gap: 32px; }
-            .registration-box { padding: 40px 24px; }
-            .action-buttons { gap: 16px; }
+            .registration-box { padding: 40px 20px; width: 100%; }
+            .action-buttons { gap: 16px; flex-direction: column; }
             .action-buttons a { width: 100%; max-width: 100%; }
+        }
+        @media (max-width: 480px) {
+            .hero-title { font-size: 2.2rem !important; line-height: 1.25 !important; }
+            .section-title { font-size: 1.8rem !important; }
+            .modal-box { padding: 28px 20px !important; width: 92% !important; }
+            .btn-whatsapp, .btn-gmail { padding: 16px 20px; font-size: 1rem; }
         }
     </style>
 </head>

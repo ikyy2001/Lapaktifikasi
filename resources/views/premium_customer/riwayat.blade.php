@@ -68,7 +68,7 @@
         /* Table custom styling */
         .table-responsive {
             border-radius: 12px;
-            overflow: hidden;
+            overflow-x: auto !important;
             border: 1px solid #e5e5e5;
         }
 
@@ -284,21 +284,20 @@
                                         <th>Produk / Paket</th>
                                         <th>Harga Beli</th>
                                         <th>Status</th>
-                                        <th>Aksi</th>
+                                        <th style="min-width: 260px;">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @forelse($pembelian as $index => $item)
                                     <tr>
                                         <td>{{ $index + 1 }}</td>
-                                        <td style="font-size: 0.85rem;">{{ $item->created_at->translatedFormat('d F Y, H:i') }}</td>
-                                        <td><code>{{ $item->order_id }}</code></td>
-                                        <td>
-                                            {{ $item->varianLayanan->tipeLayanan->produk->nama_produk }} - 
-                                            {{ $item->varianLayanan->tipeLayanan->nama_tipe }} 
-                                            ({{ $item->varianLayanan->nama_varian }})
+                                        <td style="font-size: 0.82rem; white-space: nowrap;">{{ $item->created_at->translatedFormat('d F Y, H:i') }}</td>
+                                        <td><code style="font-size: 0.75rem; white-space: nowrap;">{{ $item->order_id }}</code></td>
+                                        <td style="min-width: 180px;">
+                                            <strong class="d-block text-dark" style="font-size: 0.88rem;">{{ $item->varianLayanan?->tipeLayanan?->produk?->nama_produk }}</strong>
+                                            <small class="text-muted">{{ $item->varianLayanan?->tipeLayanan?->nama_tipe }} ({{ $item->varianLayanan?->nama_varian }})</small>
                                         </td>
-                                        <td>Rp {{ number_format($item->harga_saat_beli, 0, ',', '.') }}</td>
+                                        <td style="white-space: nowrap; font-weight: 700;">Rp {{ number_format($item->harga_saat_beli, 0, ',', '.') }}</td>
                                         <td>
                                             @if($item->status->value == 'pending')
                                             <span class="mono-badge mono-badge-pending">Pending</span>
@@ -312,22 +311,28 @@
                                             <span class="mono-badge mono-badge-failed">Failed</span>
                                             @endif
                                         </td>
-                                        <td>
+                                        <td style="min-width: 260px;">
                                             @if($item->status->value == 'pending')
-                                            <a href="{{ route('metode_pembayaran', $item->order_id) }}" class="mono-btn-primary" style="min-height: 44px; display: inline-flex; align-items: center; justify-content: center;">
-                                                <i class="bi bi-credit-card-fill"></i> Selesaikan
+                                            <a href="{{ route('metode_pembayaran', $item->order_id) }}" class="btn btn-sm btn-dark font-weight-bold" style="border-radius: 6px; font-size: 0.75rem; padding: 6px 14px; white-space: nowrap;">
+                                                <i class="bi bi-credit-card-fill mr-1"></i> Selesaikan
                                             </a>
                                             @elseif($item->status->value == 'success')
-                                            <div class="d-flex" style="gap: 8px;">
-                                                <button class="mono-btn-primary" onclick="viewCredentials('{{ $item->order_id }}')" style="min-height: 44px; display: inline-flex; align-items: center; justify-content: center;">
-                                                    <i class="bi bi-key-fill"></i> Akun
+                                            <div class="d-flex align-items-center" style="gap: 6px; flex-wrap: nowrap;">
+                                                @if($item->varianLayanan?->tipeLayanan?->produk?->tipe_produk == 'digital')
+                                                <a href="{{ route('premium.digital.download', $item->order_id) }}" class="btn btn-sm btn-dark font-weight-bold" style="border-radius: 6px; font-size: 0.75rem; padding: 6px 12px; white-space: nowrap; display: inline-flex; align-items: center;">
+                                                    <i class="bi bi-download mr-1"></i> Download
+                                                </a>
+                                                @else
+                                                <button class="btn btn-sm btn-dark font-weight-bold" onclick="viewCredentials('{{ $item->order_id }}')" style="border-radius: 6px; font-size: 0.75rem; padding: 6px 12px; white-space: nowrap; display: inline-flex; align-items: center;">
+                                                    <i class="bi bi-key-fill mr-1"></i> Akun
                                                 </button>
-                                                <a href="{{ route('premium.invoice.download', $item->order_id) }}" class="mono-btn-primary" target="_blank" style="min-height: 44px; display: inline-flex; align-items: center; justify-content: center;">
-                                                    <i class="bi bi-file-earmark-pdf-fill"></i> Invoice
+                                                @endif
+                                                <a href="{{ route('premium.invoice.download', $item->order_id) }}" class="btn btn-sm btn-outline-dark font-weight-bold" target="_blank" style="border-radius: 6px; font-size: 0.75rem; padding: 6px 12px; white-space: nowrap; display: inline-flex; align-items: center;">
+                                                    <i class="bi bi-file-earmark-pdf-fill mr-1"></i> Invoice
                                                 </a>
                                                 @if(!$item->review)
-                                                <a href="{{ route('premium.review.show', $item->order_id) }}" class="mono-btn-primary" style="min-height: 44px; display: inline-flex; align-items: center; justify-content: center;">
-                                                    <i class="bi bi-star-fill"></i> Review
+                                                <a href="{{ route('premium.review.show', $item->order_id) }}" class="btn btn-sm btn-outline-dark font-weight-bold" style="border-radius: 6px; font-size: 0.75rem; padding: 6px 12px; white-space: nowrap; display: inline-flex; align-items: center;">
+                                                    <i class="bi bi-star-fill text-warning mr-1"></i> Review
                                                 </a>
                                                 @endif
                                             </div>
@@ -394,9 +399,15 @@
                                 </a>
                                 @elseif($item->status->value == 'success')
                                 <div class="d-flex flex-column" style="gap: 8px;">
+                                    @if($item->varianLayanan->tipeLayanan->produk->tipe_produk == 'digital')
+                                    <a href="{{ route('premium.digital.download', $item->order_id) }}" class="btn btn-block btn-dark font-weight-bold py-2" style="border-radius: 8px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center;">
+                                        <i class="bi bi-download mr-1"></i> Download File Digital
+                                    </a>
+                                    @else
                                     <button class="btn btn-block btn-dark font-weight-bold py-2" onclick="viewCredentials('{{ $item->order_id }}')" style="border-radius: 8px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center;">
                                         <i class="bi bi-key-fill mr-1"></i> Lihat Detail Akun
                                     </button>
+                                    @endif
                                     <a href="{{ route('premium.invoice.download', $item->order_id) }}" class="btn btn-block btn-outline-dark font-weight-bold py-2" target="_blank" style="border-radius: 8px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center;">
                                         <i class="bi bi-file-earmark-pdf-fill mr-1"></i> Download Invoice
                                     </a>

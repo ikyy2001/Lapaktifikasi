@@ -101,12 +101,33 @@ class SellerProductController extends ApiController
         $produk = ProdukModel::where('id', $id)->where('id_toko', $toko->id_toko)->first();
         if (!$produk) return $this->sendError('Produk tidak ditemukan atau bukan milik Anda', [], 404);
 
-        if ($produk->gambar && file_exists(public_path('assets/img/produk_premium/' . $produk->gambar))) {
-            @unlink(public_path('assets/img/produk_premium/' . $produk->gambar));
+        try {
+            $tipeIds = \App\Models\TipeLayanan::where('id_produk', $produk->id_produk)->pluck('id_tipe');
+            $varianIds = \App\Models\VarianLayanan::whereIn('id_tipe', $tipeIds)->pluck('id_varian');
+            $hasPurchases = \App\Models\Pembelian::whereIn('id_varian', $varianIds)->exists();
+
+            if ($hasPurchases) {
+                \App\Models\StokAkun::whereIn('id_varian', $varianIds)->where('status', \App\Enums\StokStatus::TERSEDIA)->delete();
+                \App\Models\VarianLayanan::whereIn('id_tipe', $tipeIds)->update(['status' => 'nonaktif']);
+                \App\Models\TipeLayanan::where('id_produk', $produk->id_produk)->update(['status' => 'nonaktif']);
+                $produk->update(['status' => 'nonaktif']);
+
+                return $this->sendResponse([], 'Produk memiliki riwayat transaksi, status diubah menjadi non-aktif demi keamanan data.');
+            }
+
+            \App\Models\StokAkun::whereIn('id_varian', $varianIds)->delete();
+            \App\Models\VarianLayanan::whereIn('id_tipe', $tipeIds)->delete();
+            \App\Models\TipeLayanan::where('id_produk', $produk->id_produk)->delete();
+
+            if ($produk->gambar && file_exists(public_path('assets/img/produk_premium/' . $produk->gambar))) {
+                @unlink(public_path('assets/img/produk_premium/' . $produk->gambar));
+            }
+
+            $produk->delete();
+            return $this->sendResponse([], 'Produk berhasil dihapus');
+        } catch (\Exception $e) {
+            $produk->update(['status' => 'nonaktif']);
+            return $this->sendResponse([], 'Produk diubah menjadi non-aktif demi keamanan data riwayat transaksi.');
         }
-
-        $produk->delete();
-
-        return $this->sendResponse([], 'Produk berhasil dihapus');
     }
 }

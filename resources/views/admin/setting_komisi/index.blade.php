@@ -52,6 +52,19 @@
                         </small>
                     </div>
 
+                    <div class="form-group">
+                        <label for="digital_file_limit_mb">Batas Ukuran Upload File Digital (MB)</label>
+                        <div class="input-group">
+                            <input type="number" step="1" min="1" class="form-control" id="digital_file_limit_mb" name="digital_file_limit_mb" value="{{ old('digital_file_limit_mb', $setting->digital_file_limit_mb ?? 250) }}" placeholder="Contoh: 250" required>
+                            <div class="input-group-append">
+                                <span class="input-group-text">MB</span>
+                            </div>
+                        </div>
+                        <small class="form-text text-muted">
+                            Batas maksimal ukuran file ZIP/gambar yang bisa diupload oleh seller (default: 250MB).
+                        </small>
+                    </div>
+
                     <div class="text-right">
                         <button type="submit" class="btn btn-primary btn-block">Simpan Perubahan</button>
                     </div>

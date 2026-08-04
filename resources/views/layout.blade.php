@@ -309,6 +309,22 @@
             text-transform: uppercase !important;
         }
 
+        /* Universal Mobile & Touch Screen Responsiveness */
+        .table-responsive {
+            width: 100% !important;
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 12px;
+        }
+        .table-responsive > table {
+            width: 100% !important;
+            margin-bottom: 0;
+        }
+        .img-fluid, img {
+            max-width: 100%;
+            height: auto;
+        }
+
         /* Central mobile responsiveness overrides */
         @media (max-width: 1024px) {
             body.sidebar-show::before {
@@ -327,6 +343,18 @@
         }
 
         @media (max-width: 768px) {
+            .main-content {
+                padding-left: 15px !important;
+                padding-right: 15px !important;
+                padding-top: 80px !important;
+            }
+            .modal-dialog {
+                max-width: 96% !important;
+                margin: 0.5rem auto !important;
+            }
+            .card-header h4 {
+                font-size: 1.1rem !important;
+            }
             .profile-header-title,
             .pembayaran-header-title,
             .shop-header-title,
@@ -337,8 +365,31 @@
         }
 
         @media (max-width: 576px) {
+            .main-content {
+                padding-left: 10px !important;
+                padding-right: 10px !important;
+            }
+            .card-body {
+                padding: 15px 10px !important;
+            }
             .mono-card {
-                padding: 20px 15px !important;
+                padding: 20px 12px !important;
+            }
+            .nav-pills {
+                flex-wrap: wrap !important;
+                gap: 6px !important;
+            }
+            .nav-pills .nav-link {
+                padding: 8px 12px !important;
+                font-size: 0.8rem !important;
+            }
+            .row {
+                margin-left: -5px !important;
+                margin-right: -5px !important;
+            }
+            [class*="col-"] {
+                padding-left: 5px !important;
+                padding-right: 5px !important;
             }
             
             /* Responsive card headers with buttons/actions */
@@ -455,7 +506,13 @@
                             || Request::path() == 'menu_produk/create'
                             || Request::segment(1) == 'menu_produk' ) active @endif">
                             <a href="{{url('/menu_produk')}}" class="nav-link"><i class="bi bi-cart-fill pl-3"></i>
-                                <span>Menu Produk</span></a>
+                                <span>Menu Produk Premium</span></a>
+                        </li>
+                        <li class="nav-item @if(Request::path() == 'menu_produk_digital' 
+                            || Request::path() == 'menu_produk_digital/create'
+                            || Request::segment(1) == 'menu_produk_digital' ) active @endif">
+                            <a href="{{url('/menu_produk_digital')}}" class="nav-link"><i class="bi bi-file-earmark-code-fill pl-3"></i>
+                                <span>Menu Produk Digital</span></a>
                         </li>
                         @endif
 
@@ -481,11 +538,16 @@
 
                         @if(Auth::user()->role_id == 1 || Auth::user()->role_id == 3)
                         <li class="menu-header">Premium Layanan</li>
-                        <li class="nav-item @if(Request::segment(2) == 'inventaris') active @endif">
-                            <a href="{{ route('premium.inventaris.index') }}" class="nav-link"><i class="bi bi-box-seam pl-3"></i> <span>Kelola Inventaris</span></a>
+                        <li class="nav-item @if(Request::segment(1) == 'premium' && Request::segment(2) == 'inventaris') active @endif">
+                            <a href="{{ route('premium.inventaris.index') }}" class="nav-link"><i class="bi bi-box-seam pl-3"></i> <span>Inventaris Premium</span></a>
                         </li>
                         <li class="nav-item @if(Request::segment(2) == 'histori') active @endif">
-                            <a href="{{ route('premium.histori.index') }}" class="nav-link"><i class="bi bi-journal-text pl-3"></i> <span>Histori Penjualan</span></a>
+                            <a href="{{ route('premium.histori.index') }}" class="nav-link"><i class="bi bi-journal-text pl-3"></i> <span>Histori Premium</span></a>
+                        </li>
+
+                        <li class="menu-header">Digital Layanan</li>
+                        <li class="nav-item @if(Request::segment(1) == 'digital' && Request::segment(2) == 'inventaris') active @endif">
+                            <a href="{{ route('digital.inventaris.index') }}" class="nav-link"><i class="bi bi-cloud-arrow-down-fill pl-3"></i> <span>Inventaris Digital</span></a>
                         </li>
                         @endif
 

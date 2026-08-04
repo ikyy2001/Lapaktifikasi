@@ -16,6 +16,8 @@ use App\Http\Controllers\SaldoTokoController;
 use App\Http\Controllers\SellerTokoController;
 use App\Http\Controllers\AdminVoucherController;
 use App\Http\Controllers\SellerVoucherController;
+use App\Http\Controllers\ProductDigitalController;
+use App\Http\Controllers\DigitalAdminController;
 use App\Http\Middleware\OnlyCustomer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
@@ -117,6 +119,17 @@ Route::middleware('auth')->group(function () {
 
         // Histori Penjualan
         Route::get('/premium/histori', [PremiumAdminController::class, 'histori_index'])->name('premium.histori.index');
+
+        // ──────────────────────────────────────────────────────────
+        // Digital Produk Routes
+        // ──────────────────────────────────────────────────────────
+        Route::get('/digital/inventaris', [DigitalAdminController::class, 'inventaris_index'])->name('digital.inventaris.index');
+        Route::post('/digital/tipe', [DigitalAdminController::class, 'tipe_store'])->name('digital.tipe.store');
+        Route::put('/digital/tipe/{id}', [DigitalAdminController::class, 'tipe_update'])->name('digital.tipe.update');
+        Route::delete('/digital/tipe/{id}', [DigitalAdminController::class, 'tipe_destroy'])->name('digital.tipe.destroy');
+        Route::post('/digital/varian', [DigitalAdminController::class, 'varian_store'])->name('digital.varian.store');
+        Route::put('/digital/varian/{id}', [DigitalAdminController::class, 'varian_update'])->name('digital.varian.update');
+        Route::delete('/digital/varian/{id}', [DigitalAdminController::class, 'varian_destroy'])->name('digital.varian.destroy');
     });
 
     // ──────────────────────────────────────────────────────────
@@ -158,11 +171,14 @@ Route::middleware('auth')->group(function () {
     // Premium Customer Routes
     Route::middleware('only.customer')->group(function () {
         Route::get('/premium/katalog', [PremiumCustomerController::class, 'katalog'])->name('premium.katalog');
+        Route::get('/toko/{store_slug}/produk/{product_slug}', [PremiumCustomerController::class, 'show'])->name('toko.produk.detail');
+        Route::get('/premium/produk/{id}', [PremiumCustomerController::class, 'detail'])->name('premium.produk.detail');
         Route::get('/premium/member', [PremiumCustomerController::class, 'member'])->name('premium.member');
         Route::get('/premium/referral', [PremiumCustomerController::class, 'referral'])->name('premium.referral');
         Route::post('/premium/voucher/{id_voucher}/klaim', [PremiumCustomerController::class, 'klaimVoucher'])->name('premium.voucher.klaim');
         Route::get('/premium/riwayat', [PremiumCustomerController::class, 'riwayat'])->name('premium.riwayat');
         Route::get('/premium/kredensial/{order_id}', [PremiumCustomerController::class, 'kredensial'])->name('premium.kredensial');
+        Route::get('/premium/download-digital/{order_id}', [PremiumCustomerController::class, 'downloadDigital'])->name('premium.digital.download');
         Route::get('/premium/invoice/{order_id}/download', [PremiumCustomerController::class, 'downloadInvoice'])->name('premium.invoice.download');
         Route::get('/premium/review/{order_id}', [PremiumCustomerController::class, 'reviewShow'])->name('premium.review.show');
         Route::post('/premium/review/{order_id}', [PremiumCustomerController::class, 'reviewStore'])->name('premium.review.store');
@@ -190,6 +206,9 @@ Route::middleware('auth')->group(function () {
 
         // Seller Product CRUD (premium only)
         Route::resource('menu_produk', ProductController::class, ['except' => ['index', 'show']]);
+
+        // Seller Product CRUD (digital only)
+        Route::resource('menu_produk_digital', ProductDigitalController::class, ['except' => ['show']]);
     });
 
     Route::get('/logout', [AuthController::class, 'logout']);

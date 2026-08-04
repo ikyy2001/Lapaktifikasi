@@ -16,46 +16,44 @@ use App\Models\Pembayaran;
 use App\Enums\PembelianStatus;
 use App\Jobs\SendAccountInvoiceWhatsapp;
 
-class PremiumAdminController extends Controller
+class DigitalAdminController extends Controller
 {
     // === Halaman Inventaris Gabungan ===
     public function inventaris_index()
     {
         $user = Auth::user();
         if ($user->role_id == 1) {
-            $produk = Produk::where('status', 'aktif')->where('tipe_produk', 'premium')->get();
-            $tipeSemua = TipeLayanan::with('produk')->get();
-            $tipeAktif = TipeLayanan::where('status', 'aktif')->with('produk')->get();
-            $varianSemua = VarianLayanan::with('tipeLayanan.produk')->get();
-            $varianAktif = VarianLayanan::where('status', 'aktif')->with('tipeLayanan.produk')->get();
-            $stok = StokAkun::with('varianLayanan.tipeLayanan.produk')->get();
+            $produk = Produk::where('tipe_produk', 'digital')->get();
+            $tipeSemua = TipeLayanan::whereHas('produk', fn($q) => $q->where('tipe_produk', 'digital'))->with('produk')->get();
+            $tipeAktif = TipeLayanan::where('status', 'aktif')->whereHas('produk', fn($q) => $q->where('tipe_produk', 'digital'))->with('produk')->get();
+            $varianSemua = VarianLayanan::whereHas('tipeLayanan.produk', fn($q) => $q->where('tipe_produk', 'digital'))->with('tipeLayanan.produk')->get();
+            $varianAktif = VarianLayanan::where('status', 'aktif')->whereHas('tipeLayanan.produk', fn($q) => $q->where('tipe_produk', 'digital'))->with('tipeLayanan.produk')->get();
         } else {
             $toko = Toko::where('user_id', $user->id)->firstOrFail();
-            $produk = Produk::where('status', 'aktif')
-                ->where('tipe_produk', 'premium')
+            $produk = Produk::where('tipe_produk', 'digital')
                 ->where('id_toko', $toko->id_toko)
                 ->get();
             $tipeSemua = TipeLayanan::whereHas('produk', function ($q) use ($toko) {
-                $q->where('id_toko', $toko->id_toko);
+                $q->where('id_toko', $toko->id_toko)->where('tipe_produk', 'digital');
             })->with('produk')->get();
             $tipeAktif = TipeLayanan::where('status', 'aktif')
                 ->whereHas('produk', function ($q) use ($toko) {
-                    $q->where('id_toko', $toko->id_toko);
+                    $q->where('id_toko', $toko->id_toko)->where('tipe_produk', 'digital');
                 })
                 ->get();
             $varianSemua = VarianLayanan::whereHas('tipeLayanan.produk', function ($q) use ($toko) {
-                $q->where('id_toko', $toko->id_toko);
+                $q->where('id_toko', $toko->id_toko)->where('tipe_produk', 'digital');
             })->with('tipeLayanan.produk')->get();
             $varianAktif = VarianLayanan::where('status', 'aktif')
                 ->whereHas('tipeLayanan.produk', function ($q) use ($toko) {
-                    $q->where('id_toko', $toko->id_toko);
+                    $q->where('id_toko', $toko->id_toko)->where('tipe_produk', 'digital');
                 })
                 ->get();
-            $stok = StokAkun::whereHas('varianLayanan.tipeLayanan.produk', function ($q) use ($toko) {
-                $q->where('id_toko', $toko->id_toko);
-            })->with('varianLayanan.tipeLayanan.produk')->get();
         }
-        return view('premium_admin.inventaris.index', compact('produk', 'tipeSemua', 'tipeAktif', 'varianSemua', 'varianAktif', 'stok'));
+
+        $limit_mb = \App\Models\SettingKomisi::first()?->digital_file_limit_mb ?? 250;
+
+        return view('digital_admin.inventaris.index', compact('produk', 'tipeSemua', 'tipeAktif', 'varianSemua', 'varianAktif', 'limit_mb'));
     }
 
     public function tipe_store(Request $request)
@@ -85,7 +83,7 @@ class PremiumAdminController extends Controller
         TipeLayanan::create($request->only('id_produk', 'nama_tipe', 'status'));
 
         Session::flash('success', 'Berhasil menambahkan tipe layanan.');
-        return redirect()->route('premium.inventaris.index', ['tab' => 'tipe']);
+        return redirect()->route('digital.inventaris.index', ['tab' => 'tipe']);
     }
 
     public function tipe_update(Request $request, $id)
@@ -125,7 +123,7 @@ class PremiumAdminController extends Controller
         $tipe->update($request->only('id_produk', 'nama_tipe', 'status'));
 
         Session::flash('success', 'Berhasil memperbarui tipe layanan.');
-        return redirect()->route('premium.inventaris.index', ['tab' => 'tipe']);
+        return redirect()->route('digital.inventaris.index', ['tab' => 'tipe']);
     }
 
     public function tipe_destroy($id)
@@ -146,24 +144,22 @@ class PremiumAdminController extends Controller
             $hasPurchases = \App\Models\Pembelian::whereIn('id_varian', $varianIds)->exists();
 
             if ($hasPurchases) {
-                StokAkun::whereIn('id_varian', $varianIds)->where('status', \App\Enums\StokStatus::TERSEDIA)->delete();
                 VarianLayanan::where('id_tipe', $tipe->id_tipe)->update(['status' => 'nonaktif']);
                 $tipe->update(['status' => 'nonaktif']);
 
-                Session::flash('success', 'Tipe layanan ini memiliki riwayat transaksi. Statusnya diubah menjadi non-aktif agar data pembeli tetap aman.');
-                return redirect()->route('premium.inventaris.index', ['tab' => 'tipe']);
+                Session::flash('success', 'Tipe layanan digital ini memiliki riwayat transaksi. Statusnya diubah menjadi non-aktif agar data pembeli tetap aman.');
+                return redirect()->route('digital.inventaris.index', ['tab' => 'tipe']);
             }
 
-            StokAkun::whereIn('id_varian', $varianIds)->delete();
             VarianLayanan::where('id_tipe', $tipe->id_tipe)->delete();
             $tipe->delete();
-            Session::flash('success', 'Berhasil menghapus tipe layanan.');
+            Session::flash('success', 'Berhasil menghapus tipe layanan digital.');
         } catch (\Exception $e) {
             $tipe->update(['status' => 'nonaktif']);
             Session::flash('success', 'Tipe layanan diubah menjadi non-aktif demi keamanan data riwayat transaksi.');
         }
 
-        return redirect()->route('premium.inventaris.index', ['tab' => 'tipe']);
+        return redirect()->route('digital.inventaris.index', ['tab' => 'tipe']);
     }
 
     // === 2. CRUD Varian Layanan ===
@@ -171,13 +167,16 @@ class PremiumAdminController extends Controller
     public function varian_store(Request $request)
     {
         $user = Auth::user();
+        $limit_mb = \Illuminate\Support\Facades\DB::table('tbl_setting_komisi')->first()->digital_file_limit_mb ?? 250;
+        $limit_kb = $limit_mb * 1024;
+
         $rules = [
             'id_tipe' => 'required|exists:tbl_tipe_layanan,id_tipe',
             'nama_varian' => 'required|max:50',
-            'durasi_hari' => 'required|integer|min:1',
             'harga' => 'required|numeric|min:0',
             'deskripsi' => 'nullable',
             'status' => 'required|in:aktif,nonaktif',
+            'file_digital' => 'required|file|max:' . $limit_kb,
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -198,10 +197,20 @@ class PremiumAdminController extends Controller
             }
         }
 
-        VarianLayanan::create($request->only('id_tipe', 'nama_varian', 'durasi_hari', 'harga', 'deskripsi', 'status'));
+        $data = $request->only('id_tipe', 'nama_varian', 'harga', 'deskripsi', 'status');
+        $data['durasi_hari'] = 0; // Digital products have no duration
 
-        Session::flash('success', 'Berhasil menambahkan varian layanan.');
-        return redirect()->route('premium.inventaris.index', ['tab' => 'varian']);
+        if ($request->hasFile('file_digital')) {
+            $file = $request->file('file_digital');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('assets/file_digital'), $fileName);
+            $data['file_path'] = $fileName;
+        }
+
+        VarianLayanan::create($data);
+
+        Session::flash('success', 'Berhasil menambahkan varian layanan digital.');
+        return redirect()->route('digital.inventaris.index', ['tab' => 'varian']);
     }
 
     public function varian_update(Request $request, $id)
@@ -217,13 +226,16 @@ class PremiumAdminController extends Controller
             }
         }
 
+        $limit_mb = \Illuminate\Support\Facades\DB::table('tbl_setting_komisi')->first()->digital_file_limit_mb ?? 250;
+        $limit_kb = $limit_mb * 1024;
+
         $rules = [
             'id_tipe' => 'required|exists:tbl_tipe_layanan,id_tipe',
             'nama_varian' => 'required|max:50',
-            'durasi_hari' => 'required|integer|min:1',
             'harga' => 'required|numeric|min:0',
             'deskripsi' => 'nullable',
             'status' => 'required|in:aktif,nonaktif',
+            'file_digital' => 'nullable|file|max:' . $limit_kb,
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -244,10 +256,24 @@ class PremiumAdminController extends Controller
             }
         }
 
-        $varian->update($request->only('id_tipe', 'nama_varian', 'durasi_hari', 'harga', 'deskripsi', 'status'));
+        $data = $request->only('id_tipe', 'nama_varian', 'harga', 'deskripsi', 'status');
 
-        Session::flash('success', 'Berhasil memperbarui varian layanan.');
-        return redirect()->route('premium.inventaris.index', ['tab' => 'varian']);
+        if ($request->hasFile('file_digital')) {
+            // Delete old file
+            if ($varian->file_path && file_exists(public_path('assets/file_digital/' . $varian->file_path))) {
+                @unlink(public_path('assets/file_digital/' . $varian->file_path));
+            }
+
+            $file = $request->file('file_digital');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('assets/file_digital'), $fileName);
+            $data['file_path'] = $fileName;
+        }
+
+        $varian->update($data);
+
+        Session::flash('success', 'Berhasil memperbarui varian layanan digital.');
+        return redirect()->route('digital.inventaris.index', ['tab' => 'varian']);
     }
 
     public function varian_destroy($id)
@@ -267,22 +293,23 @@ class PremiumAdminController extends Controller
             $hasPurchases = \App\Models\Pembelian::where('id_varian', $varian->id_varian)->exists();
 
             if ($hasPurchases) {
-                StokAkun::where('id_varian', $varian->id_varian)->where('status', \App\Enums\StokStatus::TERSEDIA)->delete();
                 $varian->update(['status' => 'nonaktif']);
-
-                Session::flash('success', 'Varian ini memiliki riwayat transaksi. Status varian diubah menjadi non-aktif agar data pembeli tetap aman.');
-                return redirect()->route('premium.inventaris.index', ['tab' => 'varian']);
+                Session::flash('success', 'Varian digital ini memiliki riwayat transaksi. Status varian diubah menjadi non-aktif agar data pembeli tetap aman.');
+                return redirect()->route('digital.inventaris.index', ['tab' => 'varian']);
             }
 
-            StokAkun::where('id_varian', $varian->id_varian)->delete();
+            if ($varian->file_path && file_exists(public_path('assets/file_digital/' . $varian->file_path))) {
+                @unlink(public_path('assets/file_digital/' . $varian->file_path));
+            }
+
             $varian->delete();
-            Session::flash('success', 'Berhasil menghapus varian layanan.');
+            Session::flash('success', 'Berhasil menghapus varian layanan digital.');
         } catch (\Exception $e) {
             $varian->update(['status' => 'nonaktif']);
             Session::flash('success', 'Varian diubah menjadi non-aktif agar data transaksi tetap aman.');
         }
 
-        return redirect()->route('premium.inventaris.index', ['tab' => 'varian']);
+        return redirect()->route('digital.inventaris.index', ['tab' => 'varian']);
     }
 
     // === 3. CRUD Stok Akun (Single + Bulk) ===
@@ -324,7 +351,7 @@ class PremiumAdminController extends Controller
         ]);
 
         Session::flash('success', 'Berhasil menambahkan stok akun.');
-        return redirect()->route('premium.inventaris.index', ['tab' => 'stok']);
+        return redirect()->route('digital.inventaris.index', ['tab' => 'stok']);
     }
 
     public function stok_bulk_store(Request $request)
@@ -371,7 +398,7 @@ class PremiumAdminController extends Controller
         }
 
         Session::flash('success', "Berhasil menambahkan {$count} stok akun secara bulk.");
-        return redirect()->route('premium.inventaris.index', ['tab' => 'stok']);
+        return redirect()->route('digital.inventaris.index', ['tab' => 'stok']);
     }
 
     public function stok_decrypt($id)
@@ -409,7 +436,7 @@ class PremiumAdminController extends Controller
 
         $stok->delete();
         Session::flash('success', 'Berhasil menghapus stok akun.');
-        return redirect()->route('premium.inventaris.index', ['tab' => 'stok']);
+        return redirect()->route('digital.inventaris.index', ['tab' => 'stok']);
     }
 
     // === 4. Halaman Histori Penjualan ===

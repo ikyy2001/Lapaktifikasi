@@ -81,196 +81,119 @@
             border-color: #222222 !important;
         }
 
-        /* Shop Card Styling */
-        .mono-shop-card {
+        /* Modern Compact Product Card Styling */
+        .mono-product-card-link {
+            display: block;
+            color: inherit;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .mono-product-card-link:hover {
+            text-decoration: none !important;
+            color: inherit !important;
+        }
+
+        .mono-product-card {
             background: #ffffff !important;
-            border: 1px solid #000000 !important;
-            border-radius: 16px !important;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05) !important;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 14px !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important;
+            overflow: hidden !important;
+            height: 100% !important;
+            display: flex !important;
+            flex-direction: column !important;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+
+        .mono-product-card-link:hover .mono-product-card {
+            transform: translateY(-6px) scale(1.01) !important;
+            box-shadow: 0 16px 32px rgba(0, 0, 0, 0.1) !important;
+            border-color: #000000 !important;
+        }
+
+        /* 1. Thumbnail Image 4:3 Ratio */
+        .product-thumbnail-container {
+            width: 100% !important;
+            aspect-ratio: 4 / 3 !important;
+            background-color: #f8fafc !important;
             position: relative !important;
             overflow: hidden !important;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
-            margin-bottom: 30px !important;
-            display: flex;
-            flex-direction: column;
-            height: calc(100% - 30px);
-        }
-
-        .mono-shop-card:hover {
-            transform: translateY(-6px) !important;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1) !important;
-        }
-
-        .mono-shop-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: #000000;
-        }
-
-        .mono-card-header {
-            padding: 24px 28px 12px 28px !important;
-            background: transparent !important;
-            border: none !important;
-        }
-
-        .mono-card-header h4 {
-            color: #000000 !important;
-            font-weight: 800 !important;
-            font-size: 1.25rem !important;
-            letter-spacing: -0.3px !important;
-            text-transform: uppercase !important;
-            margin: 0 !important;
-        }
-
-        .mono-card-body {
-            padding: 12px 28px 28px 28px !important;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .mono-card-body p {
-            color: #555555 !important;
-            font-size: 0.9rem !important;
-            line-height: 1.5 !important;
-            margin-bottom: 20px !important;
-        }
-
-        .product-image-wrapper {
-            background-color: #fafafa !important;
-            border: 1px solid #e5e5e5 !important;
-            border-radius: 12px !important;
-            padding: 12px !important;
             display: flex !important;
+            align-items: center !important;
             justify-content: center !important;
-            align-items: center !important;
-            height: 160px !important;
-            margin-bottom: 20px !important;
-            overflow: hidden !important;
+            border-bottom: 1px solid #f1f5f9 !important;
         }
 
-        .product-image-img {
-            max-height: 100% !important;
-            max-width: 100% !important;
-            object-fit: contain !important;
-            border-radius: 8px !important;
+        .product-thumbnail-img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            transition: transform 0.35s ease !important;
         }
 
-        .service-type-title {
-            color: #000000 !important;
-            font-weight: 700 !important;
-            font-size: 0.95rem !important;
-            letter-spacing: 0.5px !important;
-            text-transform: uppercase !important;
-            margin-top: 15px !important;
-            margin-bottom: 10px !important;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        .mono-product-card-link:hover .product-thumbnail-img {
+            transform: scale(1.05) !important;
         }
 
-        .service-type-title i {
-            color: #000000 !important;
-        }
-
-        /* Varian List Styling */
-        .mono-varian-item {
+        .product-thumbnail-placeholder {
             display: flex !important;
-            justify-content: space-between !important;
             align-items: center !important;
-            background-color: #ffffff !important;
-            border: 1px solid #000000 !important;
-            border-radius: 10px !important;
-            padding: 14px 16px !important;
-            margin-bottom: 12px !important;
-            transition: all 0.2s ease !important;
-        }
-
-        .mono-varian-item:hover {
-            background-color: #fafafa !important;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important;
-        }
-
-        .mono-varian-name {
-            color: #000000 !important;
-            font-weight: 700 !important;
-            font-size: 0.88rem !important;
-            display: block !important;
-        }
-
-        .mono-varian-price {
-            color: #000000 !important;
-            font-weight: 800 !important;
-            font-size: 0.92rem !important;
-            margin-top: 2px !important;
-            display: inline-block !important;
-        }
-
-        /* Stock Status & Buttons */
-        .mono-badge-stok {
-            background-color: #f2f2f2 !important;
-            color: #333333 !important;
-            border: 1px solid #dcdcdc !important;
-            font-weight: 700 !important;
-            font-size: 0.65rem !important;
-            text-transform: uppercase !important;
-            letter-spacing: 0.5px !important;
-            padding: 4px 10px !important;
-            border-radius: 4px !important;
-            display: inline-block !important;
-            margin-bottom: 6px !important;
-        }
-
-        .mono-badge-habis {
-            background-color: #fff5f5 !important;
-            color: #ea5455 !important;
-            border: 1px dashed #fcd4d4 !important;
-            font-weight: 700 !important;
-            font-size: 0.65rem !important;
-            text-transform: uppercase !important;
-            letter-spacing: 0.5px !important;
-            padding: 4px 10px !important;
-            border-radius: 4px !important;
-            display: inline-block !important;
-            margin-bottom: 6px !important;
-        }
-
-        .mono-btn-buy {
-            background-color: #000000 !important;
-            color: #ffffff !important;
-            border: 1px solid #000000 !important;
-            font-weight: 700 !important;
-            font-size: 0.78rem !important;
-            text-transform: uppercase !important;
-            letter-spacing: 0.5px !important;
-            padding: 8px 16px !important;
-            border-radius: 6px !important;
+            justify-content: center !important;
             width: 100% !important;
-            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-            cursor: pointer !important;
+            height: 100% !important;
+            background-color: #f1f5f9 !important;
+            color: #94a3b8 !important;
+            font-size: 2.5rem !important;
         }
 
-        .mono-btn-buy:hover {
-            background-color: transparent !important;
-            color: #000000 !important;
+        /* Content Container */
+        .product-card-content {
+            padding: 14px 16px 16px 16px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            flex-grow: 1 !important;
         }
 
-        .mono-btn-disabled {
-            background-color: #f9f9f9 !important;
-            color: #aaaaaa !important;
-            border: 1px dashed #cccccc !important;
+        /* 2. Product Title (Max 2 lines) */
+        .product-card-title {
+            color: #0f172a !important;
+            font-size: 0.95rem !important;
             font-weight: 700 !important;
-            font-size: 0.78rem !important;
-            text-transform: uppercase !important;
-            letter-spacing: 0.5px !important;
-            padding: 8px 16px !important;
-            border-radius: 6px !important;
-            width: 100% !important;
-            cursor: not-allowed !important;
+            line-height: 1.35 !important;
+            margin-bottom: 6px !important;
+            display: -webkit-box !important;
+            -webkit-line-clamp: 2 !important;
+            -webkit-box-orient: vertical !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
+
+        /* 3. Product Short Description (Max 2 lines) */
+        .product-card-desc {
+            color: #64748b !important;
+            font-size: 0.82rem !important;
+            line-height: 1.45 !important;
+            margin-bottom: 0 !important;
+            display: -webkit-box !important;
+            -webkit-line-clamp: 2 !important;
+            -webkit-box-orient: vertical !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .shop-header-title { font-size: 1.4rem; padding-left: 10px; border-width: 3px; }
+            .shop-header-title span { font-size: 1.1rem !important; }
+            .mono-search-input { padding: 10px 14px !important; font-size: 0.85rem !important; }
+            .mono-search-btn { padding: 0 16px !important; font-size: 0.8rem !important; }
+        }
+        @media (max-width: 480px) {
+            .shop-header-title { font-size: 1.25rem; }
+            .shop-header-title span { display: block; margin-top: 4px; }
+            .mono-search-input { width: 100%; border-radius: 8px !important; border-bottom: none !important; }
+            .mono-search-btn { width: 100%; border-radius: 8px !important; padding: 12px !important; }
+            form .d-flex { flex-direction: column; }
         }
     </style>
 
@@ -376,11 +299,31 @@
         </div>
         @endif
 
-        <div class="row mb-5">
-            <div class="col-12 col-md-6 offset-md-3">
+        <!-- Search & Category Filter -->
+        <div class="row mb-4 align-items-center">
+            <div class="col-12 col-md-6 mb-3 mb-md-0">
+                <div class="btn-group" role="group">
+                    <a href="{{ route('premium.katalog', array_merge(request()->except('kategori'), ['kategori' => 'all'])) }}" class="btn btn-sm {{ !request('kategori') || request('kategori') == 'all' ? 'btn-dark font-weight-bold' : 'btn-outline-dark' }}" style="border-radius: 8px 0 0 8px;">
+                        Semua Produk
+                    </a>
+                    <a href="{{ route('premium.katalog', array_merge(request()->except('kategori'), ['kategori' => 'premium'])) }}" class="btn btn-sm {{ request('kategori') == 'premium' ? 'btn-dark font-weight-bold' : 'btn-outline-dark' }}">
+                        <i class="bi bi-shield-check mr-1"></i> Akun Premium
+                    </a>
+                    <a href="{{ route('premium.katalog', array_merge(request()->except('kategori'), ['kategori' => 'digital'])) }}" class="btn btn-sm {{ request('kategori') == 'digital' ? 'btn-dark font-weight-bold' : 'btn-outline-dark' }}" style="border-radius: 0 8px 8px 0;">
+                        <i class="bi bi-file-earmark-code-fill mr-1"></i> Produk Digital
+                    </a>
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
                 <form action="{{ route('premium.katalog') }}" method="GET">
+                    @if(request('id_toko'))
+                        <input type="hidden" name="id_toko" value="{{ request('id_toko') }}">
+                    @endif
+                    @if(request('kategori'))
+                        <input type="hidden" name="kategori" value="{{ request('kategori') }}">
+                    @endif
                     <div class="input-group">
-                        <input type="text" name="search" class="form-control mono-search-input" placeholder="Cari layanan premium..." value="{{ request('search') }}">
+                        <input type="text" name="search" class="form-control mono-search-input" placeholder="Cari layanan premium / produk digital..." value="{{ request('search') }}">
                         <div class="input-group-append">
                             <button class="btn mono-search-btn" type="submit">
                                 <i class="bi bi-search mr-1"></i> Cari
@@ -393,59 +336,7 @@
 
         <div class="row">
             @forelse($produk as $item)
-            <div class="col-12 col-md-6 col-lg-4 d-flex align-items-stretch">
-                <div class="mono-shop-card">
-                    <div class="mono-card-header">
-                        <h4>{{ $item->nama_produk }}</h4>
-                        @if(!$toko && $item->toko)
-                        <div style="margin-top:6px;">
-                            <a href="{{ url('premium/katalog?id_toko=' . $item->toko->id_toko) }}"
-                               style="display:inline-flex; align-items:center; gap:5px; font-size:0.75rem; font-weight:700; color:#fff; background:#333; border-radius:20px; padding:3px 10px; text-decoration:none; letter-spacing:0.3px;">
-                                <i class="bi bi-shop"></i> {{ $item->toko->nama_toko }}
-                            </a>
-                        </div>
-                        @endif
-                    </div>
-                    <div class="mono-card-body">
-                        <div class="product-image-wrapper">
-                            @if($item->gambar)
-                            <img src="{{ asset('assets/img/produk_premium/' . $item->gambar) }}" alt="{{ $item->nama_produk }}" class="product-image-img">
-                            @else
-                            <i class="bi bi-music-note-beamed text-muted" style="font-size: 3rem;"></i>
-                            @endif
-                        </div>
-                        <p>{{ $item->deskripsi ?? 'Aplikasi premium resmi terpercaya.' }}</p>
-                        
-                        @foreach($item->tipeLayanan as $tipe)
-                        <div class="mb-4">
-                            <h6 class="service-type-title"><i class="bi bi-tag-fill"></i>{{ $tipe->nama_tipe }}</h6>
-                            
-                            @foreach($tipe->varianLayanan as $varian)
-                            <div class="mono-varian-item">
-                                <div>
-                                    <span class="mono-varian-name">{{ $varian->nama_varian }}</span>
-                                    <span class="mono-varian-price">Rp {{ number_format($varian->harga, 0, ',', '.') }}</span>
-                                </div>
-                                <div class="text-right" style="min-width: 110px;">
-                                    @if($varian->stok_tersedia > 0)
-                                    <span class="mono-badge-stok">Stok: {{ $varian->stok_tersedia }}</span>
-                                    <form action="{{ url('/proses_checkout_premium') }}" method="POST">
-                                        @csrf
-                                        <input type="hidden" name="id_varian" value="{{ $varian->id_varian }}">
-                                        <button type="submit" class="mono-btn-buy">Beli</button>
-                                    </form>
-                                    @else
-                                    <span class="mono-badge-habis">Habis</span>
-                                    <button class="mono-btn-disabled" disabled>Beli</button>
-                                    @endif
-                                </div>
-                            </div>
-                            @endforeach
-                        </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
+                @include('premium_customer.partials.product_card', ['item' => $item])
             @empty
             <div class="col-12 text-center my-5">
                 <i class="bi bi-cart-x text-muted" style="font-size: 4rem;"></i>

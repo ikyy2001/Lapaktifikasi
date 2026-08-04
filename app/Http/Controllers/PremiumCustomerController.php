@@ -24,8 +24,13 @@ class PremiumCustomerController extends Controller
     {
         $search = $request->input('search');
         $id_toko = $request->input('id_toko');
+        $kategori = $request->input('kategori');
 
-        $query = Produk::where('status', 'aktif')->where('tipe_produk', 'premium');
+        $query = Produk::where('status', 'aktif');
+
+        if ($kategori && in_array($kategori, ['premium', 'digital'])) {
+            $query->where('tipe_produk', $kategori);
+        }
 
         if ($search) {
             $query->where(function ($q) use ($search) {
@@ -52,13 +57,16 @@ class PremiumCustomerController extends Controller
             ->get();
 
         // Calculate available stock for each variation
-        // SELECT COUNT(*) FROM tbl_stok_akun WHERE id_varian = :id_varian AND status = 'tersedia'
         foreach ($produk as $prod) {
             foreach ($prod->tipeLayanan as $tipe) {
                 foreach ($tipe->varianLayanan as $varian) {
-                    $varian->stok_tersedia = StokAkun::where('id_varian', $varian->id_varian)
-                        ->where('status', StokStatus::TERSEDIA)
-                        ->count();
+                    if ($prod->tipe_produk === 'digital') {
+                        $varian->stok_tersedia = 999;
+                    } else {
+                        $varian->stok_tersedia = StokAkun::where('id_varian', $varian->id_varian)
+                            ->where('status', StokStatus::TERSEDIA)
+                            ->count();
+                    }
                 }
             }
         }
@@ -101,6 +109,144 @@ class PremiumCustomerController extends Controller
         }
 
         return view('premium_customer.katalog', compact('produk', 'customer', 'toko', 'reviews', 'ratingDistribution'));
+    }
+
+    public function show(string $store_slug, string $product_slug)
+    {
+        $productId = null;
+        if (is_numeric($product_slug)) {
+            $productId = (int) $product_slug;
+        } elseif (preg_match('/-(\d+)$/', $product_slug, $matches)) {
+            $productId = (int) $matches[1];
+        }
+
+        $query = Produk::with([
+            'toko.badges',
+            'tipeLayanan' => function ($q) {
+                $q->where('status', 'aktif')
+                  ->with([
+                      'varianLayanan' => function ($vq) {
+                          $vq->where('status', 'aktif');
+                      }
+                  ]);
+            }
+        ]);
+
+        if ($productId) {
+            $query->where('id_produk', $productId);
+        } else {
+            $query->where(function ($q) use ($product_slug) {
+                $q->where('id_produk', $product_slug)
+                  ->orWhereRaw("LOWER(REPLACE(nama_produk, ' ', '-')) = ?", [strtolower($product_slug)]);
+            });
+        }
+
+        $produk = $query->first();
+
+        if (!$produk || $produk->status !== 'aktif') {
+            abort(404, 'Produk tidak ditemukan atau sudah tidak aktif.');
+        }
+
+        return $this->renderDetailView($produk);
+    }
+
+    public function detail($id)
+    {
+        $produk = Produk::with([
+            'toko.badges',
+            'tipeLayanan' => function ($q) {
+                $q->where('status', 'aktif')
+                  ->with([
+                      'varianLayanan' => function ($vq) {
+                          $vq->where('status', 'aktif');
+                      }
+                  ]);
+            }
+        ])->find($id);
+
+        if (!$produk || $produk->status !== 'aktif') {
+            abort(404, 'Produk tidak ditemukan atau sudah tidak aktif.');
+        }
+
+        return $this->renderDetailView($produk);
+    }
+
+    private function renderDetailView(Produk $produk)
+    {
+        // Batch query stok untuk mencegah N+1 query
+        $variantIds = $produk->tipeLayanan->flatMap->varianLayanan->pluck('id_varian')->toArray();
+        $stokCounts = [];
+        if (!empty($variantIds) && $produk->tipe_produk !== 'digital') {
+            $stokCounts = StokAkun::whereIn('id_varian', $variantIds)
+                ->where('status', StokStatus::TERSEDIA)
+                ->selectRaw('id_varian, count(*) as count')
+                ->groupBy('id_varian')
+                ->pluck('count', 'id_varian')
+                ->toArray();
+        }
+
+        $prices = [];
+        foreach ($produk->tipeLayanan as $tipe) {
+            foreach ($tipe->varianLayanan as $varian) {
+                if ($produk->tipe_produk === 'digital') {
+                    $varian->stok_tersedia = 999;
+                } else {
+                    $varian->stok_tersedia = $stokCounts[$varian->id_varian] ?? 0;
+                }
+                $prices[] = (float) $varian->harga;
+            }
+        }
+
+        $minPrice = count($prices) > 0 ? min($prices) : 0;
+        $maxPrice = count($prices) > 0 ? max($prices) : 0;
+
+        // Galeri Gambar (Gambar Produk + Screenshots tambahan jika ada)
+        $gallery = [];
+        if ($produk->gambar) {
+            $gallery[] = asset('assets/img/produk_premium/' . $produk->gambar);
+        }
+        $screenshots = \DB::table('tbl_screenshots_produk')->where('produk_id', $produk->id_produk)->get();
+        foreach ($screenshots as $ss) {
+            if (isset($ss->folder) && isset($ss->gambar)) {
+                $gallery[] = asset('assets/' . $ss->folder . '/' . $ss->gambar);
+            }
+        }
+
+        $idCustomerUser = session('id');
+        $customer = CustomerModel::where('user_id', $idCustomerUser)->first();
+
+        $toko = $produk->toko;
+        $reviews = null;
+        $ratingDistribution = [1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0];
+
+        if ($toko) {
+            $reviews = \App\Models\Review::with('customer.user')
+                ->where('id_toko', $toko->id_toko)
+                ->orderBy('created_at', 'desc')
+                ->paginate(10)
+                ->withQueryString();
+
+            $distributionRaw = \App\Models\Review::where('id_toko', $toko->id_toko)
+                ->selectRaw('rating, count(*) as count')
+                ->groupBy('rating')
+                ->pluck('count', 'rating')
+                ->toArray();
+
+            for ($i = 1; $i <= 5; $i++) {
+                $ratingDistribution[$i] = (int)($distributionRaw[$i] ?? 0);
+            }
+        }
+
+        return view('premium_customer.detail', compact(
+            'produk', 
+            'customer', 
+            'toko', 
+            'reviews', 
+            'ratingDistribution',
+            'minPrice',
+            'maxPrice',
+            'gallery'
+        ));
     }
 
     // === 2. Riwayat Pembelian Customer ===
@@ -167,6 +313,36 @@ class PremiumCustomerController extends Controller
             'password' => $pembelian->stokAkun->password_encrypted,
             'catatan' => $pembelian->stokAkun->catatan,
         ]);
+    }
+
+    // === 3b. Download File Digital ===
+    public function downloadDigital($order_id)
+    {
+        $pembelian = Pembelian::with(['varianLayanan.tipeLayanan.produk', 'customer'])
+            ->where('order_id', $order_id)
+            ->firstOrFail();
+
+        $this->authorize('view', $pembelian);
+
+        if ($pembelian->status !== \App\Enums\PembelianStatus::SUCCESS) {
+            return redirect()->back()->with('error', 'Pembayaran belum diselesaikan atau transaksi expired.');
+        }
+
+        if ($pembelian->varianLayanan->tipeLayanan->produk->tipe_produk !== 'digital') {
+            return redirect()->back()->with('error', 'Ini bukan produk digital.');
+        }
+
+        if (empty($pembelian->varianLayanan->file_path)) {
+            return redirect()->back()->with('error', 'File belum tersedia. Silakan hubungi seller.');
+        }
+
+        $filePath = public_path('assets/file_digital/' . $pembelian->varianLayanan->file_path);
+        
+        if (!file_exists($filePath)) {
+            return redirect()->back()->with('error', 'File tidak ditemukan di server.');
+        }
+
+        return response()->download($filePath);
     }
 
     // === 4. Download Invoice PDF ===
@@ -254,13 +430,7 @@ class PremiumCustomerController extends Controller
         ]);
 
         // Recalculate average rating & reviews count
-        $avgRating = \App\Models\Review::where('id_toko', $toko->id_toko)->avg('rating');
-        $countReviews = \App\Models\Review::where('id_toko', $toko->id_toko)->count();
-
-        $toko->update([
-            'rating_rata_rata' => round($avgRating, 2),
-            'jumlah_review' => $countReviews,
-        ]);
+        $toko->syncRatings();
 
         return redirect()->route('premium.riwayat')->with('success', 'Terima kasih! Review kamu berhasil disimpan.');
     }

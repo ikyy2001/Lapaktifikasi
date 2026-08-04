@@ -19,6 +19,7 @@ class VarianLayanan extends Model
         'harga',
         'deskripsi',
         'status',
+        'file_path',
     ];
 
     public function tipeLayanan()
