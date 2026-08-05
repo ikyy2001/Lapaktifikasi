@@ -560,7 +560,15 @@
                             <a href="{{ url('kelola_seller') }}" class="nav-link"><i class="bi bi-shop pl-3"></i> <span>Kelola Seller</span></a>
                         </li>
                         <li class="nav-item @if(Request::path() == 'setting_komisi') active @endif">
-                            <a href="{{ url('setting_komisi') }}" class="nav-link"><i class="bi bi-percent pl-3"></i> <span>Setting Komisi</span></a>
+                            <a href="{{ url('setting_komisi') }}" class="nav-link d-flex align-items-center justify-content-between">
+                                <div>
+                                    <i class="bi bi-tools pl-3 mr-1"></i> <span>Setting & Maintenance</span>
+                                </div>
+                                @php $isMaintSidebar = \App\Models\SettingKomisi::value('is_maintenance'); @endphp
+                                @if($isMaintSidebar)
+                                    <span class="badge badge-warning font-weight-bold ml-1" style="font-size: 0.65rem; padding: 3px 6px;">MAINTENANCE</span>
+                                @endif
+                            </a>
                         </li>
                         <li class="nav-item @if(Request::path() == 'saldo_toko' || Request::segment(1) == 'saldo_toko') active @endif">
                             <a href="{{ url('saldo_toko') }}" class="nav-link"><i class="bi bi-wallet2 pl-3"></i> <span>Kelola Saldo Toko</span></a>
@@ -620,6 +628,23 @@
                 <section class="section mt-4">
                     <div class="section-body">
                         @auth
+                            @if(Auth::user()->role_id == 1)
+                                @php
+                                    $isMaintActive = \App\Models\SettingKomisi::value('is_maintenance');
+                                @endphp
+                                @if($isMaintActive)
+                                    <div class="alert alert-warning border border-warning shadow-sm mb-4 d-flex align-items-center justify-content-between" role="alert" style="border-radius: 12px; background-color: #fff9e6;">
+                                        <div class="d-flex align-items-center" style="color: #856404; font-weight: 600;">
+                                            <i class="bi bi-tools mr-2" style="font-size: 1.2rem;"></i>
+                                            <span><strong>MODE MAINTENANCE AKTIF:</strong> Seller dan Customer saat ini diblokir dari akses dashboard.</span>
+                                        </div>
+                                        <a href="{{ url('setting_komisi') }}" class="btn btn-sm btn-warning font-weight-bold ml-3" style="white-space: nowrap;">
+                                            Kelola Status
+                                        </a>
+                                    </div>
+                                @endif
+                            @endif
+
                             @if(Auth::user()->role_id == 2)
                                 @php
                                     $customer = \App\Models\CustomerModel::where('user_id', Auth::id())->first();

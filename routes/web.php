@@ -149,9 +149,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/kelola_seller/badge/detach/{id_toko}/{id_badge}', [KelolaSellerController::class, 'detachBadge'])->name('admin.kelola_seller.badge.detach');
         Route::post('/kelola_seller/badge/custom/{id_toko}', [KelolaSellerController::class, 'createCustomBadge'])->name('admin.kelola_seller.badge.custom');
 
-        // Setting Komisi
+        // Setting Komisi & Maintenance
         Route::get('/setting_komisi', [SettingKomisiController::class, 'index'])->name('admin.setting_komisi');
         Route::post('/setting_komisi/update', [SettingKomisiController::class, 'update'])->name('admin.setting_komisi.update');
+        Route::post('/setting_komisi/toggle_maintenance', [SettingKomisiController::class, 'toggleMaintenance'])->name('admin.setting_komisi.toggle_maintenance');
 
         // Kelola Saldo Toko
         Route::get('/saldo_toko', [SaldoTokoController::class, 'index'])->name('admin.saldo_toko');

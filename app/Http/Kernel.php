@@ -37,6 +37,7 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\RedirectIfMustChangePassword::class,
+            \App\Http\Middleware\CheckMaintenanceMode::class,
         ],
 
         'api' => [
@@ -70,5 +71,6 @@ class Kernel extends HttpKernel
         'reset.headers'    => \App\Http\Middleware\ResetHeaders::class,
         'only.customer'    => \App\Http\Middleware\OnlyCustomer::class,
         'only.seller'      => \App\Http\Middleware\OnlySeller::class,
+        'check.maintenance'=> \App\Http\Middleware\CheckMaintenanceMode::class,
     ];
 }

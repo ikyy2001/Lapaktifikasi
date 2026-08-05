@@ -53,4 +53,25 @@ class SettingKomisiController extends Controller
         Session::flash('success', 'Komisi default platform berhasil diperbarui.');
         return redirect('/setting_komisi');
     }
+
+    public function toggleMaintenance(Request $request)
+    {
+        $setting = SettingKomisi::first();
+        if (!$setting) {
+            $setting = new SettingKomisi();
+        }
+
+        // If is_maintenance is submitted directly in request, use it; otherwise toggle current status
+        if ($request->has('is_maintenance')) {
+            $setting->is_maintenance = (bool) $request->input('is_maintenance');
+        } else {
+            $setting->is_maintenance = !$setting->is_maintenance;
+        }
+
+        $setting->save();
+
+        $statusText = $setting->is_maintenance ? 'diaktifkan' : 'dinonaktifkan';
+        Session::flash('success', "Mode Maintenance platform berhasil {$statusText}.");
+        return redirect('/setting_komisi');
+    }
 }

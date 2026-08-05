@@ -15,5 +15,7 @@ class SettingKomisi extends Model
 
     protected $fillable = [
         'komisi_default',
+        'digital_file_limit_mb',
+        'is_maintenance',
     ];
 }
