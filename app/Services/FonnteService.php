@@ -16,13 +16,16 @@ class FonnteService
     public function sendText(string $target, string $message): array
     {
         try {
-            $response = Http::withHeaders([
-                'Authorization' => $this->token,
-            ])->asForm()->post('https://api.fonnte.com/send', [
-                'target' => $target,
-                'message' => $message,
-                'countryCode' => '62',
-            ]);
+            $response = Http::timeout(5)
+                ->connectTimeout(3)
+                ->retry(1, 100)
+                ->withHeaders([
+                    'Authorization' => $this->token,
+                ])->asForm()->post('https://api.fonnte.com/send', [
+                    'target' => $target,
+                    'message' => $message,
+                    'countryCode' => '62',
+                ]);
 
             return $response->json() ?? [];
         } catch (\Throwable $e) {

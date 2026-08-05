@@ -564,7 +564,11 @@
                                 <div>
                                     <i class="bi bi-tools pl-3 mr-1"></i> <span>Setting & Maintenance</span>
                                 </div>
-                                @php $isMaintSidebar = \App\Models\SettingKomisi::value('is_maintenance'); @endphp
+                                @php 
+                                    $isMaintSidebar = \Illuminate\Support\Facades\Cache::remember('is_maintenance_flag', 300, function() { 
+                                        return \App\Models\SettingKomisi::value('is_maintenance'); 
+                                    }); 
+                                @endphp
                                 @if($isMaintSidebar)
                                     <span class="badge badge-warning font-weight-bold ml-1" style="font-size: 0.65rem; padding: 3px 6px;">MAINTENANCE</span>
                                 @endif
@@ -606,19 +610,19 @@
                         @endif
 
                         <li class="menu-header">Pengaturan</li>
+                        <li class="nav-item @if(Request::path() == 'profile_customer' || Request::segment(1) == 'profile_customer') active @endif">
+                            <a href="{{ url('profile_customer/'.Auth::id()) }}" class="nav-link"><i class="bi bi-person-circle pl-3"></i>
+                                <span>Ganti Nama Profil</span></a>
+                        </li>
                         <li class="nav-item @if(Request::path() == 'ganti_password') active @endif">
-                            <a href="{{url('ganti_password')}}" class="nav-link"><i
-                                    class="bi bi-shield-lock-fill pl-3"></i>
+                            <a href="{{url('ganti_password')}}" class="nav-link"><i class="bi bi-key-fill pl-3"></i>
                                 <span>Ganti Password</span></a>
                         </li>
-
-                        @if(Auth::user()->role_id == 3)
-                        <li class="nav-item @if(Request::path() == 'extract_screenshots') active @endif">
-                            <a href="{{url('extract_screenshots')}}" class="nav-link"><i
-                                    class="bi bi-file-zip-fill pl-3"></i>
-                                <span>Extract Screenshots</span></a>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link text-danger" data-toggle="modal" data-target="#exampleModal"><i class="bi bi-box-arrow-right pl-3"></i>
+                                <span class="text-danger">Keluar</span></a>
                         </li>
-                        @endif
+
                     </ul>
                 </aside>
             </div>
@@ -630,7 +634,9 @@
                         @auth
                             @if(Auth::user()->role_id == 1)
                                 @php
-                                    $isMaintActive = \App\Models\SettingKomisi::value('is_maintenance');
+                                    $isMaintActive = \Illuminate\Support\Facades\Cache::remember('is_maintenance_flag', 300, function() { 
+                                        return \App\Models\SettingKomisi::value('is_maintenance'); 
+                                    });
                                 @endphp
                                 @if($isMaintActive)
                                     <div class="alert alert-warning border border-warning shadow-sm mb-4 d-flex align-items-center justify-content-between" role="alert" style="border-radius: 12px; background-color: #fff9e6;">
@@ -647,7 +653,9 @@
 
                             @if(Auth::user()->role_id == 2)
                                 @php
-                                    $customer = \App\Models\CustomerModel::where('user_id', Auth::id())->first();
+                                    $customer = \Illuminate\Support\Facades\Cache::remember('customer_user_' . Auth::id(), 300, function() {
+                                        return \App\Models\CustomerModel::where('user_id', Auth::id())->first();
+                                    });
                                     $pendingPembelian = null;
                                     if ($customer) {
                                         $pendingPembelian = \Illuminate\Support\Facades\Cache::remember('pending_pembelian_' . $customer->id, 5, function() use ($customer) {

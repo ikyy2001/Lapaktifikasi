@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\SettingKomisi;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Session;
 
 class SettingKomisiController extends Controller
@@ -50,6 +51,9 @@ class SettingKomisiController extends Controller
         $setting->digital_file_limit_mb = $request->input('digital_file_limit_mb');
         $setting->save();
 
+        Cache::forget('setting_komisi_global');
+        Cache::forget('is_maintenance_flag');
+
         Session::flash('success', 'Komisi default platform berhasil diperbarui.');
         return redirect('/setting_komisi');
     }
@@ -69,6 +73,9 @@ class SettingKomisiController extends Controller
         }
 
         $setting->save();
+
+        Cache::forget('setting_komisi_global');
+        Cache::forget('is_maintenance_flag');
 
         $statusText = $setting->is_maintenance ? 'diaktifkan' : 'dinonaktifkan';
         Session::flash('success', "Mode Maintenance platform berhasil {$statusText}.");

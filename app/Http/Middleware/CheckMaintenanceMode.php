@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use App\Models\SettingKomisi;
 
 class CheckMaintenanceMode
@@ -22,7 +23,9 @@ class CheckMaintenanceMode
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $setting = SettingKomisi::first();
+        $setting = Cache::remember('setting_komisi_global', 300, function () {
+            return SettingKomisi::first();
+        });
 
         if ($setting && $setting->is_maintenance) {
             // Admin (role_id == 1) retains full access

@@ -33,7 +33,7 @@ class PakasirGateway implements PaymentGatewayInterface
         try {
             $url = "{$this->baseUrl}/api/transactioncreate/{$method}";
             
-            $response = Http::post($url, [
+            $response = Http::timeout(6)->connectTimeout(3)->post($url, [
                 'project' => $this->projectSlug,
                 'order_id' => $pembelian->order_id,
                 'amount' => (int) $pembelian->harga_saat_beli,
@@ -87,7 +87,7 @@ class PakasirGateway implements PaymentGatewayInterface
         try {
             $url = "{$this->baseUrl}/api/transactiondetail";
             
-            $response = Http::get($url, [
+            $response = Http::timeout(6)->connectTimeout(3)->get($url, [
                 'project' => $this->projectSlug,
                 'amount' => $amount,
                 'order_id' => $orderId,
@@ -141,7 +141,7 @@ class PakasirGateway implements PaymentGatewayInterface
         try {
             $url = "{$this->baseUrl}/api/transactioncancel";
             
-            $response = Http::post($url, [
+            $response = Http::timeout(6)->connectTimeout(3)->post($url, [
                 'project' => $this->projectSlug,
                 'order_id' => $orderId,
                 'amount' => $amount,
