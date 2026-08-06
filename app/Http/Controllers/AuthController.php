@@ -18,7 +18,7 @@ class AuthController extends Controller
     protected $messages = [
         'email.required' => 'Email harus diisi.',
         'email.email' => 'Email harus valid.',
-        'email.unique' => 'Email tidak tersedia.',
+        'email.unique' => 'Email sudah terdaftar, silakan gunakan email lain atau login.',
         'password.required' => 'Password harus diisi.',
         'password.min' => 'Password harus memiliki setidaknya :min karakter.',
     ];
@@ -100,6 +100,16 @@ class AuthController extends Controller
         ], $remember)) {
 
             $request->session()->regenerate();
+            
+            // Check if banned
+            if (Auth::user()->is_banned) {
+                $reason = Auth::user()->banned_reason;
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+                return redirect()->route('banned.page')->with('banned_reason', $reason);
+            }
+
             $this->setSessionHelper(
                 $userFromDatabase->id,
                 $userFromDatabase->profile_picture,
@@ -232,6 +242,11 @@ class AuthController extends Controller
                 return redirect('profile_customer/' . $newUser->id);
             }
         } else {
+
+            // Check if banned
+            if ($userFromDatabase->is_banned) {
+                return redirect()->route('banned.page')->with('banned_reason', $userFromDatabase->banned_reason);
+            }
 
             Auth::login($userFromDatabase);
             session()->regenerate();

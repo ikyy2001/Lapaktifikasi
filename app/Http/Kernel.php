@@ -38,6 +38,7 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\RedirectIfMustChangePassword::class,
             \App\Http\Middleware\CheckMaintenanceMode::class,
+            \App\Http\Middleware\CheckBannedUser::class,
         ],
 
         'api' => [

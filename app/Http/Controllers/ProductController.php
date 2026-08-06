@@ -472,11 +472,14 @@ class ProductController extends Controller
      * Redirect ke PremiumCustomerController@katalog dengan filter id_toko.
      * Scoping: hanya produk premium milik toko tersebut yang tampil.
      */
-    public function katalog_toko($id_toko)
+    public function katalog_toko($store_slug)
     {
         // Validasi toko aktif
-        Toko::where('id_toko', $id_toko)->where('status', 'aktif')->firstOrFail();
+        $toko = Toko::where('slug', $store_slug)->firstOrFail();
+        if ($toko->status !== 'aktif') {
+            abort(404);
+        }
         // Delegate ke premium catalog dengan filter toko
-        return redirect()->route('premium.katalog', ['id_toko' => $id_toko]);
+        return redirect()->route('premium.katalog', ['toko' => $store_slug]);
     }
 }

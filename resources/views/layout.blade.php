@@ -45,7 +45,6 @@
                 radial-gradient(at 80% 100%, hsla(120,100%,80%,0.2) 0px, transparent 50%);
             /* Hardware acceleration to prevent mobile lag */
             transform: translateZ(0); 
-            will-change: transform;
         }
         
         body {
@@ -214,7 +213,6 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.03) !important;
             animation: cardEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
             transform: translateZ(0); 
-            will-change: transform, opacity;
         }
         
         .card .card-header, .mono-card .card-header {
@@ -335,6 +333,7 @@
                 backdrop-filter: blur(4px);
                 z-index: 889;
                 animation: fadeInOverlay 0.3s ease forwards;
+                pointer-events: none; /* Allow clicks to pass through to Stisla's backdrop */
             }
             @keyframes fadeInOverlay {
                 from { opacity: 0; }
@@ -555,6 +554,9 @@
                         <li class="menu-header">Admin Menu</li>
                         <li class="nav-item @if(Request::segment(2) == 'laporan-admin') active @endif">
                             <a href="{{ route('admin.laporan') }}" class="nav-link"><i class="bi bi-exclamation-triangle-fill pl-3"></i> <span>Laporan Customer</span></a>
+                        </li>
+                        <li class="nav-item @if(Request::path() == 'kelola_customer') active @endif">
+                            <a href="{{ url('kelola_customer') }}" class="nav-link"><i class="bi bi-people-fill pl-3"></i> <span>Kelola Customer</span></a>
                         </li>
                         <li class="nav-item @if(Request::path() == 'kelola_seller') active @endif">
                             <a href="{{ url('kelola_seller') }}" class="nav-link"><i class="bi bi-shop pl-3"></i> <span>Kelola Seller</span></a>

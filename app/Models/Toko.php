@@ -25,6 +25,9 @@ class Toko extends Model
         'komisi_override',
         'saldo',
         'status',
+        'is_banned',
+        'banned_reason',
+        'slug',
     ];
 
     public function user(): BelongsTo

@@ -23,8 +23,24 @@ class PremiumCustomerController extends Controller
     public function katalog(Request $request)
     {
         $search = $request->input('search');
-        $id_toko = $request->input('id_toko');
+        $toko_slug = $request->input('toko'); // Now using 'toko' slug
         $kategori = $request->input('kategori');
+
+        $toko = null;
+        $id_toko = null;
+        if ($toko_slug) {
+            $toko = Toko::with('badges')->where('slug', $toko_slug)->first();
+            if (!$toko) {
+                // Fallback to ID for backward compatibility
+                $toko = Toko::with('badges')->find($toko_slug);
+            }
+            if ($toko && $toko->is_banned) {
+                return view('premium_customer.banned_store', ['banned_reason' => $toko->banned_reason, 'nama_toko' => $toko->nama_toko]);
+            }
+            if ($toko) {
+                $id_toko = $toko->id_toko;
+            }
+        }
 
         $query = Produk::where('status', 'aktif');
 
@@ -73,8 +89,6 @@ class PremiumCustomerController extends Controller
 
         $idCustomerUser = session('id');
         $customer = CustomerModel::where('user_id', $idCustomerUser)->first();
-
-        $toko = $id_toko ? Toko::with('badges')->find($id_toko) : null;
 
         $reviews = null;
         $ratingDistribution = [];
@@ -173,6 +187,11 @@ class PremiumCustomerController extends Controller
 
     private function renderDetailView(Produk $produk)
     {
+        $toko = $produk->toko;
+        if ($toko && $toko->is_banned) {
+            return view('premium_customer.banned_store', ['banned_reason' => $toko->banned_reason, 'nama_toko' => $toko->nama_toko]);
+        }
+
         // Batch query stok untuk mencegah N+1 query
         $variantIds = $produk->tipeLayanan->flatMap->varianLayanan->pluck('id_varian')->toArray();
         $stokCounts = [];
@@ -215,7 +234,6 @@ class PremiumCustomerController extends Controller
         $idCustomerUser = session('id');
         $customer = CustomerModel::where('user_id', $idCustomerUser)->first();
 
-        $toko = $produk->toko;
         $reviews = null;
         $ratingDistribution = [1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0];
 

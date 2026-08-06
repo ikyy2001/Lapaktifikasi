@@ -71,7 +71,7 @@
                     </div>
                 </div>
 
-                <a href="{{ url('toko/' . $shop->id_toko . '/produk') }}" class="btn btn-primary btn-block mt-3">
+                <a href="{{ url('toko/' . $shop->slug . '/produk') }}" class="btn btn-primary btn-block mt-3">
                     <i class="fas fa-shopping-bag mr-1"></i> Kunjungi Toko
                 </a>
             </div>

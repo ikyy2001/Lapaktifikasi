@@ -85,6 +85,9 @@
                                     <span class="badge badge-{{ $seller->status == 'aktif' ? 'success' : 'danger' }}">
                                         {{ ucfirst($seller->status) }}
                                     </span>
+                                    @if($seller->is_banned)
+                                        <br><span class="badge badge-dark mt-1 text-danger"><i class="fas fa-ban"></i> BANNED</span>
+                                    @endif
                                 </td>
                                 <td>
                                     <div class="d-flex align-items-center flex-wrap" style="gap: 5px;">
@@ -103,6 +106,19 @@
                                                 {{ $seller->status == 'aktif' ? 'Nonaktifkan' : 'Aktifkan' }}
                                             </button>
                                         </form>
+
+                                        @if(!$seller->is_banned)
+                                            <button class="btn btn-dark btn-sm" data-toggle="modal" data-target="#banSellerModal{{ $seller->id_toko }}" title="Ban Seller">
+                                                <i class="fas fa-ban"></i> Ban
+                                            </button>
+                                        @else
+                                            <form action="{{ route('admin.kelola_seller.unban', $seller->id_toko) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                <button type="submit" class="btn btn-success btn-sm" title="Unban Seller" onclick="return confirm('Yakin ingin unban seller ini?')">
+                                                    <i class="fas fa-check"></i> Unban
+                                                </button>
+                                            </form>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
@@ -186,6 +202,34 @@
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Selesai</button>
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Ban Seller Modal -->
+                            <div class="modal fade" id="banSellerModal{{ $seller->id_toko }}" tabindex="-1" role="dialog" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <form action="{{ route('admin.kelola_seller.ban', $seller->id_toko) }}" method="POST">
+                                            @csrf
+                                            <div class="modal-header bg-danger text-white">
+                                                <h5 class="modal-title"><i class="fas fa-ban mr-2"></i> Ban Seller: {{ $seller->nama_toko }}</h5>
+                                                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p>Apakah Anda yakin ingin membanned seller ini? Seller tidak akan bisa login dan tokonya tidak akan bisa diakses.</p>
+                                                <div class="form-group">
+                                                    <label>Alasan Banned (Required)</label>
+                                                    <textarea class="form-control" name="banned_reason" rows="3" required placeholder="Tulis alasan mengapa seller ini dibanned..."></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer text-right">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                                                <button type="submit" class="btn btn-danger">Ya, Banned Seller</button>
+                                            </div>
+                                        </form>
                                     </div>
                                 </div>
                             </div>

@@ -181,4 +181,44 @@ class KelolaSellerController extends Controller
         Session::flash('success', "Badge custom '{$badge->nama_badge}' berhasil dibuat dan diberikan ke toko {$toko->nama_toko}.");
         return redirect('/kelola_seller');
     }
+
+    public function banSeller(Request $request, $id_toko)
+    {
+        $request->validate([
+            'banned_reason' => 'required|string|max:500',
+        ]);
+
+        $toko = Toko::findOrFail($id_toko);
+        $toko->update([
+            'is_banned' => true,
+            'banned_reason' => $request->banned_reason,
+            'status' => 'nonaktif',
+        ]);
+
+        $toko->user->update([
+            'is_banned' => true,
+            'banned_reason' => $request->banned_reason,
+        ]);
+
+        Session::flash('success', 'Toko dan Seller berhasil dibanned.');
+        return redirect('/kelola_seller');
+    }
+
+    public function unbanSeller($id_toko)
+    {
+        $toko = Toko::findOrFail($id_toko);
+        $toko->update([
+            'is_banned' => false,
+            'banned_reason' => null,
+            'status' => 'aktif',
+        ]);
+
+        $toko->user->update([
+            'is_banned' => false,
+            'banned_reason' => null,
+        ]);
+
+        Session::flash('success', 'Toko dan Seller berhasil di-unban.');
+        return redirect('/kelola_seller');
+    }
 }

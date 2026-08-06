@@ -42,6 +42,10 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/banned', function () {
+    return view('auth.banned');
+})->name('banned.page');
+
 Route::get('/daftar-jadi-seller', function () {
     return view('daftar_seller');
 })->name('daftar.seller');
@@ -74,7 +78,7 @@ Route::middleware('auth')->group(function () {
 
         // Customer shop list & scoped catalog (redirects to premium.katalog)
         Route::get('/daftar_toko', 'daftar_toko')->name('daftar_toko');
-        Route::get('/toko/{id_toko}/produk', 'katalog_toko')->name('toko.produk');
+        Route::get('/toko/{store_slug}/produk', 'katalog_toko')->name('toko.produk');
     });
 
     Route::resource('menu_produk', ProductController::class, ['only' => ['index']]);
@@ -145,9 +149,16 @@ Route::middleware('auth')->group(function () {
         Route::post('/kelola_seller/store', [KelolaSellerController::class, 'store'])->name('admin.kelola_seller.store');
         Route::post('/kelola_seller/update/{id_toko}', [KelolaSellerController::class, 'update'])->name('admin.kelola_seller.update');
         Route::post('/kelola_seller/toggle_status/{id_toko}', [KelolaSellerController::class, 'toggleStatus'])->name('admin.kelola_seller.toggle_status');
+        Route::post('/kelola_seller/ban/{id_toko}', [KelolaSellerController::class, 'banSeller'])->name('admin.kelola_seller.ban');
+        Route::post('/kelola_seller/unban/{id_toko}', [KelolaSellerController::class, 'unbanSeller'])->name('admin.kelola_seller.unban');
         Route::post('/kelola_seller/badge/attach/{id_toko}', [KelolaSellerController::class, 'attachBadge'])->name('admin.kelola_seller.badge.attach');
         Route::post('/kelola_seller/badge/detach/{id_toko}/{id_badge}', [KelolaSellerController::class, 'detachBadge'])->name('admin.kelola_seller.badge.detach');
         Route::post('/kelola_seller/badge/custom/{id_toko}', [KelolaSellerController::class, 'createCustomBadge'])->name('admin.kelola_seller.badge.custom');
+
+        // Kelola Customer
+        Route::get('/kelola_customer', [App\Http\Controllers\KelolaCustomerController::class, 'index'])->name('admin.kelola_customer');
+        Route::post('/kelola_customer/ban/{id}', [App\Http\Controllers\KelolaCustomerController::class, 'banCustomer'])->name('admin.kelola_customer.ban');
+        Route::post('/kelola_customer/unban/{id}', [App\Http\Controllers\KelolaCustomerController::class, 'unbanCustomer'])->name('admin.kelola_customer.unban');
 
         // Setting Komisi & Maintenance
         Route::get('/setting_komisi', [SettingKomisiController::class, 'index'])->name('admin.setting_komisi');
@@ -284,8 +295,13 @@ Route::middleware('guest')->group(function () {
         Route::get('/auth/google/callback', 'callback');
 
         Route::post('/proses_login', 'proses_login')->middleware('throttle:limit_login');
+        Route::get('/proses_login', function () { return redirect()->route('login'); });
+
         Route::post('/proses_pendaftaran', 'proses_pendaftaran');
+        Route::get('/proses_pendaftaran', function () { return redirect('/pendaftaran'); });
+        
         Route::post('/proses_lupa_password', 'proses_lupa_password');
+        Route::get('/proses_lupa_password', function () { return redirect()->route('password.request'); });
     });
 });
 
