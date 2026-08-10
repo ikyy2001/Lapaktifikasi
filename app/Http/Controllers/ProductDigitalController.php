@@ -185,8 +185,6 @@ class ProductDigitalController extends Controller
         $updateProduct->tipe_produk = 'digital';
         $updateProduct->deskripsi   = $request->input('deskripsi');
         $updateProduct->status      = $request->input('status');
-        $updateProduct->harga       = null;
-        $updateProduct->file        = null;
 
         if ($request->hasFile('gambar')) {
             // Hapus gambar lama

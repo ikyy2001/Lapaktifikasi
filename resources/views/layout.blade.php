@@ -451,8 +451,8 @@
 
                             <img alt="image" src="{{ asset('assets/img/avatar/' . session('profile_picture'))}}"
                                 class="rounded-circle mr-1">
-                            <div class="d-none d-lg-inline-block">Hi, {{ (Auth::user()->name == "" ?
-                                Auth::user()->email : Auth::user()->name ) }}</div>
+                            <div class="d-none d-lg-inline-block">Hi, {{ Auth::check() ? (Auth::user()->name == "" ?
+                                Auth::user()->email : Auth::user()->name ) : 'Guest' }}</div>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right">
                             <a href="#" data-toggle="modal" data-target="#exampleModal"

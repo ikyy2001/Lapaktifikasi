@@ -190,8 +190,6 @@ class ProductController extends Controller
         $updateProduct->tipe_produk = 'premium';
         $updateProduct->deskripsi   = $request->input('deskripsi');
         $updateProduct->status      = $request->input('status');
-        $updateProduct->harga       = null;
-        $updateProduct->file        = null;
 
         if ($request->hasFile('gambar')) {
             // Hapus gambar lama
