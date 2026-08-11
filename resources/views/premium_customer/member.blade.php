@@ -420,7 +420,7 @@
                 @if($tierNext)
                     Belanja <strong class="mono-amount" style="color: #22d3ee;">Rp {{ number_format($sisaNominal, 0, ',', '.') }}</strong> lagi untuk melompat ke <strong>Level {{ $tierNext->nama_tier }}</strong>.
                 @else
-                    🎉 Selamat! Anda telah mencapai level tertinggi (<strong>{{ $tierCurrent?->nama_tier ?? 'Platinum' }}</strong>).
+                    🎉 Selamat! Anda telah mencapai level tertinggi (<strong>{{ $tierCurrent?->nama_tier ?? 'Sultan' }}</strong>).
                 @endif
             </div>
         </div>
@@ -588,7 +588,7 @@
                     <i class="bi bi-trophy-fill mr-1"></i> Gold Pack (3x Voucher/bln)
                 </span>
                 <span class="badge p-3" style="background: rgba(6, 182, 212, 0.2); border: 1px solid rgba(6, 182, 212, 0.4); color: #67e8f9; font-size: 0.85rem;">
-                    <i class="bi bi-crown-fill mr-1"></i> Platinum VIP Pack (Unlimited Cashback)
+                    <i class="bi bi-crown-fill mr-1"></i> Sultan VIP Pack (Unlimited Cashback)
                 </span>
             </div>
         </div>

@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lapaktifikasi x SMK Plus Pelita Nusantara Bogor</title>
-    <meta name="description" content="Lapaktifikasi bersama SMK Plus Pelita Nusantara Bogor hadir sebagai solusi terpercaya untuk membeli akun premium secara instan dan aman.">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ isset($websiteSettings) ? $websiteSettings->site_name : 'Lapaktifikasi' }} - {{ isset($websiteSettings) ? $websiteSettings->site_description : 'Solusi Terbaik' }}</title>
+    <meta name="description" content="{{ isset($websiteSettings) ? $websiteSettings->site_description : 'Lapaktifikasi - Platform Jasa Digital' }}">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ isset($websiteSettings) && $websiteSettings->favicon_path ? asset($websiteSettings->favicon_path) : asset('assets/img/favicon.png') }}">
     <meta name="keywords" content="akun premium, smk plus pelita nusantara, lapaktifikasi, beli akun premium">
     <meta name="robots" content="index, follow">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -82,8 +85,8 @@
         .btn-secondary:hover { background: #000000; color: #ffffff !important; transform: translateY(-2px); }
 
         /* NAVBAR */
-        #navbar { position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; padding: 20px 5%; display: flex; align-items: center; justify-content: space-between; transition: all 0.4s ease; transform: translateZ(0); will-change: transform; }
-        #navbar.scrolled { background: rgba(255,255,255,0.7); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border-bottom: 1px solid rgba(255,255,255,0.4); padding: 14px 5%; box-shadow: 0 4px 30px rgba(0,0,0,0.05); }
+        #navbar { position: fixed; top: 0; left: 0; right: 0; margin: 0 auto; width: 100%; max-width: 100%; z-index: 1000; padding: 20px 5%; display: flex; align-items: center; justify-content: space-between; transition: all 0.4s ease; transform: translateZ(0); will-change: transform, width, top; }
+        #navbar.scrolled { top: 20px; width: 92%; max-width: 1100px; background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(12px) saturate(180%); -webkit-backdrop-filter: blur(12px) saturate(180%); border: 1px solid rgba(255, 255, 255, 0.6); border-radius: 50px; padding: 12px 30px; box-shadow: 0 8px 32px rgba(0,0,0,0.06); }
         .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none !important; }
         .nav-logo-icon { width: 42px; height: 42px; background: #000000; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.3rem; color: #ffffff; }
         .nav-logo-text { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.5rem; color: #000000; }
@@ -98,7 +101,7 @@
         .btn-nav-signup:hover { background: transparent; color: #000000 !important; transform: translateY(-2px); }
 
         /* HERO */
-        #hero { min-height: 100vh; display: flex; align-items: center; padding: 140px 5% 100px; position: relative; z-index: 1; }
+        #hero { min-height: 100vh; display: flex; align-items: center; padding: 160px 5% 80px; position: relative; z-index: 1; }
         .hero-inner { display: flex; align-items: center; gap: 60px; max-width: 1200px; margin: 0 auto; width: 100%; }
         .hero-content { flex: 1; }
         .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.12); color: #000000; font-size: 0.82rem; font-weight: 700; letter-spacing: 1px; padding: 8px 18px; border-radius: 50px; margin-bottom: 28px; animation: fadeInDown 0.7s ease both; }
@@ -108,21 +111,26 @@
         .hero-trust { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; animation: fadeInUp 0.7s ease 0.4s both; }
         .trust-item { display: flex; align-items: center; gap: 8px; color: var(--text-muted); font-size: 0.85rem; font-weight: 500; }
         .trust-item i { color: #000000; }
-        .hero-visual { flex: 0.85; display: flex; flex-direction: column; gap: 16px; animation: fadeInRight 0.8s ease 0.2s both; }
-        .card-badge-live { display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.12); color: #000000; font-size: 0.75rem; font-weight: 700; padding: 5px 12px; border-radius: 50px; }
-        .card-badge-live::before { content: ''; width: 7px; height: 7px; background: #000000; border-radius: 50%; }
-        .card-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; }
-        .product-row { display: flex; align-items: center; gap: 16px; padding: 14px; border-radius: 16px; background: rgba(255, 255, 255, 0.5); border: 1px solid rgba(255, 255, 255, 0.4); margin-bottom: 10px; transition: all 0.3s; }
-        .product-row:hover { background: rgba(255, 255, 255, 0.8); border-color: rgba(255, 255, 255, 0.8); }
-        .product-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; background: rgba(255, 255, 255, 0.5); border: 1px solid rgba(255, 255, 255, 0.4); }
-        .product-info { flex: 1; }
-        .product-info h6 { font-weight: 700; font-size: 0.9rem; margin-bottom: 2px; }
-        .product-info small { color: var(--text-muted); font-size: 0.78rem; }
-        .product-price { font-weight: 800; font-size: 1rem; color: #000000; }
-        .hero-cards-mini { display: flex; gap: 14px; }
-        .mini-card { flex: 1; padding: 18px 20px; border-radius: 20px; text-align: center; }
-        .mini-card .num { font-family: 'Space Grotesk', sans-serif; font-size: 1.6rem; font-weight: 700; color: #000000; }
-        .mini-card .lbl { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+        /* HERO 3-CARD LAYOUT */
+        .hero-3card-container { display: flex; align-items: center; justify-content: center; gap: 10px; position: relative; padding: 10px 0; width: 100%; max-width: 100%; }
+        .hero-3card-container::before { content: ''; position: absolute; width: 260px; height: 260px; background: rgba(0,0,0,0.025); border: 1px solid rgba(0,0,0,0.04); border-radius: 50%; z-index: 0; pointer-events: none; }
+        .hero-3card { flex: 1; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.9); border-radius: 18px; padding: 14px 8px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: space-between; position: relative; z-index: 1; transition: all 0.3s ease; box-shadow: 0 6px 20px rgba(0,0,0,0.04); min-height: 220px; }
+        .hero-3card:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
+        .hero-3card-featured { transform: scale(1.03) translateY(-4px); z-index: 2; border: 1.5px solid #000000; background: #ffffff; box-shadow: 0 10px 30px rgba(0,0,0,0.1); min-height: 235px; }
+        .hero-3card-featured:hover { transform: scale(1.05) translateY(-5px); }
+        .hero-3card-img { width: 54px; height: 54px; border-radius: 14px; background: #f8fafc; border: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; padding: 8px; flex-shrink: 0; }
+        .hero-3card-img img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .hero-3card h5 { font-family: 'Space Grotesk', sans-serif; font-size: 0.78rem; font-weight: 700; color: #000000; margin-bottom: 6px; line-height: 1.25; text-align: center; word-break: break-word; }
+        .hero-3card-lines { width: 75%; display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; align-items: center; }
+        .hero-3card-lines span { height: 3px; border-radius: 4px; background: #e2e8f0; display: block; }
+        .hero-3card-lines span:nth-child(1) { width: 100%; }
+        .hero-3card-lines span:nth-child(2) { width: 60%; }
+        .btn-3card { width: 100%; padding: 6px 8px; background: #000000; color: #ffffff !important; font-size: 0.75rem; font-weight: 700; border-radius: 8px; text-decoration: none !important; transition: all 0.2s ease; border: 1px solid #000000; display: inline-block; }
+        .btn-3card:hover { background: transparent; color: #000000 !important; }
+        .hero-cards-mini { display: flex; flex-direction: row; gap: 8px; width: 100%; margin-top: 10px; }
+        .mini-card { flex: 1; padding: 12px 6px; border-radius: 16px; text-align: center; background: rgba(255, 255, 255, 0.75); border: 1px solid rgba(255, 255, 255, 0.9); }
+        .mini-card .num { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 700; color: #000000; line-height: 1.1; }
+        .mini-card .lbl { font-size: 0.7rem; color: var(--text-muted); margin-top: 3px; line-height: 1.2; }
 
         /* STATS */
         #stats { position: relative; z-index: 1; padding: 0 5% 80px; }
@@ -170,7 +178,8 @@
         /* PRODUCTS */
         .products-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; max-width: 1200px; margin: 0 auto; }
         .product-card { padding: 32px 28px; }
-        .product-card-icon { font-size: 3rem; margin-bottom: 20px; display: block; }
+        .product-card-icon { width: 56px; height: 56px; border-radius: 16px; background: #f8fafc; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; padding: 10px; }
+        .product-card-icon img { max-width: 100%; max-height: 100%; object-fit: contain; }
         .product-card h3 { font-family: 'Space Grotesk', sans-serif; font-size: 1.15rem; font-weight: 700; margin-bottom: 8px; }
         .product-card p { color: var(--text-muted); font-size: 0.88rem; line-height: 1.6; margin-bottom: 20px; }
         .product-card-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 20px; border-top: 1px solid var(--glass-border); }
@@ -179,15 +188,26 @@
         .btn-see { font-size: 0.82rem; font-weight: 600; color: #000000; text-decoration: none !important; border: 1px solid #000000; padding: 7px 16px; border-radius: 10px; transition: all 0.3s; }
         .btn-see:hover { background: #000000; color: #ffffff !important; }
 
-        /* TESTIMONI */
-        .testi-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; max-width: 1200px; margin: 0 auto; }
-        .testi-card { padding: 32px 28px; }
+        /* TESTIMONI MARQUEE */
+        .testi-marquee-wrap { overflow: hidden; position: relative; width: 100%; padding: 10px 0; }
+        .testi-marquee-wrap::before, .testi-marquee-wrap::after { content: ''; position: absolute; top: 0; bottom: 0; width: 80px; z-index: 2; pointer-events: none; }
+        .testi-marquee-wrap::before { left: 0; background: linear-gradient(to right, rgba(255,255,255,0.9), transparent); }
+        .testi-marquee-wrap::after { right: 0; background: linear-gradient(to left, rgba(255,255,255,0.9), transparent); }
+        .testi-marquee { display: flex; width: max-content; animation: testimoniScroll 35s linear infinite; }
+        .testi-marquee:hover { animation-play-state: paused; }
+        .testi-marquee-group { display: flex; gap: 24px; padding-right: 24px; }
+        .testi-card { width: 360px; min-width: 360px; padding: 32px 28px; border-radius: var(--radius-lg); flex-shrink: 0; }
         .testi-stars { color: #000000; font-size: 0.9rem; margin-bottom: 16px; letter-spacing: 3px; }
         .testi-text { color: var(--text-muted); font-size: 0.93rem; line-height: 1.75; font-style: italic; margin-bottom: 24px; }
         .testi-author { display: flex; align-items: center; gap: 14px; }
         .testi-avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.1rem; flex-shrink: 0; background: #fafafa; border: 1px solid #e5e5e5; }
         .testi-name { font-weight: 700; font-size: 0.9rem; }
         .testi-role { color: var(--text-dim); font-size: 0.8rem; margin-top: 2px; }
+
+        @keyframes testimoniScroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
 
         /* FAQ */
         .faq-wrap { max-width: 800px; margin: 0 auto; }
@@ -259,6 +279,50 @@
         @keyframes fadeInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
         .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
         .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        /* MITRA INDUSTRI MARQUEE */
+        .mitra-wrap { overflow: hidden; position: relative; width: 100%; padding: 40px 0; background: transparent; }
+        .mitra-wrap::before, .mitra-wrap::after { content: ''; position: absolute; top: 0; width: 150px; height: 100%; z-index: 2; pointer-events: none; }
+        .mitra-wrap::before { left: 0; background: linear-gradient(to right, #f4f6f9, transparent); }
+        .mitra-wrap::after { right: 0; background: linear-gradient(to left, #f4f6f9, transparent); }
+        .marquee { display: flex; width: max-content; animation: scroll-left 30s linear infinite; }
+        .marquee:hover { animation-play-state: paused; }
+        .marquee-content { display: flex; gap: 30px; padding: 0 15px; }
+        .mitra-card { 
+            background: #ffffff; 
+            border: 1px solid rgba(0,0,0,0.08); 
+            border-radius: 16px; 
+            padding: 20px 30px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100px;
+            min-width: 200px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .mitra-card img {
+            max-height: 50px;
+            max-width: 140px;
+            object-fit: contain;
+            filter: grayscale(100%) opacity(70%);
+            transition: all 0.4s ease;
+        }
+        .mitra-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            border-color: rgba(0,0,0,0.15);
+        }
+        .mitra-card:hover img {
+            filter: grayscale(0%) opacity(100%);
+            transform: scale(1.05);
+        }
+        @keyframes scroll-left {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
 
         /* RESPONSIVE */
         /* NAV TOGGLE BUTTON (Hidden on Desktop) */
@@ -411,7 +475,7 @@
             .hero-title { font-size: 1.5rem !important; line-height: 1.25 !important; }
             .section-title { font-size: 1.7rem !important; }
             .stats-grid { grid-template-columns: 1fr; }
-            .hero-cards-mini { flex-direction: column; gap: 10px; }
+            .hero-cards-mini { flex-direction: row; gap: 8px; }
             .hero-cta { flex-direction: column; width: 100%; }
             .btn-primary, .btn-secondary { width: 100%; justify-content: center; }
             .cta-actions { flex-direction: column; width: 100%; }
@@ -434,8 +498,12 @@
 <!-- NAVBAR -->
 <nav id="navbar">
     <a href="{{ url('/') }}" class="nav-logo">
-        <div class="nav-logo-icon">L</div>
-        <span class="nav-logo-text">LAPAK<span>TIFIKASI</span></span>
+        @if(isset($websiteSettings) && $websiteSettings->logo_path)
+            <img src="{{ asset($websiteSettings->logo_path) }}" alt="{{ $websiteSettings->site_name }}" style="max-height: 55px; margin-right: 10px; width: auto; object-fit: contain;">
+        @else
+            <div class="nav-logo-icon">L</div>
+            <span class="nav-logo-text">{{ isset($websiteSettings) ? $websiteSettings->site_name : 'LAPAKTIFIKASI' }}</span>
+        @endif
     </a>
     <ul class="nav-links">
         <li><a href="#hero">Beranda</a></li>
@@ -531,27 +599,59 @@
             </div>
         </div>
         <div class="hero-visual">
-            <div class="glass-card" style="padding:28px;border-radius:28px;">
-                <div class="card-header-row">
-                    <span style="font-weight:700;font-size:1rem;">Produk Digital &amp; Premium</span>
-                    <span class="card-badge-live">Ekosistem SMK</span>
+            <div class="hero-3card-container">
+                <!-- Card 1: Left -->
+                <div class="glass-card hero-3card">
+                    <div class="hero-3card-img">
+                        <img src="https://cdn-icons-png.flaticon.com/512/1005/1005141.png" alt="Source Code">
+                    </div>
+                    <h5>Source Code</h5>
+                    <div class="hero-3card-lines">
+                        <span></span>
+                        <span></span>
+                    </div>
+                    @auth
+                        <a href="{{ route('premium.katalog', ['kategori' => 'digital']) }}" class="btn-3card">Beli</a>
+                    @else
+                        <a href="#" onclick="openModal(); return false;" class="btn-3card">Beli</a>
+                    @endauth
                 </div>
-                <div class="product-row">
-                    <div class="product-icon" style="background:rgba(59,130,246,0.15);">&#128187;</div>
-                    <div class="product-info"><h6>Source Code &amp; ZIP File</h6><small>Script Aplikasi, Web, &amp; Template</small></div>
-                    <div class="product-price">Instan</div>
+
+                <!-- Card 2: Middle (Featured) -->
+                <div class="glass-card hero-3card hero-3card-featured">
+                    <div class="hero-3card-img">
+                        <img src="https://cdn-icons-png.flaticon.com/512/3670/3670157.png" alt="Spotify & Netflix">
+                    </div>
+                    <h5>Spotify &amp; Netflix</h5>
+                    <div class="hero-3card-lines">
+                        <span></span>
+                        <span></span>
+                    </div>
+                    @auth
+                        <a href="{{ route('premium.katalog', ['kategori' => 'premium']) }}" class="btn-3card">Beli</a>
+                    @else
+                        <a href="#" onclick="openModal(); return false;" class="btn-3card">Beli</a>
+                    @endauth
                 </div>
-                <div class="product-row">
-                    <div class="product-icon" style="background:rgba(30,215,96,0.15);">&#127925;</div>
-                    <div class="product-info"><h6>Spotify &amp; Netflix Premium</h6><small>Akses hiburan &amp; produktivitas</small></div>
-                    <div class="product-price">Rp 15rb</div>
-                </div>
-                <div class="product-row">
-                    <div class="product-icon" style="background:rgba(168,85,247,0.15);">&#128218;</div>
-                    <div class="product-info"><h6>E-Book &amp; Aset Kreatif</h6><small>Modul, desain, &amp; dokumen digital</small></div>
-                    <div class="product-price">Unduh</div>
+
+                <!-- Card 3: Right -->
+                <div class="glass-card hero-3card">
+                    <div class="hero-3card-img">
+                        <img src="https://cdn-icons-png.flaticon.com/512/2970/2970785.png" alt="Creative Assets">
+                    </div>
+                    <h5>Creative Assets</h5>
+                    <div class="hero-3card-lines">
+                        <span></span>
+                        <span></span>
+                    </div>
+                    @auth
+                        <a href="{{ route('premium.katalog', ['kategori' => 'digital']) }}" class="btn-3card">Beli</a>
+                    @else
+                        <a href="#" onclick="openModal(); return false;" class="btn-3card">Beli</a>
+                    @endauth
                 </div>
             </div>
+
             <div class="hero-cards-mini">
                 <div class="glass-card mini-card"><div class="num">5</div><div class="lbl">Jurusan SMK Pelita</div></div>
                 <div class="glass-card mini-card"><div class="num">2.5K+</div><div class="lbl">Pengguna Aktif</div></div>
@@ -583,6 +683,35 @@
             <div class="stat-icon fi-4"><i class="bi bi-clock-fill"></i></div>
             <div class="stat-num">99.8%</div>
             <div class="stat-label">Uptime Sistem</div>
+        </div>
+    </div>
+</section>
+
+<!-- MITRA INDUSTRI -->
+<section id="mitra-industri" style="position: relative; z-index: 1; padding: 0 0 60px;">
+    <div class="container-custom">
+        <div class="section-header centered" style="margin-bottom: 40px;">
+            <h2 class="section-title" style="font-size: 1.8rem; color: #1f2937;">Para Developer Lapaktifikasi</h2>
+        </div>
+    </div>
+    <div class="mitra-wrap">
+        <div class="marquee">
+            <!-- Group 1 -->
+            <div class="marquee-content">
+                @foreach($mitras as $mitra)
+                    <div class="mitra-card">
+                        <img src="{{ asset($mitra->image_path) }}" alt="{{ $mitra->name }}">
+                    </div>
+                @endforeach
+            </div>
+            <!-- Group 2 (Duplicate for infinite scroll) -->
+            <div class="marquee-content">
+                @foreach($mitras as $mitra)
+                    <div class="mitra-card">
+                        <img src="{{ asset($mitra->image_path) }}" alt="{{ $mitra->name }}">
+                    </div>  
+                @endforeach
+            </div>
         </div>
     </div>
 </section>
@@ -702,7 +831,7 @@
         </div>
         <div class="products-grid">
             <div class="glass-card product-card reveal">
-                <span class="product-card-icon">&#128187;</span>
+                <div class="product-card-icon"><img src="https://cdn-icons-png.flaticon.com/512/1005/1005141.png" alt="Source Code"></div>
                 <h3>Source Code &amp; ZIP File</h3>
                 <p>Script web, project laravel/php, source code absensi, template, &amp; modul siap pakai dalam format ZIP/RAR.</p>
                 <div class="product-card-footer">
@@ -715,7 +844,7 @@
                 </div>
             </div>
             <div class="glass-card product-card reveal" style="transition-delay:.1s">
-                <span class="product-card-icon">&#127925;</span>
+                <div class="product-card-icon"><img src="https://cdn-icons-png.flaticon.com/512/3670/3670157.png" alt="Spotify & Netflix"></div>
                 <h3>Spotify &amp; Netflix Premium</h3>
                 <p>Nikmati akses streaming musik tanpa iklan dan film 4K Ultra HD dengan harga ramah kantong.</p>
                 <div class="product-card-footer">
@@ -728,7 +857,7 @@
                 </div>
             </div>
             <div class="glass-card product-card reveal" style="transition-delay:.2s">
-                <span class="product-card-icon">&#128444;</span>
+                <div class="product-card-icon"><img src="https://cdn-icons-png.flaticon.com/512/2970/2970785.png" alt="Gambar & Desain Grafis"></div>
                 <h3>Gambar &amp; Desain Grafis</h3>
                 <p>Elemen desain, template Canva/Photoshop, ilustrasi, foto, dan aset grafis berkualitas tinggi untuk kebutuhan konten.</p>
                 <div class="product-card-footer">
@@ -741,7 +870,7 @@
                 </div>
             </div>
             <div class="glass-card product-card reveal" style="transition-delay:.3s">
-                <span class="product-card-icon">&#128221;</span>
+                <div class="product-card-icon"><img src="https://cdn-icons-png.flaticon.com/512/2991/2991106.png" alt="Dokumen & Notepad"></div>
                 <h3>Dokumen &amp; Notepad (TXT)</h3>
                 <p>Modul pembelajaran, catatan penting, daftar prompt AI, &amp; script text yang dapat diakses langsung setelah order.</p>
                 <div class="product-card-footer">
@@ -754,7 +883,7 @@
                 </div>
             </div>
             <div class="glass-card product-card reveal" style="transition-delay:.4s">
-                <span class="product-card-icon">&#128218;</span>
+                <div class="product-card-icon"><img src="https://cdn-icons-png.flaticon.com/512/2232/2232688.png" alt="E-Book & Modul Edukasi"></div>
                 <h3>E-Book &amp; Modul Edukasi</h3>
                 <p>Panduan praktis, e-book pembelajaran 5 Jurusan SMK, hingga materi pengembangan karir &amp; teknologi.</p>
                 <div class="product-card-footer">
@@ -767,7 +896,7 @@
                 </div>
             </div>
             <div class="glass-card product-card reveal" style="transition-delay:.5s">
-                <span class="product-card-icon">&#10024;</span>
+                <div class="product-card-icon"><img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Karya Siswa SMK Pelita"></div>
                 <h3>Karya Siswa SMK Pelita</h3>
                 <p>Dukung kreativitas dan jiwa wirausaha para siswa SMK Plus Pelita Nusantara Bogor dengan membeli karya terbaik mereka.</p>
                 <div class="product-card-footer">
@@ -797,7 +926,7 @@
                         Tim Lapaktifikasi bersama pengembang SMK Plus Pelita Nusantara Bogor siap membantu Anda membangun website custom, sistem e-commerce, portal sekolah/komunitas, hingga aplikasi bisnis terintegrasi sesuai kebutuhan Anda!
                     </p>
                     <div style="display: flex; gap: 16px; flex-wrap: wrap;">
-                        <a href="https://wa.me/6289692583434?text=Halo%20Tim%20Lapaktifikasi,%20saya%20tertarik%20untuk%20konsultasi%20jasa%20pembuatan%20website%20/%20platform%20digital." target="_blank" class="btn-primary">
+                        <a href="https://wa.me/6287897600086?text=Halo%20Tim%20Lapaktifikasi,%20saya%20tertarik%20untuk%20konsultasi%20jasa%20pembuatan%20website%20/%20platform%20digital." target="_blank" class="btn-primary">
                             <i class="bi bi-whatsapp"></i> Hubungi Tim Lapaktifikasi
                         </a>
                         <a href="{{ route('join.partner') }}" class="btn-secondary">
@@ -811,37 +940,56 @@
 </section>
 
 <!-- TESTIMONI -->
-<section id="testimoni" class="section-wrap alt">
-    <div class="container-custom">
+<section id="testimoni" class="section-wrap alt" style="overflow: hidden;">
+    <div class="container-custom" style="margin-bottom: 40px;">
         <div class="section-header centered">
             <div class="section-tag"><i class="bi bi-chat-quote-fill"></i> Testimoni</div>
             <h2 class="section-title">Kata Mereka yang <span class="highlight">Sudah Merasakan</span></h2>
             <p class="section-subtitle">Ribuan pelanggan &amp; seller telah merasakan kemudahan bertransaksi file digital dan akun premium di Lapaktifikasi.</p>
         </div>
-        <div class="testi-grid">
-            <div class="glass-card testi-card reveal">
-                <div class="testi-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-                <p class="testi-text">"Beli Source Code Laravel buat tugas akhir di Lapaktifikasi. Setelah bayar via QRIS, file ZIP langsung bisa di-download detik itu juga. Mantap!"</p>
-                <div class="testi-author">
-                    <div class="testi-avatar" style="background:rgba(91,94,244,0.2);color:#818CF8;">A</div>
-                    <div><div class="testi-name">Andi Firmansyah</div><div class="testi-role">Siswa &middot; Bogor</div></div>
+    </div>
+    
+    <div class="testi-marquee-wrap">
+        <div class="testi-marquee">
+            <!-- Group 1 -->
+            <div class="testi-marquee-group">
+                @foreach($testimonis as $item)
+                <div class="glass-card testi-card">
+                    <div class="testi-stars">
+                        @for($i=1; $i<=$item->rating; $i++) &#9733; @endfor
+                    </div>
+                    <p class="testi-text">"{{ $item->comment }}"</p>
+                    <div class="testi-author">
+                        <div class="testi-avatar" style="background: #fafafa; color: #000000;">
+                            {{ strtoupper(substr($item->name, 0, 1)) }}
+                        </div>
+                        <div>
+                            <div class="testi-name">{{ $item->name }}</div>
+                            <div class="testi-role">{{ $item->role }}</div>
+                        </div>
+                    </div>
                 </div>
+                @endforeach
             </div>
-            <div class="glass-card testi-card reveal" style="transition-delay:.12s">
-                <div class="testi-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-                <p class="testi-text">"Sangat bangga ada platform kolaborasi seperti Lapaktifikasi di SMK Plus Pelita Nusantara. Sekarang siswa dan staff bisa memajang &amp; menjual karya digital secara profesional."</p>
-                <div class="testi-author">
-                    <div class="testi-avatar" style="background:rgba(6,182,212,0.2);color:#06b6d4;">S</div>
-                    <div><div class="testi-name">Hanifan Nurfauzi</div><div class="testi-role">Guru SMK PENUS &middot; Bogor</div></div>
+            <!-- Group 2 (Duplicate for infinite marquee scroll) -->
+            <div class="testi-marquee-group">
+                @foreach($testimonis as $item)
+                <div class="glass-card testi-card">
+                    <div class="testi-stars">
+                        @for($i=1; $i<=$item->rating; $i++) &#9733; @endfor
+                    </div>
+                    <p class="testi-text">"{{ $item->comment }}"</p>
+                    <div class="testi-author">
+                        <div class="testi-avatar" style="background: #fafafa; color: #000000;">
+                            {{ strtoupper(substr($item->name, 0, 1)) }}
+                        </div>
+                        <div>
+                            <div class="testi-name">{{ $item->name }}</div>
+                            <div class="testi-role">{{ $item->role }}</div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="glass-card testi-card reveal" style="transition-delay:.24s">
-                <div class="testi-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-                <p class="testi-text">"Proses checkout cepat, invoice masuk ke WhatsApp, dan riwayat belanja tersimpan rapi. Tim CS juga sangat ramah dan responsif!"</p>
-                <div class="testi-author">
-                    <div class="testi-avatar" style="background:rgba(244,114,182,0.2);color:#F472B6;">R</div>
-                    <div><div class="testi-name">Iqbal Haris Juna</div><div class="testi-role">Pelanggan Aktif &middot; Jakarta</div></div>
-                </div>
+                @endforeach
             </div>
         </div>
     </div>

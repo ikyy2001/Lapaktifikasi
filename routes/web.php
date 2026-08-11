@@ -38,8 +38,13 @@ use Illuminate\Support\Str;
 |
 */
 
+use App\Models\MitraIndustri;
+use App\Models\Testimoni;
+
 Route::get('/', function () {
-    return view('welcome');
+    $mitras = MitraIndustri::where('is_active', true)->orderBy('id', 'desc')->get();
+    $testimonis = Testimoni::where('is_active', true)->orderBy('id', 'desc')->get();
+    return view('welcome', compact('mitras', 'testimonis'));
 });
 
 Route::get('/banned', function () {
@@ -178,6 +183,24 @@ Route::middleware('auth')->group(function () {
         Route::get('/admin/voucher/{id}/edit', [AdminVoucherController::class, 'edit'])->name('admin.voucher.edit');
         Route::put('/admin/voucher/{id}', [AdminVoucherController::class, 'update'])->name('admin.voucher.update');
         Route::post('/admin/voucher/{id}/toggle-status', [AdminVoucherController::class, 'toggleStatus'])->name('admin.voucher.toggle_status');
+
+        // Mitra Industri Admin
+        Route::get('/mitra_industri', [\App\Http\Controllers\MitraIndustriController::class, 'index'])->name('admin.mitra_industri');
+        Route::post('/mitra_industri', [\App\Http\Controllers\MitraIndustriController::class, 'store'])->name('admin.mitra_industri.store');
+        Route::put('/mitra_industri/{id}', [\App\Http\Controllers\MitraIndustriController::class, 'update'])->name('admin.mitra_industri.update');
+        Route::delete('/mitra_industri/{id}', [\App\Http\Controllers\MitraIndustriController::class, 'destroy'])->name('admin.mitra_industri.destroy');
+        Route::post('/mitra_industri/{id}/toggle', [\App\Http\Controllers\MitraIndustriController::class, 'toggleStatus'])->name('admin.mitra_industri.toggle');
+
+        // Setting Website Admin
+        Route::get('/setting_website', [\App\Http\Controllers\SettingWebsiteController::class, 'index'])->name('admin.setting_website');
+        Route::post('/setting_website', [\App\Http\Controllers\SettingWebsiteController::class, 'update'])->name('admin.setting_website.update');
+
+        // Kelola Testimoni Admin
+        Route::get('/testimoni', [\App\Http\Controllers\TestimoniController::class, 'index'])->name('admin.testimoni');
+        Route::post('/testimoni', [\App\Http\Controllers\TestimoniController::class, 'store'])->name('admin.testimoni.store');
+        Route::put('/testimoni/{id}', [\App\Http\Controllers\TestimoniController::class, 'update'])->name('admin.testimoni.update');
+        Route::delete('/testimoni/{id}', [\App\Http\Controllers\TestimoniController::class, 'destroy'])->name('admin.testimoni.destroy');
+        Route::post('/testimoni/{id}/toggle', [\App\Http\Controllers\TestimoniController::class, 'toggleStatus'])->name('admin.testimoni.toggle');
     });
 
     // Premium Customer Routes

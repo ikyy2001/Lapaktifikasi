@@ -29,5 +29,11 @@ class AppServiceProvider extends ServiceProvider
         BeliProdukModel::observe(BeliProdukObserver::class);
         \App\Models\Pembelian::observe(\App\Observers\PembelianObserver::class);
         \App\Models\Review::observe(\App\Observers\ReviewObserver::class);
+
+        // Global Site Settings
+        if (\Illuminate\Support\Facades\Schema::hasTable('setting_websites')) {
+            $websiteSettings = \App\Models\SettingWebsite::first();
+            \Illuminate\Support\Facades\View::share('websiteSettings', $websiteSettings);
+        }
     }
 }

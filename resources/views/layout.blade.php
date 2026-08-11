@@ -3,10 +3,11 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
-    <title>@yield('title')</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no">
+    <title>@yield('title') - {{ isset($websiteSettings) ? $websiteSettings->site_name : 'Lapaktifikasi' }}</title>
 
-    <link rel="icon" type="image/x-icon" href="{{asset('assets/img/favicon.png')}}">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ isset($websiteSettings) && $websiteSettings->favicon_path ? asset($websiteSettings->favicon_path) : asset('assets/img/favicon.png') }}">
 
     <!-- General CSS Files -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
@@ -468,11 +469,22 @@
                 <aside id="sidebar-wrapper">
 
                     <div class="sidebar-brand">
-                        <a href="{{ Auth::user()->role_id == 1 ? url('/dashboard') : (Auth::user()->role_id == 3 ? url('/seller/dashboard') : route('premium.katalog')) }}">Lapaktifikasi</a>
+                        <a href="{{ Auth::check() ? (Auth::user()->role_id == 1 ? url('/dashboard') : (Auth::user()->role_id == 3 ? url('/seller/dashboard') : route('premium.katalog'))) : url('/') }}">
+                            @if(isset($websiteSettings) && $websiteSettings->logo_path)
+                                <img src="{{ asset($websiteSettings->logo_path) }}" alt="{{ $websiteSettings->site_name }}" style="max-height: 55px; width: auto; object-fit: contain;">
+                            @else
+                                {{ isset($websiteSettings) ? $websiteSettings->site_name : 'Lapaktifikasi' }}
+                            @endif
+                        </a>
                     </div>
-
                     <div class="sidebar-brand sidebar-brand-sm">
-                        <a href="{{ Auth::user()->role_id == 1 ? url('/dashboard') : (Auth::user()->role_id == 3 ? url('/seller/dashboard') : route('premium.katalog')) }}">LF</a>
+                        <a href="{{ Auth::check() ? (Auth::user()->role_id == 1 ? url('/dashboard') : (Auth::user()->role_id == 3 ? url('/seller/dashboard') : route('premium.katalog'))) : url('/') }}">
+                            @if(isset($websiteSettings) && $websiteSettings->favicon_path)
+                                <img src="{{ asset($websiteSettings->favicon_path) }}" alt="Logo" style="max-height: 30px;">
+                            @else
+                                {{ isset($websiteSettings) ? substr($websiteSettings->site_name, 0, 2) : 'LA' }}
+                            @endif
+                        </a>
                     </div>
 
                     <ul class="sidebar-menu">
@@ -581,6 +593,15 @@
                         </li>
                         <li class="nav-item @if(Request::segment(2) == 'voucher') active @endif">
                             <a href="{{ route('admin.voucher.index') }}" class="nav-link"><i class="bi bi-ticket-perforated-fill pl-3"></i> <span>Kelola Voucher</span></a>
+                        </li>
+                        <li class="nav-item @if(Request::path() == 'mitra_industri' || Request::segment(1) == 'mitra_industri') active @endif">
+                            <a href="{{ route('admin.mitra_industri') }}" class="nav-link"><i class="bi bi-buildings-fill pl-3"></i> <span>Mitra Industri</span></a>
+                        </li>
+                        <li class="nav-item @if(Request::path() == 'setting_website' || Request::segment(1) == 'setting_website') active @endif">
+                            <a href="{{ route('admin.setting_website') }}" class="nav-link"><i class="bi bi-gear-fill pl-3"></i> <span>Setting Website</span></a>
+                        </li>
+                        <li class="nav-item @if(Request::path() == 'testimoni' || Request::segment(1) == 'testimoni') active @endif">
+                            <a href="{{ route('admin.testimoni') }}" class="nav-link"><i class="bi bi-chat-quote-fill pl-3"></i> <span>Kelola Testimoni</span></a>
                         </li>
                         @endif
 
