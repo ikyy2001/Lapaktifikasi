@@ -14,6 +14,7 @@ class SettingWebsite extends Model
         'site_description',
         'logo_path',
         'favicon_path',
+        'auth_hero_path',
         'contact_email',
         'contact_phone',
         'address'

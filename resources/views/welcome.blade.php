@@ -365,18 +365,20 @@
             position: fixed;
             top: 0;
             right: -100%;
-            width: 80%;
-            max-width: 360px;
+            width: 85%;
+            max-width: 340px;
             height: 100vh;
+            height: 100dvh;
             background: #ffffff;
             z-index: 9999;
-            padding: 80px 40px 40px;
-            box-shadow: -10px 0 30px rgba(0, 0, 0, 0.05);
+            padding: 80px 30px 40px;
+            box-shadow: -10px 0 30px rgba(0, 0, 0, 0.08);
             border-left: 1px solid #e5e5e5;
             transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             display: flex;
             flex-direction: column;
-            gap: 36px;
+            gap: 32px;
+            overflow-y: auto;
         }
         .mobile-menu.open {
             right: 0;
@@ -408,12 +410,12 @@
             list-style: none;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 18px;
         }
         .mobile-nav-links a {
             color: var(--text-muted);
             font-weight: 600;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             text-decoration: none !important;
             transition: color 0.3s;
             display: block;
@@ -425,64 +427,480 @@
         .mobile-nav-actions {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 14px;
             border-top: 1px solid #e5e5e5;
-            padding-top: 24px;
+            padding-top: 20px;
         }
         .mobile-nav-actions .btn-nav-signup {
             text-align: center;
             justify-content: center;
             display: flex;
-            padding: 14px;
+            padding: 12px;
         }
         .mobile-nav-actions .btn-nav-login {
             text-align: center;
-            font-size: 1.1rem;
-            padding: 10px;
+            font-size: 1rem;
+            padding: 8px;
         }
 
-        /* RESPONSIVE ENHANCEMENTS */
-        @media (max-width: 1024px) {
-            .features-grid { grid-template-columns: repeat(2,1fr); }
-            .products-grid { grid-template-columns: repeat(2,1fr); }
-            .testi-grid { grid-template-columns: repeat(2,1fr); }
-            .steps-grid { grid-template-columns: repeat(2,1fr); }
-            .steps-grid::before { display: none; }
-            .footer-top-row { grid-template-columns: 1fr 1fr; }
-            .stats-grid { grid-template-columns: repeat(2,1fr); }
+        /* CUSTOM HELPER CLASSES */
+        .jasa-cta-box {
+            background: rgba(255, 255, 255, 0.75);
+            border: 2px solid #000000;
+            text-align: left;
+            padding: 60px 50px;
+            border-radius: 40px;
         }
-        @media (max-width: 768px) {
-            .hero-inner { flex-direction: column; gap: 40px; text-align: center; }
-            #hero { padding: 120px 5% 60px; }
-            .section-wrap { padding: 60px 5%; }
+        .partner-promo-card {
+            padding: 32px;
+            border-radius: 28px;
+        }
+        .card-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .card-badge-live {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 50px;
+            border: 1px solid #000000;
+        }
+        .product-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            border-radius: 14px;
+            margin-bottom: 12px;
+            background: #ffffff;
+            border: 1px solid #e5e5e5;
+            transition: transform 0.2s ease;
+        }
+        .product-row:hover {
+            transform: translateX(4px);
+        }
+        .product-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: rgba(0,0,0,0.05);
+            border: 1px solid #000000;
+            color: #000000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        .product-info h6 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            margin-bottom: 2px;
+            font-size: 0.95rem;
+        }
+        .product-info small {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        /* ==========================================
+           RESPONSIVE BREAKPOINTS (320px - 2560px+)
+           ========================================== */
+
+        /* ULTRA WIDE SCREENS (> 1440px) */
+        @media (min-width: 1441px) {
+            .container-custom {
+                max-width: 1360px;
+            }
+            .hero-title {
+                font-size: 2.8rem;
+            }
+            .section-title {
+                font-size: 2.8rem;
+            }
+        }
+
+        /* SMALL DESKTOP / LAPTOP (992px - 1199px) */
+        @media (max-width: 1199px) {
+            #navbar.scrolled {
+                width: 94%;
+                padding: 10px 24px;
+            }
+            .hero-inner {
+                gap: 40px;
+            }
+            .hero-3card-container {
+                gap: 8px;
+            }
+            .hero-3card {
+                padding: 12px 6px;
+                min-height: 210px;
+            }
+            .hero-3card-featured {
+                min-height: 225px;
+            }
+            .features-grid, .products-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 18px;
+            }
+            .footer-top-row {
+                grid-template-columns: 1.4fr 1fr 1fr 1fr;
+                gap: 32px;
+            }
+        }
+
+        /* TABLET LANDSCAPE & SMALL LAPTOP (769px - 991px) */
+        @media (max-width: 991px) {
+            .nav-links { display: none; }
+            .nav-actions { display: none; }
+            .nav-toggle { display: flex; }
+            
+            #hero {
+                padding: 140px 5% 60px;
+            }
+            .hero-inner {
+                flex-direction: column;
+                gap: 40px;
+                text-align: center;
+            }
             .hero-badge { margin: 0 auto 20px; }
             .hero-desc { margin-left: auto; margin-right: auto; }
             .hero-cta { justify-content: center; }
             .hero-trust { justify-content: center; text-align: left; }
-            .hero-visual { width: 100%; }
-            .nav-links { display: none; }
-            .nav-actions { display: none; }
-            .nav-toggle { display: flex; }
-            .vm-grid { grid-template-columns: 1fr; }
-            .features-grid { grid-template-columns: 1fr; }
-            .testi-grid { grid-template-columns: 1fr; }
-            .steps-grid { grid-template-columns: 1fr; }
-            .products-grid { grid-template-columns: 1fr; }
-            .footer-top-row { grid-template-columns: 1fr; gap: 32px; }
-            .cta-box { padding: 36px 20px !important; text-align: center !important; }
+            .hero-visual { width: 100%; max-width: 600px; margin: 0 auto; }
+
+            .features-grid { grid-template-columns: repeat(2, 1fr); }
+            .products-grid { grid-template-columns: repeat(2, 1fr); }
+            .steps-grid { grid-template-columns: repeat(2, 1fr); }
+            .steps-grid::before { display: none; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+            .vm-grid { grid-template-columns: 1fr; gap: 20px; }
+            .footer-top-row { grid-template-columns: repeat(2, 1fr); gap: 36px; }
         }
+
+        /* TABLET PORTRAIT & MOBILE LARGE (576px - 768px) */
+        @media (max-width: 768px) {
+            #navbar {
+                padding: 14px 4%;
+            }
+            #navbar.scrolled {
+                top: 10px;
+                width: 94%;
+                padding: 10px 20px;
+            }
+            .nav-logo-icon {
+                width: 36px;
+                height: 36px;
+                font-size: 1.1rem;
+            }
+            .nav-logo-text {
+                font-size: 1.25rem;
+            }
+            
+            #hero {
+                padding: 120px 4% 50px;
+            }
+            .section-wrap {
+                padding: 60px 4%;
+            }
+            .section-header {
+                margin-bottom: 40px;
+            }
+            .section-title {
+                font-size: 1.8rem;
+            }
+            .section-subtitle {
+                font-size: 0.95rem;
+            }
+
+            .hero-title {
+                font-size: 1.8rem;
+                line-height: 1.25;
+            }
+            .hero-desc {
+                font-size: 0.98rem;
+                margin-bottom: 28px;
+            }
+            
+            .cta-box, .jasa-cta-box {
+                padding: 36px 20px !important;
+                text-align: center !important;
+                border-radius: 24px !important;
+            }
+            .jasa-btn-group {
+                justify-content: center !important;
+            }
+            .jasa-btn-group .btn-primary, .jasa-btn-group .btn-secondary {
+                width: 100%;
+                justify-content: center;
+            }
+            .cta-box h2 {
+                font-size: 1.8rem;
+            }
+            .cta-box p {
+                font-size: 0.95rem;
+            }
+            .cta-actions {
+                justify-content: center;
+            }
+
+            .mitra-wrap::before, .mitra-wrap::after {
+                width: 50px;
+            }
+            .mitra-card {
+                min-width: 160px;
+                height: 85px;
+                padding: 14px 20px;
+            }
+            .mitra-card img {
+                max-height: 40px;
+                max-width: 110px;
+            }
+        }
+
+        /* MOBILE STANDARD (481px - 575px) */
+        @media (max-width: 575px) {
+            .hero-badge {
+                font-size: 0.75rem;
+                padding: 6px 14px;
+                max-width: 100%;
+                word-break: break-word;
+            }
+            .hero-title {
+                font-size: 1.6rem !important;
+            }
+            .hero-cta {
+                flex-direction: column;
+                width: 100%;
+            }
+            .btn-primary, .btn-secondary {
+                width: 100%;
+                justify-content: center;
+                padding: 13px 20px;
+                font-size: 0.95rem;
+            }
+            .hero-trust {
+                flex-direction: column;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .hero-3card-container {
+                gap: 6px;
+            }
+            .hero-3card {
+                padding: 10px 4px;
+                min-height: 195px;
+            }
+            .hero-3card-featured {
+                min-height: 205px;
+            }
+            .hero-3card-img {
+                width: 44px;
+                height: 44px;
+                margin-bottom: 6px;
+                padding: 6px;
+            }
+            .hero-3card h5 {
+                font-size: 0.72rem;
+            }
+            .btn-3card {
+                font-size: 0.7rem;
+                padding: 5px 4px;
+            }
+
+            .features-grid, .products-grid, .steps-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .testi-marquee-wrap::before, .testi-marquee-wrap::after {
+                width: 30px;
+            }
+            .testi-card {
+                width: 300px;
+                min-width: 300px;
+                padding: 24px 20px;
+            }
+
+            .partner-promo-card {
+                padding: 20px 16px !important;
+                border-radius: 20px !important;
+            }
+
+            .footer-top-row {
+                grid-template-columns: 1fr;
+                gap: 28px;
+            }
+            .footer-bottom-row {
+                flex-direction: column;
+                text-align: center;
+                justify-content: center;
+                gap: 14px;
+            }
+            .footer-bottom-badges {
+                justify-content: center;
+            }
+
+            .modal-box {
+                padding: 30px 20px !important;
+                width: 92% !important;
+                max-height: 90vh;
+                max-height: 90dvh;
+                overflow-y: auto;
+            }
+        }
+
+        /* MOBILE SMALL (320px - 480px) */
         @media (max-width: 480px) {
-            .hero-title { font-size: 1.5rem !important; line-height: 1.25 !important; }
-            .section-title { font-size: 1.7rem !important; }
-            .stats-grid { grid-template-columns: 1fr; }
-            .hero-cards-mini { flex-direction: row; gap: 8px; }
-            .hero-cta { flex-direction: column; width: 100%; }
-            .btn-primary, .btn-secondary { width: 100%; justify-content: center; }
-            .cta-actions { flex-direction: column; width: 100%; }
-            .cta-actions .btn-primary, .cta-actions .btn-secondary { width: 100%; justify-content: center; }
-            .modal-box { padding: 28px 20px !important; width: 92% !important; }
-            .product-row { flex-direction: column; text-align: center; }
-            .product-price { margin-top: 4px; }
+            .container-custom {
+                padding: 0 4%;
+            }
+            #hero {
+                padding: 105px 4% 40px;
+            }
+            .hero-title {
+                font-size: 1.45rem !important;
+                line-height: 1.25 !important;
+            }
+            .section-title {
+                font-size: 1.55rem !important;
+            }
+            .section-subtitle {
+                font-size: 0.88rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            .stat-card {
+                padding: 20px 16px;
+            }
+            .stat-num {
+                font-size: 1.8rem;
+            }
+
+            .hero-cards-mini {
+                flex-direction: row;
+                gap: 6px;
+            }
+            .mini-card {
+                padding: 10px 4px;
+            }
+            .mini-card .num {
+                font-size: 1.05rem;
+            }
+            .mini-card .lbl {
+                font-size: 0.65rem;
+            }
+
+            .product-card {
+                padding: 24px 20px;
+            }
+            .product-card-footer {
+                flex-direction: column;
+                gap: 12px;
+                align-items: center;
+                text-align: center;
+            }
+            .btn-see {
+                width: 100%;
+                text-align: center;
+            }
+
+            .testi-card {
+                width: 270px;
+                min-width: 270px;
+                padding: 20px 16px;
+            }
+            .testi-text {
+                font-size: 0.85rem;
+                margin-bottom: 16px;
+            }
+
+            .product-row {
+                padding: 10px 12px;
+                gap: 10px;
+            }
+            .product-icon {
+                width: 36px;
+                height: 36px;
+                font-size: 1rem;
+            }
+            .product-info h6 {
+                font-size: 0.88rem;
+            }
+            .product-info small {
+                font-size: 0.75rem;
+            }
+
+            .faq-question {
+                padding: 14px 16px;
+                font-size: 0.9rem;
+            }
+            .faq-answer.open {
+                padding: 14px 16px;
+            }
+
+            .cta-box {
+                padding: 28px 16px !important;
+            }
+            .cta-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+            .cta-actions .btn-primary, .cta-actions .btn-secondary {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .vm-card {
+                padding: 28px 20px;
+            }
+            .feature-card {
+                padding: 24px 20px;
+            }
+            .step-card {
+                padding: 24px 16px;
+            }
+
+            .mobile-menu {
+                width: 88%;
+                max-width: 320px;
+                padding: 70px 24px 30px;
+            }
+        }
+
+        /* EXTREMELY SMALL MOBILE (< 360px) */
+        @media (max-width: 359px) {
+            .hero-3card-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .hero-3card {
+                width: 100%;
+                min-height: auto;
+                padding: 14px 12px;
+            }
+            .hero-3card-featured {
+                transform: none;
+                min-height: auto;
+            }
+            .hero-3card-featured:hover {
+                transform: none;
+            }
+            .btn-primary, .btn-secondary {
+                padding: 12px 14px;
+                font-size: 0.88rem;
+            }
+            .nav-logo-text {
+                font-size: 1.1rem;
+            }
         }
     </style>
 </head>
@@ -915,17 +1333,17 @@
 <!-- JASA PEMBUATAN WEBSITE & KEMITRAAN BANNER -->
 <section id="jasa-website" class="section-wrap">
     <div class="container-custom">
-        <div class="cta-box reveal" style="background: rgba(255, 255, 255, 0.7); border: 2px solid #000000; text-align: left; padding: 60px 50px;">
+        <div class="jasa-cta-box reveal">
             <div class="row align-items-center" style="display: flex; flex-wrap: wrap; gap: 30px;">
-                <div style="flex: 1; min-width: 300px;">
+                <div style="flex: 1; min-width: 280px;">
                     <div class="section-tag" style="background: #000; color: #fff;"><i class="bi bi-code-slash"></i> Jasa Pembuatan Website &amp; Software</div>
-                    <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: clamp(1.8rem, 3.5vw, 2.5rem); font-weight: 700; color: #000; margin-bottom: 16px;">
+                    <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: clamp(1.6rem, 3.5vw, 2.5rem); font-weight: 700; color: #000; margin-bottom: 16px;">
                         Mau Memiliki Website Marketplace / Portal Digital Seperti Ini?
                     </h2>
-                    <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.7; margin-bottom: 24px;">
+                    <p style="color: var(--text-muted); font-size: 1.02rem; line-height: 1.7; margin-bottom: 24px;">
                         Tim Lapaktifikasi bersama pengembang SMK Plus Pelita Nusantara Bogor siap membantu Anda membangun website custom, sistem e-commerce, portal sekolah/komunitas, hingga aplikasi bisnis terintegrasi sesuai kebutuhan Anda!
                     </p>
-                    <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                    <div class="jasa-btn-group" style="display: flex; gap: 16px; flex-wrap: wrap;">
                         <a href="https://wa.me/6287897600086?text=Halo%20Tim%20Lapaktifikasi,%20saya%20tertarik%20untuk%20konsultasi%20jasa%20pembuatan%20website%20/%20platform%20digital." target="_blank" class="btn-primary">
                             <i class="bi bi-whatsapp"></i> Hubungi Tim Lapaktifikasi
                         </a>
@@ -1013,29 +1431,29 @@
                 <a href="{{ route('join.partner') }}" class="btn-primary"><i class="bi bi-arrow-right-circle-fill"></i> Pelajari Selengkapnya</a>
             </div>
             <div class="hero-visual reveal" style="transition-delay:.15s">
-                <div class="glass-card" style="padding:32px; border-radius:28px;">
+                <div class="glass-card partner-promo-card">
                     <div class="card-header-row">
                         <span style="font-weight:700;font-size:1.1rem;font-family:'Space Grotesk',sans-serif;"><i class="bi bi-rocket-takeoff-fill"></i> Kemitraan Komunitas</span>
                         <span class="card-badge-live" style="background:rgba(0,0,0,0.05); color:#000000; border-color:#000000;">Gratis</span>
                     </div>
-                    <div class="product-row" style="background:#ffffff; border:1px solid #e5e5e5;">
-                        <div class="product-icon" style="background:rgba(0,0,0,0.05); border-color:#000000; color:#000000;"><i class="bi bi-globe"></i></div>
+                    <div class="product-row">
+                        <div class="product-icon"><i class="bi bi-globe"></i></div>
                         <div class="product-info">
-                            <h6 style="font-family:'Space Grotesk',sans-serif; font-weight:700;">Subdomain Sendiri</h6>
+                            <h6>Subdomain Sendiri</h6>
                             <small>nusabogor.lapaktifikasi.my.id</small>
                         </div>
                     </div>
-                    <div class="product-row" style="background:#ffffff; border:1px solid #e5e5e5;">
-                        <div class="product-icon" style="background:rgba(0,0,0,0.05); border-color:#000000; color:#000000;"><i class="bi bi-people"></i></div>
+                    <div class="product-row">
+                        <div class="product-icon"><i class="bi bi-people"></i></div>
                         <div class="product-info">
-                            <h6 style="font-family:'Space Grotesk',sans-serif; font-weight:700;">Rekrut Seller Internal</h6>
+                            <h6>Rekrut Seller Internal</h6>
                             <small>Kumpulkan seller dari komunitas Anda</small>
                         </div>
                     </div>
-                    <div class="product-row" style="background:#ffffff; border:1px solid #e5e5e5;">
-                        <div class="product-icon" style="background:rgba(0,0,0,0.05); border-color:#000000; color:#000000;"><i class="bi bi-cash-stack"></i></div>
+                    <div class="product-row">
+                        <div class="product-icon"><i class="bi bi-cash-stack"></i></div>
                         <div class="product-info">
-                            <h6 style="font-family:'Space Grotesk',sans-serif; font-weight:700;">Bagi Hasil Otomatis</h6>
+                            <h6>Bagi Hasil Otomatis</h6>
                             <small>Komisi transparan dari tiap transaksi</small>
                         </div>
                     </div>

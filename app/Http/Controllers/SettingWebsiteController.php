@@ -30,6 +30,7 @@ class SettingWebsiteController extends Controller
             'address' => 'nullable|string',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,svg,webp|max:2048',
             'favicon' => 'nullable|image|mimes:jpeg,png,jpg,ico,svg|max:1024',
+            'auth_hero' => 'nullable|image|mimes:jpeg,png,jpg,svg,webp|max:3072',
         ]);
 
         $settings = SettingWebsite::first();
@@ -58,6 +59,16 @@ class SettingWebsiteController extends Controller
             $faviconName = 'favicon_' . time() . '.' . $favicon->getClientOriginalExtension();
             $favicon->move(public_path('assets/img'), $faviconName);
             $settings->favicon_path = 'assets/img/' . $faviconName;
+        }
+
+        if ($request->hasFile('auth_hero')) {
+            if ($settings->auth_hero_path && File::exists(public_path($settings->auth_hero_path))) {
+                File::delete(public_path($settings->auth_hero_path));
+            }
+            $authHero = $request->file('auth_hero');
+            $authHeroName = 'auth_hero_' . time() . '.' . $authHero->getClientOriginalExtension();
+            $authHero->move(public_path('assets/img'), $authHeroName);
+            $settings->auth_hero_path = 'assets/img/' . $authHeroName;
         }
 
         $settings->save();

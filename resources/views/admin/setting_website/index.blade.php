@@ -38,10 +38,10 @@
                     @csrf
                     
                     <div class="row">
-                        <!-- Logo & Favicon Section -->
+                        <!-- Logo & Favicon & Auth Hero Section -->
                         <div class="col-md-4 mb-4">
                             <div class="p-3 border rounded bg-light">
-                                <h6 class="font-weight-bold mb-3 border-bottom pb-2">Logo & Favicon</h6>
+                                <h6 class="font-weight-bold mb-3 border-bottom pb-2">Logo, Favicon & Gambar Auth</h6>
                                 
                                 <div class="form-group text-center">
                                     <label class="d-block font-weight-bold text-left">Logo Website</label>
@@ -69,6 +69,22 @@
                                     </div>
                                     <input type="file" name="favicon" class="form-control-file mt-2" accept="image/png, image/jpeg, image/x-icon, image/svg+xml">
                                     <small class="text-muted text-left d-block mt-1">Disarankan: Persegi, resolusi 32x32 atau 64x64.</small>
+                                </div>
+
+                                <hr>
+
+                                <div class="form-group text-center">
+                                    <label class="d-block font-weight-bold text-left">Gambar Login & Register (Auth Hero)</label>
+                                    <div class="mb-2 p-3 bg-white border rounded d-inline-block" style="min-width: 150px; min-height: 100px;">
+                                        @if($settings->auth_hero_path)
+                                            <img src="{{ asset($settings->auth_hero_path) }}" alt="Auth Hero" style="max-width: 100%; max-height: 100px; object-fit: contain;">
+                                        @else
+                                            <img src="{{ asset('assets/img/auth_hero.png') }}" alt="Default Auth Hero" style="max-width: 100%; max-height: 100px; object-fit: contain;">
+                                            <small class="text-muted d-block mt-1">(Gambar Default)</small>
+                                        @endif
+                                    </div>
+                                    <input type="file" name="auth_hero" class="form-control-file mt-2" accept="image/*">
+                                    <small class="text-muted text-left d-block mt-1">Gambar ilustrasi di panel kanan halaman login & register.</small>
                                 </div>
                             </div>
                         </div>

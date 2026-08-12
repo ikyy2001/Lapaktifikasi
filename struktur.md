@@ -16,7 +16,8 @@ Dokumen ini berisi pemetaan struktur berkas (directory tree) serta analisis arsi
   - `Customer` (Pembeli)
 - **Payment Gateway Layer**: Interface Abstraction dengan Dukungan Multi-Gateway (**Midtrans** & **Pakasir**).
 - **Notifikasi**: Integrasi WhatsApp API Gateway via Fonnte (`FonnteService`).
-- **Autentikasi**: Web Session Guard (Blade UI) & Token-based API Authentication (`Laravel Sanctum`).
+- **Autentikasi**: Web Session Guard (Blade UI Split-Card & Google OAuth) & Token-based API Authentication (`Laravel Sanctum`).
+- **CMS & Website Settings**: Pengaturan logo website, gambar auth hero, info kontak, developer partner (`MitraIndustri`), & testimoni pelanggan via dashboard admin.
 
 ---
 
@@ -34,7 +35,7 @@ lapaktifikasi_web/
 │   │   └── Middleware/         # Filter Keamanan & Hak Akses
 │   ├── Jobs/                   # Asynchronous Queue Jobs (Notifikasi, Processing)
 │   ├── Mail/                   # Template Email
-│   ├── Models/                 # Eloquent ORM Data Models (25 Models)
+│   ├── Models/                 # Eloquent ORM Data Models (28 Models)
 │   ├── Notifications/          # Sistem Notifikasi
 │   ├── Observers/              # Model Observers (Event Listeners)
 │   ├── Policies/               # Kebijakan Otorisasi Access
@@ -45,7 +46,7 @@ lapaktifikasi_web/
 ├── config/                     # Berkas Konfigurasi Aplikasi (19 File Config)
 ├── database/                   # Basis Data
 │   ├── factories/              # Factory Generator Data Pengujian
-│   ├── migrations/             # Migration Schema Database (49 Files)
+│   ├── migrations/             # Migration Schema Database (53 Files)
 │   └── seeders/                # Data Seeder Awal Sistem
 ├── public/                     # Public Web Root (Assets, CSS, JS, Uploaded Files)
 ├── resources/                  # Frontend Resources
@@ -53,7 +54,15 @@ lapaktifikasi_web/
 │   ├── js/                     # Assets JavaScript Frontend
 │   └── views/                  # Template UI Blade Components & Pages
 │       ├── admin/              # Dashboard & Fitur Super Admin
-│       ├── auth/               # Halaman Login, Register, Lupa Password
+│       │   ├── kelola_customer/# Manajemen Pelanggan
+│       │   ├── kelola_seller/  # Manajemen Mitra Penjual
+│       │   ├── mitra_industri/ # Kelola Logo Developer Partner
+│       │   ├── saldo_toko/     # Kelola Saldo Toko Seller
+│       │   ├── setting_komisi/ # Konfigurasi Komisi Platform
+│       │   ├── setting_website/# Pengaturan Logo, Auth Hero, & Info Web
+│       │   ├── testimoni/      # Kelola Ulasan Testimoni Pelanggan
+│       │   └── voucher/        # Kelola Promo Voucher Global
+│       ├── auth/               # Split-Card UI (Login, Register, Password, Banned)
 │       ├── customer/           # Portal Customer / Pembeli
 │       ├── dashboard/          # Dashboard Utama Multi-role
 │       ├── digital_admin/      # Panel Admin Produk Digital
@@ -85,7 +94,7 @@ lapaktifikasi_web/
 
 ---
 
-## 🔍 Analisis Mendalam komponen Direktori `app/`
+## 🔍 Analisis Mendalam Komponen Direktori `app/`
 
 ### 1. `app/Contracts/`
 Menyediakan interface abstraksi untuk komponen modular:
@@ -99,7 +108,12 @@ Konstanta tipe data aman (Type-safe Enums) untuk status sistem:
 
 ### 3. `app/Http/Controllers/`
 Merupakan pengendali logika rute UI Blade Web:
-- **Pengaturan & Auth**: `AuthController.php`, `PengaturanController.php`.
+- **Pengaturan, CMS & Auth**:
+  - `AuthController.php`: Otentikasi login, register, logout, & Google OAuth.
+  - `PengaturanController.php`: Manajemen password & profil akun.
+  - `SettingWebsiteController.php`: Pengaturan logo, favicon, auth hero image, & kontak situs.
+  - `MitraIndustriController.php`: Pengelolaan logo developer partner di landing page.
+  - `TestimoniController.php`: Pengelolaan ulasan testimoni pelanggan.
 - **Manajemen Marketplace & Toko**:
   - `SellerTokoController.php`: Registrasi & pengaturan toko seller.
   - `SaldoTokoController.php`: Manajemen dompet/saldo toko & penarikan.
@@ -139,14 +153,14 @@ Menyediakan layer proteksi keamanan & otorisasi:
 - `RedirectIfMustChangePassword.php`: Memaksa pengguna mengganti password default demi keamanan.
 - `ResetHeaders.php`, `CheckIdCustomer.php`, `PreventCustomer.php`.
 
-### 6. `app/Models/` (25 Eloquent Models)
+### 6. `app/Models/` (28 Eloquent Models)
 Pemetaan tabel basis data ke objek PHP:
 - **Pengguna & Akses**: `User.php`, `CustomerModel.php`, `Toko.php`, `SellerBadge.php`.
 - **Katalog & Stok**: `Produk.php`, `ProdukModel.php`, `TipeLayanan.php`, `VarianLayanan.php`, `StokAkun.php`, `ScreenshotsProdukModel.php`.
-- **Transaksi & Pembayaran**: `Pembelian.php`, `PembelianLog.php`, `Pembayaran.php`, `BeliProdukModel.php`, `ProdukTerjualModel.php`, `MutasiSaldo.php`.
+- **Transaksi & Pembayaran**: `Pembelian.php`, `PembelianLog.php`, `Pembayaran.php`, `PembayaranModel.php`, `BeliProdukModel.php`, `ProdukTerjualModel.php`, `MutasiSaldo.php`.
 - **Gateway Webhooks**: `MidtransWebhookLog.php`, `PakasirWebhookLog.php`.
 - **Gamifikasi & Diskon**: `Voucher.php`, `VoucherKlaim.php`, `CustomerTier.php`, `CustomerTierLog.php`.
-- **Fitur Tambahan**: `Review.php`, `Laporan.php`, `SettingKomisi.php`.
+- **Pengaturan & Content Website**: `SettingWebsite.php`, `SettingKomisi.php`, `MitraIndustri.php`, `Testimoni.php`, `Review.php`, `Laporan.php`.
 
 ### 7. `app/Services/`
 Layer logika bisnis terpisah (Domain Business Layer):
@@ -162,14 +176,15 @@ Layer logika bisnis terpisah (Domain Business Layer):
 
 ## 💾 Analisis Skema Database `database/migrations/`
 
-Terdapat **49 file migrasi** yang mengelola skema basis data secara modular:
+Terdapat **53 file migrasi** yang mengelola skema basis data secara modular:
 
 1. **Autentikasi & Pengguna**: `tbl_roles`, `users`, `tbl_customer`, `password_reset_tokens`, `personal_access_tokens`.
 2. **Pengelolaan Toko & Komisi**: `tbl_toko`, `tbl_setting_komisi`, `tbl_mutasi_saldo`, `tbl_seller_badge`, `tbl_toko_badge`.
 3. **Katalog Produk Digital**: `tbl_produk`, `tbl_tipe_layanan`, `tbl_varian_layanan`, `tbl_stok_akun`, `tbl_review`.
 4. **Transaksi & Webhook**: `tbl_pembelian`, `tbl_pembayaran`, `tbl_pembelian_log`, `midtrans_webhook_logs`, `pakasir_webhook_logs`.
 5. **Voucher & Customer Tiers**: `vouchers`, `voucher_klaims`, `customer_tiers`, `customer_tier_logs`.
-6. **Optimasi & Keamanan**: `add_performance_indexes`, `add_banned_fields_to_users_and_toko_tables`.
+6. **CMS & Website Settings**: `setting_websites`, `mitra_industris`, `testimonis`, `add_auth_hero_path_to_setting_websites_table`.
+7. **Optimasi & Keamanan**: `add_performance_indexes`, `add_banned_fields_to_users_and_toko_tables`.
 
 ---
 
@@ -178,8 +193,10 @@ Terdapat **49 file migrasi** yang mengelola skema basis data secara modular:
 Tampilan UI dibangun menggunakan **Laravel Blade Templates** yang terorganisir per area modul:
 
 - `layout.blade.php`: Layout induk utama (Navigation bar, Sidebar, Footer, Asset scripts).
-- `welcome.blade.php`: Halaman Landing Page Marketplace Utama.
-- `admin/`: Antarmuka Super Admin untuk pengelolaan seller, customer, saldo toko, komisi, & voucher global.
+- `welcome.blade.php`: Halaman Landing Page Marketplace Utama (100% responsif dari 320px hingga 2560px+).
+- `daftar_seller.blade.php` & `join_partner.blade.php`: Halaman landing pendaftaran seller & program kemitraan komunitas.
+- `auth/`: Halaman autentikasi split-card modern (`layout.blade.php`, `login.blade.php`, `pendaftaran.blade.php`, `lupa_password.blade.php`, `reset_password.blade.php`, `banned.blade.php`) terintegrasi dengan Google OAuth, password visibility toggle, & pengaturan website logo/hero.
+- `admin/`: Antarmuka Super Admin untuk pengelolaan seller, customer, saldo toko, komisi, voucher global, serta CMS (`setting_website`, `mitra_industri`, `testimoni`).
 - `seller/`: Dashboard Mitra Seller untuk melihat statistik penjualan, mutasi saldo, kelola voucher, & profil toko.
 - `customer/` & `premium_customer/`: Portal pelanggan untuk belanja, histori transaksi, klaim voucher, referral, & status tier VIP.
 - `produk/` & `produk_digital/`: Halaman katalog, form tambah/edit produk, upload varian digital, & ekstrak screenshot.
@@ -190,8 +207,9 @@ Tampilan UI dibangun menggunakan **Laravel Blade Templates** yang terorganisir p
 ## 🛣️ Analisis Pemetaan Rute `routes/`
 
 - **`routes/web.php`**:
-  - **Rute Publik**: Landing page, katalog produk, pencarian toko, detail layanan.
-  - **Rute Auth**: Login, Register, Lupa Password, Reset Password.
+  - **Rute Publik**: Landing page (`/`), pendaftaran seller (`/daftar-jadi-seller`), program partner (`/join-partner`), katalog produk, pencarian toko, detail layanan.
+  - **Rute Auth**: Login, Register, Lupa Password, Reset Password, Google OAuth Redirect (`/redirect`).
+  - **Rute Admin CMS**: Pengaturan website (`/setting_website`), kelola mitra industri, kelola testimoni.
   - **Rute Webhook (Tanpa CSRF)**: Callback otentikasi pembayaran dari Midtrans (`/midtrans/notification`) dan Pakasir (`/pakasir/notification`).
   - **Group Middleware `auth`**: Dashboard terproteksi berdasar role (`AdminOnly`, `OnlySeller`, `OnlyCustomer`).
 - **`routes/api.php`**:
@@ -244,4 +262,4 @@ sequenceDiagram
 
 ## 📝 Kesimpulan
 
-Struktur berkas **Lapaktifikasi Web** dirancang dengan sangat rapi dan modular sesuai standar industri framework Laravel. Pemisahan antara **Core Logic (`app/Services`)**, **Gateway Abstraction (`app/Contracts`)**, **Multi-role Middleware**, **REST API Engine**, serta **UI Blade** memastikan aplikasi ini sangat mudah dipelihara (*maintainable*), dikembangkan lebih lanjut (*extensible*), dan siap mendukung skala transaksi tinggi.
+Struktur berkas **Lapaktifikasi Web** dirancang dengan sangat rapi dan modular sesuai standar industri framework Laravel. Pemisahan antara **Core Logic (`app/Services`)**, **Gateway Abstraction (`app/Contracts`)**, **Multi-role Middleware**, **REST API Engine**, **CMS & Website Settings**, serta **UI Blade** memastikan aplikasi ini sangat mudah dipelihara (*maintainable*), dikembangkan lebih lanjut (*extensible*), dan siap mendukung skala transaksi tinggi.

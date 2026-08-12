@@ -1,28 +1,24 @@
 @extends('auth.layout')
 
-@section('title', 'Akun Dibanned')
+@section('title', 'Akun Dibanned - Lapaktifikasi')
 
 @section('content')
-<div class="row">
-    <div class="col-12 col-sm-8 offset-sm-2 col-md-6 offset-md-3 col-lg-6 offset-lg-3 col-xl-4 offset-xl-4">
-        <div class="card card-danger mt-5">
-            <div class="card-header">
-                <h4 class="text-danger"><i class="fas fa-ban"></i> Akun Anda Telah Dibanned</h4>
-            </div>
-            <div class="card-body">
-                <p class="text-muted">Maaf, akun Anda tidak dapat mengakses layanan kami karena telah dibanned oleh administrator.</p>
-                @if(session('banned_reason'))
-                    <div class="alert alert-danger">
-                        <strong>Alasan:</strong> {{ session('banned_reason') }}
-                    </div>
-                @endif
-                <div class="mt-4 text-center">
-                    <a href="{{ url('/') }}" class="btn btn-primary btn-lg btn-block" tabindex="4">
-                        Kembali ke Halaman Utama
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+<h2 class="auth-form-title text-danger"><i class="bi bi-slash-circle mr-1"></i> Akun Dibanned</h2>
+<p class="auth-form-subtitle">Maaf, akun Anda tidak dapat mengakses layanan kami saat ini.</p>
+
+<div class="alert alert-danger p-3 mb-4 rounded-lg" role="alert" style="background-color: #fef2f2; border: 1px solid #fecaca; color: #991b1b;">
+    <h6 class="font-weight-bold mb-1"><i class="bi bi-exclamation-octagon-fill mr-1"></i> Status Penangguhan:</h6>
+    @if(session('banned_reason'))
+        <p class="mb-0 small"><strong>Alasan:</strong> {{ session('banned_reason') }}</p>
+    @else
+        <p class="mb-0 small">Akun Anda telah dinonaktifkan oleh administrator karena pelanggaran ketentuan layanan.</p>
+    @endif
+</div>
+
+<div class="mt-4">
+    <a href="{{ url('/') }}" class="btn btn-auth-primary">
+        <i class="bi bi-house-door-fill mr-1"></i>
+        <span>Kembali ke Halaman Utama</span>
+    </a>
 </div>
 @endsection
