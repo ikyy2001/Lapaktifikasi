@@ -1109,7 +1109,7 @@
 <section id="mitra-industri" style="position: relative; z-index: 1; padding: 0 0 60px;">
     <div class="container-custom">
         <div class="section-header centered" style="margin-bottom: 40px;">
-            <h2 class="section-title" style="font-size: 1.8rem; color: #1f2937;">Para Developer Lapaktifikasi</h2>
+            <h2 class="section-title" style="font-size: 1.8rem; color: #1f2937;">Mitra Kami Di Lapaktifikasi</h2>
         </div>
     </div>
     <div class="mitra-wrap">

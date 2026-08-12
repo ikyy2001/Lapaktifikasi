@@ -129,7 +129,8 @@
 </form>
 
 <div class="text-center mt-4 text-muted small">
-    Belum memiliki akun? <a href="{{url('/pendaftaran')}}" class="auth-link">Daftar Sekarang</a>
+    <p class="mb-1">Belum memiliki akun? <a href="{{url('/pendaftaran')}}" class="auth-link">Daftar Sekarang</a></p>
+    <p class="mb-0 text-muted" style="font-size: 0.78rem; opacity: 0.85;">Lapaktifikasi Part Of Cipta Cerita Bersama Group</p>
 </div>
 
 @endsection
