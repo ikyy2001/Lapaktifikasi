@@ -129,7 +129,7 @@ class SendAccountInvoiceWhatsapp implements ShouldQueue
             $lines = array_merge($lines, [
                 '--- Detail Pesanan ---',
                 'Pesanan Digital Anda telah berhasil diproses.',
-                'Silakan login ke dashboard Lapaktifikasi untuk mengunduh file Anda di menu *Riwayat Premium*.',
+                'Silakan login ke dashboard Lapaktifikasi untuk mengunduh file Anda di menu *Riwayat Pembelian*.',
                 '',
             ]);
         } else {

@@ -7,7 +7,7 @@ Terima kasih atas pembelian Anda! Pembayaran untuk pesanan pada invoice **{{ $or
 - **Produk**: {{ $nama_produk }}
 - **Total Pembayaran**: IDR {{ number_format($total, 0, ',', '.') }}
 
-Detail pesanan Anda (kredensial akun premium atau file digital) tidak kami kirimkan melalui email ini. Anda dapat melihat dan mengaksesnya secara langsung di menu **Riwayat Premium** di halaman profil akun Anda.
+Detail pesanan Anda (kredensial akun premium atau file digital) tidak kami kirimkan melalui email ini. Anda dapat melihat dan mengaksesnya secara langsung di menu **Riwayat Pembelian** di halaman profil akun Anda.
 
 > **Pemberitahuan & Bantuan**:
 > * Jika Anda merasa tidak melakukan transaksi/pembelian ini, harap segera menghubungi admin Lapaktifikasi.
