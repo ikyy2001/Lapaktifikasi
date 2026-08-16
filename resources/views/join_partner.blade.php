@@ -417,7 +417,7 @@
             <h2>Mulai Hub E-Commerce Komunitas Anda Sekarang</h2>
             <p>Diskusikan pendaftaran kemitraan komunitas store Anda bersama tim representatif dari Lapaktifikasi. Hubungi kami melalui salah satu kontak di bawah ini.</p>
             <div class="action-buttons">
-                <a href="https://wa.me/6281234567890?text=Halo%20Tim%20Lapaktifikasi,%20saya%20tertarik%20untuk%20join%20partner%20community%20store%20tim%20saya." target="_blank" class="btn-whatsapp">
+                <a href="https://wa.me/6287897600086?text=Halo%20Tim%20Lapaktifikasi,%20saya%20tertarik%20untuk%20join%20partner%20community%20store%20tim%20saya." target="_blank" class="btn-whatsapp">
                     <span><i class="bi bi-whatsapp" style="font-size: 1.3rem;"></i> Hubungi via WhatsApp</span>
                     <span class="small">Respon Cepat (Jam Kerja 09:00 - 21:00)</span>
                 </a>
@@ -441,10 +441,9 @@
                 </a>
                 <p>Platform distribusi akun digital premium terpercaya di Indonesia. Cepat, aman, dan terjangkau untuk semua lapisan pengguna.</p>
                 <div class="footer-socials">
-                    <a href="#" class="social-btn"><i class="bi bi-instagram"></i></a>
-                    <a href="#" class="social-btn"><i class="bi bi-twitter-x"></i></a>
-                    <a href="#" class="social-btn"><i class="bi bi-whatsapp"></i></a>
-                    <a href="#" class="social-btn"><i class="bi bi-telegram"></i></a>
+                    <a href="https://instagram.com/nusagarudastudio" target="_blank" class="social-btn"><i class="bi bi-instagram"></i></a>
+                    <a href="https://wa.me/6287897600086" target="_blank" class="social-btn"><i class="bi bi-whatsapp"></i></a>
+                    <a href="https://t.me/nusagarudastudio" target="_blank" class="social-btn"><i class="bi bi-telegram"></i></a>
                 </div>
             </div>
             <div class="footer-col">

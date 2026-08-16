@@ -364,7 +364,7 @@
             
             <div class="action-buttons">
                 <!-- WHATSAPP BUTTON -->
-                <a href="https://wa.me/6281234567890?text=Halo%20Admin%20Lapaktifikasi%2C%20saya%20tertarik%20untuk%20mendaftar%20sebagai%20seller.%20Mohon%20informasi%20langkah%20selanjutnya." target="_blank" class="btn-whatsapp">
+                <a href="https://wa.me/6287897600086?text=Halo%20Admin%20Lapaktifikasi%2C%20saya%20tertarik%20untuk%20mendaftar%20sebagai%20seller.%20Mohon%20informasi%20langkah%20selanjutnya." target="_blank" class="btn-whatsapp">
                     <i class="bi bi-whatsapp" style="font-size: 1.8rem; margin-bottom: 2px;"></i>
                     Hubungi via WhatsApp
                     <span class="small">Respons cepat &amp; diskusi langsung</span>
@@ -392,10 +392,9 @@
                 </a>
                 <p>Platform distribusi akun digital premium terpercaya di Indonesia. Cepat, aman, dan terjangkau untuk semua lapisan pengguna.</p>
                 <div class="footer-socials">
-                    <a href="#" class="social-btn"><i class="bi bi-instagram"></i></a>
-                    <a href="#" class="social-btn"><i class="bi bi-twitter-x"></i></a>
-                    <a href="https://wa.me/6281234567890" target="_blank" class="social-btn"><i class="bi bi-whatsapp"></i></a>
-                    <a href="#" class="social-btn"><i class="bi bi-telegram"></i></a>
+                    <a href="https://instagram.com/nusagarudastudio" target="_blank" class="social-btn"><i class="bi bi-instagram"></i></a>
+                    <a href="https://wa.me/6287897600086" target="_blank" class="social-btn"><i class="bi bi-whatsapp"></i></a>
+                    <a href="https://t.me/nusagarudastudio" target="_blank" class="social-btn"><i class="bi bi-telegram"></i></a>
                 </div>
             </div>
             <div class="footer-col">
