@@ -53,9 +53,13 @@ class PembayaranController extends Controller
                     ]);
                 } elseif (in_array($statusData['status'], [\App\Enums\PembelianStatus::FAILED, \App\Enums\PembelianStatus::EXPIRED])) {
                     $this->paymentProcessor->markAsFailed($pembelian, $statusData['status']->value ?? 'failed', $gatewayName);
+                } elseif ($pembelian->reserved_until && $pembelian->reserved_until < now()) {
+                    $this->paymentProcessor->markAsFailed($pembelian, 'expire', $gatewayName);
                 }
             } catch (\Exception $e) {
-                // Ignore status check failure
+                if ($pembelian->reserved_until && $pembelian->reserved_until < now()) {
+                    $this->paymentProcessor->markAsFailed($pembelian, 'expire', $pembelian->payment_gateway ?? 'unknown');
+                }
             }
 
             return $pembelian;
@@ -167,7 +171,14 @@ class PembayaranController extends Controller
             $pembelian = \App\Models\Pembelian::where('order_id', $order_id)->first();
 
             if ($pembelian->status == \App\Enums\PembelianStatus::SUCCESS) {
-                return redirect('/bukti_pembayaran')->with('success', 'Pembayaran berhasil dikonfirmasi.');
+                return redirect()->route('premium.riwayat')->with('success', 'Pembayaran berhasil dikonfirmasi.');
+            }
+
+            if (in_array($pembelian->status, [\App\Enums\PembelianStatus::EXPIRED, \App\Enums\PembelianStatus::CANCELLED, \App\Enums\PembelianStatus::FAILED]) || ($pembelian->reserved_until && $pembelian->reserved_until < now())) {
+                if ($pembelian->status == \App\Enums\PembelianStatus::PENDING) {
+                    $this->paymentProcessor->markAsFailed($pembelian, 'expire', $pembelian->payment_gateway ?? 'unknown');
+                }
+                return redirect()->route('premium.riwayat')->with('error', 'Batas waktu pembayaran untuk transaksi ini telah habis (transaksi dibatalkan).');
             }
 
             $user = User::find($id);
@@ -182,11 +193,33 @@ class PembayaranController extends Controller
             $reserved_expired_at = $pembelian->reserved_until;
             
             $hasActiveTransaction = false;
+            $tripayActiveDetail = null;
+
             if ($pembelian->payment_gateway === 'pakasir' && $pembelian->gateway_reference && $reserved_expired_at > now()) {
                 $hasActiveTransaction = true;
+            } elseif ($pembelian->payment_gateway === 'tripay' && $pembelian->gateway_reference && $reserved_expired_at > now()) {
+                $hasActiveTransaction = true;
+                try {
+                    $tripayGateway = \App\Services\Gateways\PaymentGatewayFactory::make('tripay');
+                    $tripayActiveDetail = $tripayGateway->verifyStatus($pembelian->order_id, (int)$pembelian->harga_saat_beli);
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::warning('Failed to load active TriPay transaction details: ' . $e->getMessage());
+                }
             }
 
-            return view('pembayaran.metode_pembayaran', compact('produk', 'pathId', 'orderIdProduk', 'user', 'nomorTeleponCustomer', 'pembelian', 'varian', 'reserved_expired_at', 'hasActiveTransaction'));
+            $tripayChannels = [];
+            try {
+                $tripayGateway = new \App\Services\Gateways\TriPayGateway();
+                $tripayChannels = $tripayGateway->getPaymentChannels();
+            } catch (\Exception $e) {
+                // ignore
+            }
+
+            return view('pembayaran.metode_pembayaran', compact(
+                'produk', 'pathId', 'orderIdProduk', 'user', 'nomorTeleponCustomer', 
+                'pembelian', 'varian', 'reserved_expired_at', 'hasActiveTransaction',
+                'tripayActiveDetail', 'tripayChannels'
+            ));
         }
 
         // Old ZIP product order code follows...
@@ -261,11 +294,22 @@ class PembayaranController extends Controller
 
         $this->authorize('view', $pembelian);
 
-        $gateway_name = $request->input('gateway', 'midtrans');
+        $gateway_name = strtolower($request->input('gateway', 'midtrans'));
+
+        if (!\App\Models\SettingWebsite::isGatewayActive($gateway_name)) {
+            return response()->json([
+                'error' => 'Gateway pembayaran ' . strtoupper($gateway_name) . ' sedang dinonaktifkan oleh admin.'
+            ], 422);
+        }
         
         // Prevent re-creating if active Pakasir transaction exists
         if ($gateway_name === 'pakasir' && $pembelian->payment_gateway === 'pakasir' && $pembelian->gateway_reference && $pembelian->reserved_until > now()) {
-            return response()->json(['success' => true]);
+            return response()->json(['success' => true, 'gateway' => 'pakasir']);
+        }
+
+        // Prevent re-creating if active TriPay transaction exists
+        if ($gateway_name === 'tripay' && $pembelian->payment_gateway === 'tripay' && $pembelian->gateway_reference && $pembelian->reserved_until > now()) {
+            return response()->json(['success' => true, 'gateway' => 'tripay']);
         }
 
         $pembelian->payment_gateway = $gateway_name;
@@ -282,7 +326,18 @@ class PembayaranController extends Controller
                 
                 return response()->json([
                     'success' => true,
+                    'gateway' => 'pakasir',
                     'redirect_url' => $redirectUrl
+                ]);
+            } elseif ($gateway_name === 'tripay') {
+                $channel = $request->input('channel', 'QRIS');
+                $gateway = \App\Services\Gateways\PaymentGatewayFactory::make('tripay');
+                $transactionData = $gateway->createTransaction($pembelian, $channel);
+
+                return response()->json([
+                    'success' => true,
+                    'gateway' => 'tripay',
+                    'data' => $transactionData
                 ]);
             } else {
                 $gateway = \App\Services\Gateways\PaymentGatewayFactory::make($gateway_name);
@@ -290,11 +345,17 @@ class PembayaranController extends Controller
                 
                 return response()->json([
                     'success' => true,
+                    'gateway' => 'midtrans',
                     'snapToken' => $transactionData['token'] ?? null
                 ]);
             }
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Gagal memproses pembayaran: ' . $e->getMessage()], 500);
+            \Illuminate\Support\Facades\Log::error('generate_transaksi error', [
+                'order_id' => $order_id,
+                'gateway' => $gateway_name,
+                'error' => $e->getMessage()
+            ]);
+            return response()->json(['error' => 'Pembayaran gagal dibuat, silakan coba lagi.'], 500);
         }
     }
 
@@ -333,6 +394,7 @@ class PembayaranController extends Controller
             return view('customer.status_pembayaran', [
                 'type' => 'premium',
                 'order' => $pembelian,
+                'orderId' => $order_id,
                 'status' => strtolower($pembelian->status->value ?? $pembelian->status),
             ]);
         }
@@ -346,6 +408,7 @@ class PembayaranController extends Controller
             return view('customer.status_pembayaran', [
                 'type' => 'legacy',
                 'order' => $beli_produk,
+                'orderId' => $order_id,
                 'status' => strtolower($beli_produk->status),
             ]);
         }

@@ -9,6 +9,8 @@ class PaymentGatewayFactory
     public static function make(string $gateway = 'midtrans'): PaymentGatewayInterface
     {
         switch (strtolower($gateway)) {
+            case 'tripay':
+                return new TriPayGateway();
             case 'pakasir':
                 return new PakasirGateway();
             case 'midtrans':

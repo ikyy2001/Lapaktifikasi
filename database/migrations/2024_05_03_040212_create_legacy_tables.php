@@ -56,20 +56,22 @@ return new class extends Migration
             $table->foreignId('produk_id')->constrained('tbl_produk_zip')->onDelete('cascade');
         });
 
-        // 6. Create trigger after_update_tbl_beli_produk
-        DB::unprepared("
-            CREATE TRIGGER `after_update_tbl_beli_produk` AFTER UPDATE ON `tbl_beli_produk` FOR EACH ROW BEGIN
-                DECLARE v_produk_id INT;
-                DECLARE v_qty INT;
+        // 6. Create trigger after_update_tbl_beli_produk (MySQL only)
+        if (DB::getDriverName() === 'mysql') {
+            DB::unprepared("
+                CREATE TRIGGER `after_update_tbl_beli_produk` AFTER UPDATE ON `tbl_beli_produk` FOR EACH ROW BEGIN
+                    DECLARE v_produk_id INT;
+                    DECLARE v_qty INT;
 
-                SET v_produk_id = OLD.produk_id;
-                SET v_qty = OLD.qty;
+                    SET v_produk_id = OLD.produk_id;
+                    SET v_qty = OLD.qty;
 
-                IF OLD.status = 'pending' AND NEW.status = 'success' THEN
-                    INSERT INTO tbl_produk_terjual (jumlah_terjual, produk_id) VALUES (v_qty, v_produk_id);
-                END IF;
-            END
-        ");
+                    IF OLD.status = 'pending' AND NEW.status = 'success' THEN
+                        INSERT INTO tbl_produk_terjual (jumlah_terjual, produk_id) VALUES (v_qty, v_produk_id);
+                    END IF;
+                END
+            ");
+        }
     }
 
     /**

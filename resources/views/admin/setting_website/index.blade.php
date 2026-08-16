@@ -123,11 +123,88 @@
                                     <label class="font-weight-bold">Alamat Perusahaan</label>
                                     <textarea name="address" class="form-control" rows="2">{{ old('address', $settings->address) }}</textarea>
                                 </div>
+                            </div>
+                        </div>
                                 
-                                <div class="text-right mt-4">
-                                    <button type="submit" class="btn btn-primary px-4 font-weight-bold"><i class="bi bi-save mr-1"></i> Simpan Pengaturan</button>
+                        <!-- Payment Gateways Configuration Section -->
+                        <div class="col-12 mb-4">
+                            <div class="p-4 border rounded bg-white shadow-sm" style="border-radius: 12px;">
+                                <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+                                    <div>
+                                        <h6 class="font-weight-bold mb-1 text-dark">
+                                            <i class="bi bi-credit-card-2-front-fill text-primary mr-1"></i> Gateway Pembayaran Aktif
+                                        </h6>
+                                        <small class="text-muted">Pilih metode gateway pembayaran yang dapat digunakan oleh pelanggan saat melakukan checkout.</small>
+                                    </div>
+                                    <span class="badge badge-info font-weight-bold px-2 py-1">Minimal 1 Gateway Aktif</span>
+                                </div>
+
+                                <div class="row">
+                                    <!-- Midtrans -->
+                                    <div class="col-md-4 mb-3">
+                                        <div class="border rounded p-3 h-100 {{ $settings->is_midtrans_active ? 'border-primary bg-light' : 'bg-white' }}" style="border-radius: 10px; transition: all 0.2s;">
+                                            <div class="custom-control custom-switch mb-2">
+                                                <input type="checkbox" class="custom-control-input" id="switchMidtrans" name="is_midtrans_active" value="1" {{ old('is_midtrans_active', $settings->is_midtrans_active) ? 'checked' : '' }}>
+                                                <label class="custom-control-label font-weight-bold" for="switchMidtrans" style="cursor: pointer;">
+                                                    Midtrans
+                                                </label>
+                                            </div>
+                                            <p class="text-muted small mb-2">
+                                                Pop-up Snap: QRIS (GoPay/ShopeePay), Virtual Account (BCA, BNI, BRI, Mandiri), Kartu Kredit/Debit, Minimarket.
+                                            </p>
+                                            <div>
+                                                <span class="badge badge-{{ $settings->is_midtrans_active ? 'success' : 'secondary' }}">
+                                                    {{ $settings->is_midtrans_active ? 'AKTIF' : 'NONAKTIF' }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- TriPay -->
+                                    <div class="col-md-4 mb-3">
+                                        <div class="border rounded p-3 h-100 {{ $settings->is_tripay_active ? 'border-primary bg-light' : 'bg-white' }}" style="border-radius: 10px; transition: all 0.2s;">
+                                            <div class="custom-control custom-switch mb-2">
+                                                <input type="checkbox" class="custom-control-input" id="switchTripay" name="is_tripay_active" value="1" {{ old('is_tripay_active', $settings->is_tripay_active) ? 'checked' : '' }}>
+                                                <label class="custom-control-label font-weight-bold" for="switchTripay" style="cursor: pointer;">
+                                                    TriPay
+                                                </label>
+                                            </div>
+                                            <p class="text-muted small mb-2">
+                                                Multi-Channel: QRIS, Virtual Account (BCA, Mandiri, BNI, BRI, Permata, CIMB), Minimarket (Indomaret/Alfamart), E-Wallet.
+                                            </p>
+                                            <div>
+                                                <span class="badge badge-{{ $settings->is_tripay_active ? 'success' : 'secondary' }}">
+                                                    {{ $settings->is_tripay_active ? 'AKTIF' : 'NONAKTIF' }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Pakasir -->
+                                    <div class="col-md-4 mb-3">
+                                        <div class="border rounded p-3 h-100 {{ $settings->is_pakasir_active ? 'border-primary bg-light' : 'bg-white' }}" style="border-radius: 10px; transition: all 0.2s;">
+                                            <div class="custom-control custom-switch mb-2">
+                                                <input type="checkbox" class="custom-control-input" id="switchPakasir" name="is_pakasir_active" value="1" {{ old('is_pakasir_active', $settings->is_pakasir_active) ? 'checked' : '' }}>
+                                                <label class="custom-control-label font-weight-bold" for="switchPakasir" style="cursor: pointer;">
+                                                    Pakasir
+                                                </label>
+                                            </div>
+                                            <p class="text-muted small mb-2">
+                                                Direct Payment: QRIS otomatis real-time via direct checkout URL Pakasir.
+                                            </p>
+                                            <div>
+                                                <span class="badge badge-{{ $settings->is_pakasir_active ? 'success' : 'secondary' }}">
+                                                    {{ $settings->is_pakasir_active ? 'AKTIF' : 'NONAKTIF' }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+                        </div>
+
+                        <div class="col-12 text-right mt-2">
+                            <button type="submit" class="btn btn-primary px-4 font-weight-bold" style="border-radius: 8px;"><i class="bi bi-save mr-1"></i> Simpan Pengaturan</button>
                         </div>
                     </div>
                 </form>

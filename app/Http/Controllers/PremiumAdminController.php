@@ -522,4 +522,56 @@ class PremiumAdminController extends Controller
             'wa_last_retry_at' => $pembayaran->wa_last_retry_at->toDateTimeString(),
         ]);
     }
+
+    // === 6. Check Payment Status Manual ke Gateway Server ===
+    public function checkPaymentStatus(Request $request, $order_id)
+    {
+        $user = Auth::user();
+        if ($user->role_id != 1) {
+            return response()->json(['success' => false, 'message' => 'Hanya admin yang dapat mengecek status pembayaran secara manual.'], 403);
+        }
+
+        $pembelian = \App\Models\Pembelian::where('order_id', $order_id)->firstOrFail();
+        $gatewayName = $pembelian->payment_gateway ?? 'midtrans';
+
+        try {
+            $gateway = \App\Services\Gateways\PaymentGatewayFactory::make($gatewayName);
+            $statusData = $gateway->verifyStatus($order_id, (int) $pembelian->harga_saat_beli);
+
+            $paymentProcessor = app(\App\Services\PaymentProcessingService::class);
+
+            if ($statusData['status'] === PembelianStatus::SUCCESS) {
+                $paymentProcessor->markAsSuccess($pembelian, [
+                    'payment_type' => $statusData['payment_type'] ?? $gatewayName,
+                    'payment_gateway' => $gatewayName,
+                    'gross_amount' => $statusData['gross_amount'] ?? $pembelian->harga_saat_beli,
+                    'transaction_id' => $statusData['transaction_id'] ?? null,
+                ]);
+            } elseif (in_array($statusData['status'], [PembelianStatus::EXPIRED, PembelianStatus::FAILED], true)) {
+                $paymentProcessor->markAsFailed($pembelian, $statusData['status']->value ?? 'failed', $gatewayName);
+            }
+
+            $pembelian->refresh();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Status pembayaran berhasil disinkronisasi dengan server ' . ucfirst($gatewayName) . '.',
+                'gateway' => $gatewayName,
+                'status' => $pembelian->status->value ?? $pembelian->status,
+                'raw_status' => $statusData['raw_status'] ?? null,
+                'data' => $statusData,
+            ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Admin checkPaymentStatus error', [
+                'order_id' => $order_id,
+                'gateway' => $gatewayName,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memverifikasi status dengan gateway: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

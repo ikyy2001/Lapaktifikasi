@@ -4,6 +4,7 @@
 
 @section('content')
 @php
+    $orderId = $orderId ?? ($order->order_id ?? '');
     $statusText = '';
     $statusClass = '';
     $iconClass = '';
@@ -15,19 +16,21 @@
         $statusClass = 'border-success';
         $iconClass = 'bi-check-circle-fill text-success';
         $colorClass = 'text-success';
-        $descText = 'Terima kasih! Pembayaran Anda telah kami terima dan kredensial akun premium Anda telah dikirimkan.';
+        $descText = $type === 'premium'
+            ? 'Terima kasih! Pembayaran Anda telah kami terima dan kredensial akun premium Anda telah siap. Anda akan dialihkan ke riwayat akun...'
+            : 'Terima kasih! Pembayaran Anda telah kami terima dan produk Anda siap diunduh.';
     } elseif ($status === 'pending') {
         $statusText = 'Pembayaran Menunggu';
         $statusClass = 'border-warning';
         $iconClass = 'bi-clock-fill text-warning';
         $colorClass = 'text-warning';
         $descText = 'Pembayaran Anda sedang ditangguhkan atau menunggu penyelesaian. Silakan selesaikan pembayaran Anda di aplikasi e-wallet / bank.';
-    } elseif ($status === 'expired') {
-        $statusText = 'Batas Waktu Habis';
+    } elseif ($status === 'expired' || $status === 'cancelled') {
+        $statusText = 'Transaksi Dibatalkan';
         $statusClass = 'border-secondary';
         $iconClass = 'bi-exclamation-triangle-fill text-secondary';
         $colorClass = 'text-secondary';
-        $descText = 'Batas waktu pembayaran untuk transaksi ini telah habis. Silakan buat pesanan baru.';
+        $descText = 'Batas waktu pembayaran untuk transaksi ini telah habis atau dibatalkan. Silakan buat pesanan baru.';
     } else {
         $statusText = 'Pembayaran Gagal';
         $statusClass = 'border-danger';
@@ -60,29 +63,30 @@
         top: 0;
         left: 0;
         width: 100%;
-        height: 6px;
+        height: 4px;
         background: #000000;
     }
 
     .status-icon-wrapper {
-        font-size: 4rem;
-        line-height: 1;
+        font-size: 3.5rem;
         margin-bottom: 20px;
+        line-height: 1;
     }
 
     .status-title {
-        font-size: 1.75rem;
+        font-size: 1.5rem;
         font-weight: 800;
         letter-spacing: -0.5px;
-        color: #1a1a1a;
-        margin-bottom: 12px;
+        text-transform: uppercase;
+        color: #000000;
+        margin-bottom: 10px;
     }
 
     .status-desc {
-        font-size: 1rem;
+        font-size: 0.95rem;
         color: #555555;
-        max-width: 600px;
-        margin: 0 auto 30px;
+        max-width: 480px;
+        margin: 0 auto 30px auto;
         line-height: 1.6;
     }
 
@@ -91,36 +95,34 @@
         border: 1px solid #e5e5e5;
         border-radius: 12px;
         padding: 24px;
-        max-width: 550px;
-        margin: 0 auto 30px;
+        margin-bottom: 30px;
         text-align: left;
     }
 
     .order-details-title {
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.8px;
+        letter-spacing: 0.5px;
         color: #000000;
+        margin-bottom: 16px;
         border-bottom: 1px solid #e5e5e5;
         padding-bottom: 10px;
-        margin-bottom: 15px;
     }
 
     .detail-row {
         display: flex;
         justify-content: space-between;
-        margin-bottom: 10px;
-        font-size: 0.92rem;
+        align-items: center;
+        margin-bottom: 12px;
+        font-size: 0.9rem;
     }
 
     .detail-row:last-child {
         margin-bottom: 0;
-        font-weight: 700;
-        color: #000000;
+        padding-top: 12px;
         border-top: 1px dashed #e5e5e5;
-        padding-top: 10px;
-        margin-top: 10px;
+        font-weight: 700;
     }
 
     .detail-label {
@@ -128,9 +130,8 @@
     }
 
     .detail-value {
+        color: #000000;
         font-weight: 600;
-        color: #111111;
-        text-align: right;
     }
 
     .btn-action-group {
@@ -141,10 +142,11 @@
     }
 
     .btn-mono {
-        font-weight: 700 !important;
+        font-family: inherit !important;
         font-size: 0.85rem !important;
-        letter-spacing: 0.5px !important;
+        font-weight: 700 !important;
         text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
         padding: 12px 24px !important;
         border-radius: 8px !important;
         cursor: pointer !important;
@@ -212,16 +214,16 @@
                     @if($type === 'premium')
                         @php
                             $varian = $order->varianLayanan;
-                            $tipe = $varian->tipeLayanan;
-                            $produk = $tipe->produk;
+                            $tipe = $varian?->tipeLayanan;
+                            $produk = $tipe?->produk;
                         @endphp
                         <div class="detail-row">
                             <span class="detail-label">Produk</span>
-                            <span class="detail-value">{{ $produk->nama_produk }}</span>
+                            <span class="detail-value">{{ $produk?->nama_produk ?? 'Akun Premium' }}</span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Varian</span>
-                            <span class="detail-value">{{ $tipe->nama_tipe }} ({{ $varian->nama_varian }})</span>
+                            <span class="detail-value">{{ $tipe?->nama_tipe ?? '' }} ({{ $varian?->nama_varian ?? '' }})</span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Total Pembayaran</span>
@@ -240,7 +242,13 @@
                     
                     <div class="detail-row">
                         <span class="detail-label">Status</span>
-                        <span class="detail-value {{ $colorClass }}">{{ strtoupper($status) }}</span>
+                        <span class="detail-value {{ $colorClass }}">
+                            @if(in_array($status, ['expired', 'cancelled']))
+                                TRANSAKSI DIBATALKAN
+                            @else
+                                {{ strtoupper($status) }}
+                            @endif
+                        </span>
                     </div>
                 </div>
 
@@ -264,6 +272,9 @@
                             <a href="{{ route('premium.katalog') }}" class="btn-mono btn-mono-primary">
                                 <i class="bi bi-cart3"></i> Kembali Belanja
                             </a>
+                            <a href="{{ route('premium.riwayat') }}" class="btn-mono btn-mono-secondary">
+                                <i class="bi bi-clock-history"></i> Riwayat Pembelian
+                            </a>
                         @else
                             <a href="{{ url('menu_produk') }}" class="btn-mono btn-mono-primary">
                                 <i class="bi bi-cart3"></i> Kembali Belanja
@@ -284,6 +295,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const orderId = container.getAttribute('data-order-id');
     let currentStatus = container.getAttribute('data-status');
+
+    @if($status === 'success' && $type === 'premium')
+    // Otomatis arahkan ke riwayat premium setelah pembayaran berhasil
+    setTimeout(function() {
+        window.location.href = "{{ route('premium.riwayat') }}";
+    }, 2500);
+    @endif
 
     // Lakukan polling hanya jika status saat ini masih pending
     if (currentStatus === 'pending') {

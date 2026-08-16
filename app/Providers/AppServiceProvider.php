@@ -31,9 +31,13 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\Review::observe(\App\Observers\ReviewObserver::class);
 
         // Global Site Settings
-        if (\Illuminate\Support\Facades\Schema::hasTable('setting_websites')) {
-            $websiteSettings = \App\Models\SettingWebsite::first();
-            \Illuminate\Support\Facades\View::share('websiteSettings', $websiteSettings);
+        try {
+            if (!app()->runningInConsole() && \Illuminate\Support\Facades\Schema::hasTable('setting_websites')) {
+                $websiteSettings = \App\Models\SettingWebsite::first();
+                \Illuminate\Support\Facades\View::share('websiteSettings', $websiteSettings);
+            }
+        } catch (\Throwable $e) {
+            // Safe fallback during testing or console commands
         }
     }
 }

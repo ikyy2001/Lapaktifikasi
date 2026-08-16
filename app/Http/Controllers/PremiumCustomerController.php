@@ -15,10 +15,17 @@ use App\Models\VoucherKlaim;
 use App\Models\Toko;
 use App\Enums\PembelianStatus;
 use App\Enums\StokStatus;
+use App\Services\PaymentProcessingService;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class PremiumCustomerController extends Controller
 {
+    protected PaymentProcessingService $paymentProcessor;
+
+    public function __construct(PaymentProcessingService $paymentProcessor)
+    {
+        $this->paymentProcessor = $paymentProcessor;
+    }
     // === 1. Listing Produk -> Tipe Layanan -> Varian ===
     public function katalog(Request $request)
     {
@@ -275,6 +282,36 @@ class PremiumCustomerController extends Controller
 
         if (!$customer) {
             return redirect('/')->with('error', 'Profil pelanggan tidak ditemukan.');
+        }
+
+        // Sinkronisasi dan auto-expire transaksi pending dalam 24 jam terakhir
+        $pendingPurchases = Pembelian::where('id_customer', $customer->id)
+            ->where('status', PembelianStatus::PENDING)
+            ->where('created_at', '>=', now()->subHours(24))
+            ->get();
+
+        foreach ($pendingPurchases as $pPending) {
+            $isExpiredByTime = $pPending->reserved_until && $pPending->reserved_until < now();
+            try {
+                $gatewayName = $pPending->payment_gateway ?? 'midtrans';
+                $gateway = \App\Services\Gateways\PaymentGatewayFactory::make($gatewayName);
+                $statusData = $gateway->verifyStatus($pPending->order_id, (int)$pPending->harga_saat_beli);
+
+                if ($statusData['status'] === PembelianStatus::SUCCESS) {
+                    $this->paymentProcessor->markAsSuccess($pPending, [
+                        'payment_type' => $statusData['payment_type'] ?? 'unknown',
+                        'payment_gateway' => $gatewayName,
+                        'gross_amount' => $statusData['gross_amount'] ?? $pPending->harga_saat_beli,
+                        'transaction_id' => $statusData['transaction_id'] ?? null,
+                    ]);
+                } elseif (in_array($statusData['status'], [PembelianStatus::FAILED, PembelianStatus::EXPIRED]) || $isExpiredByTime) {
+                    $this->paymentProcessor->markAsFailed($pPending, $statusData['status']->value ?? 'expire', $gatewayName);
+                }
+            } catch (\Exception $e) {
+                if ($isExpiredByTime) {
+                    $this->paymentProcessor->markAsFailed($pPending, 'expire', $pPending->payment_gateway ?? 'system');
+                }
+            }
         }
 
         $startDateInput = $request->input('start_date');

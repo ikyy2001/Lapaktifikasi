@@ -175,6 +175,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/saldo_toko/detail/{id_toko}', [SaldoTokoController::class, 'detail'])->name('admin.saldo_toko.detail');
         Route::post('/saldo_toko/withdraw/{id_toko}', [SaldoTokoController::class, 'withdraw'])->name('admin.saldo_toko.withdraw');
         Route::post('/premium/pembayaran/{id_pembayaran}/retry-wa', [PremiumAdminController::class, 'retryWa'])->name('admin.pembayaran.retry_wa');
+        Route::post('/premium/order/{order_id}/check-status', [PremiumAdminController::class, 'checkPaymentStatus'])->name('admin.order.check_status');
 
         // Kelola Voucher Admin
         Route::get('/admin/voucher', [AdminVoucherController::class, 'index'])->name('admin.voucher.index');

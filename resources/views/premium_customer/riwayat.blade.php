@@ -289,6 +289,9 @@
                                 </thead>
                                 <tbody>
                                     @forelse($pembelian as $index => $item)
+                                    @php
+                                        $isPendingActive = ($item->status->value == 'pending') && (!$item->reserved_until || $item->reserved_until > now());
+                                    @endphp
                                     <tr>
                                         <td>{{ $index + 1 }}</td>
                                         <td style="font-size: 0.82rem; white-space: nowrap;">{{ $item->created_at->translatedFormat('d F Y, H:i') }}</td>
@@ -299,20 +302,18 @@
                                         </td>
                                         <td style="white-space: nowrap; font-weight: 700;">Rp {{ number_format($item->harga_saat_beli, 0, ',', '.') }}</td>
                                         <td>
-                                            @if($item->status->value == 'pending')
+                                            @if($isPendingActive)
                                             <span class="mono-badge mono-badge-pending">Pending</span>
                                             @elseif($item->status->value == 'success')
                                             <span class="mono-badge mono-badge-success">Success</span>
-                                            @elseif($item->status->value == 'expired')
-                                            <span class="mono-badge mono-badge-expired">Expired</span>
-                                            @elseif($item->status->value == 'cancelled')
-                                            <span class="mono-badge mono-badge-failed">Cancelled</span>
+                                            @elseif($item->status->value == 'expired' || $item->status->value == 'cancelled' || ($item->status->value == 'pending' && $item->reserved_until && $item->reserved_until <= now()))
+                                            <span class="mono-badge mono-badge-expired">Transaksi Dibatalkan</span>
                                             @else
                                             <span class="mono-badge mono-badge-failed">Failed</span>
                                             @endif
                                         </td>
                                         <td style="min-width: 260px;">
-                                            @if($item->status->value == 'pending')
+                                            @if($isPendingActive)
                                             <a href="{{ route('metode_pembayaran', $item->order_id) }}" class="btn btn-sm btn-dark font-weight-bold" style="border-radius: 6px; font-size: 0.75rem; padding: 6px 14px; white-space: nowrap;">
                                                 <i class="bi bi-credit-card-fill mr-1"></i> Selesaikan
                                             </a>
@@ -354,17 +355,18 @@
                     <!-- Mobile List (Hidden on Desktop) -->
                     <div class="d-md-none">
                         @forelse($pembelian as $index => $item)
+                        @php
+                            $isPendingActiveMobile = ($item->status->value == 'pending') && (!$item->reserved_until || $item->reserved_until > now());
+                        @endphp
                         <div class="card mb-3 border border-dark rounded-lg p-3" style="border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02); background: #ffffff;">
                             <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
                                 <span class="text-muted" style="font-size: 0.8rem;">{{ $item->created_at->translatedFormat('d F Y, H:i') }}</span>
-                                @if($item->status->value == 'pending')
+                                @if($isPendingActiveMobile)
                                 <span class="mono-badge mono-badge-pending">Pending</span>
                                 @elseif($item->status->value == 'success')
                                 <span class="mono-badge mono-badge-success">Success</span>
-                                @elseif($item->status->value == 'expired')
-                                <span class="mono-badge mono-badge-expired">Expired</span>
-                                @elseif($item->status->value == 'cancelled')
-                                <span class="mono-badge mono-badge-failed">Cancelled</span>
+                                @elseif($item->status->value == 'expired' || $item->status->value == 'cancelled' || ($item->status->value == 'pending' && $item->reserved_until && $item->reserved_until <= now()))
+                                <span class="mono-badge mono-badge-expired">Transaksi Dibatalkan</span>
                                 @else
                                 <span class="mono-badge mono-badge-failed">Failed</span>
                                 @endif
@@ -384,22 +386,22 @@
                             <div class="mb-3">
                                 <small class="text-muted d-block">Produk / Paket</small>
                                 <strong class="text-dark d-block" style="font-size: 0.92rem; line-height: 1.4;">
-                                    {{ $item->varianLayanan->tipeLayanan->produk->nama_produk }}
+                                    {{ $item->varianLayanan?->tipeLayanan?->produk?->nama_produk }}
                                 </strong>
                                 <span class="text-muted" style="font-size: 0.82rem;">
-                                    {{ $item->varianLayanan->tipeLayanan->nama_tipe }} ({{ $item->varianLayanan->nama_varian }})
+                                    {{ $item->varianLayanan?->tipeLayanan?->nama_tipe }} ({{ $item->varianLayanan?->nama_varian }})
                                 </span>
                             </div>
 
                             <!-- Mobile Action Buttons -->
                             <div class="pt-3 border-top">
-                                @if($item->status->value == 'pending')
+                                @if($isPendingActiveMobile)
                                 <a href="{{ route('metode_pembayaran', $item->order_id) }}" class="btn btn-block btn-dark font-weight-bold py-2" style="border-radius: 8px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center;">
                                     <i class="bi bi-credit-card-fill mr-1"></i> Selesaikan Pembayaran
                                 </a>
                                 @elseif($item->status->value == 'success')
                                 <div class="d-flex flex-column" style="gap: 8px;">
-                                    @if($item->varianLayanan->tipeLayanan->produk->tipe_produk == 'digital')
+                                    @if($item->varianLayanan?->tipeLayanan?->produk?->tipe_produk == 'digital')
                                     <a href="{{ route('premium.digital.download', $item->order_id) }}" class="btn btn-block btn-dark font-weight-bold py-2" style="border-radius: 8px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center;">
                                         <i class="bi bi-download mr-1"></i> Download File Digital
                                     </a>

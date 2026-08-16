@@ -33,6 +33,16 @@ class SettingWebsiteController extends Controller
             'auth_hero' => 'nullable|image|mimes:jpeg,png,jpg,svg,webp|max:3072',
         ]);
 
+        $isMidtrans = $request->boolean('is_midtrans_active');
+        $isTripay = $request->boolean('is_tripay_active');
+        $isPakasir = $request->boolean('is_pakasir_active');
+
+        if (!$isMidtrans && !$isTripay && !$isPakasir) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['payment_gateways' => 'Minimal salah satu Gateway Pembayaran harus aktif agar pelanggan dapat bertransaksi.']);
+        }
+
         $settings = SettingWebsite::first();
 
         $settings->site_name = $request->site_name;
@@ -40,6 +50,10 @@ class SettingWebsiteController extends Controller
         $settings->contact_email = $request->contact_email;
         $settings->contact_phone = $request->contact_phone;
         $settings->address = $request->address;
+
+        $settings->is_midtrans_active = $isMidtrans;
+        $settings->is_tripay_active = $isTripay;
+        $settings->is_pakasir_active = $isPakasir;
 
         if ($request->hasFile('logo')) {
             if ($settings->logo_path && File::exists(public_path($settings->logo_path))) {

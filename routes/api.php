@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 // Webhook / Callbacks
 Route::post('/callback', [\App\Http\Controllers\MidtransController::class, 'callback']);
 Route::post('/callback/pakasir', [\App\Http\Controllers\PakasirController::class, 'callback']);
+Route::post('/callback/tripay', [\App\Http\Controllers\TriPayController::class, 'callback']);
 
 // API V1
 Route::prefix('v1')->namespace('App\Http\Controllers\Api')->group(function () {

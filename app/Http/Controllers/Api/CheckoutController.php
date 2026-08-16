@@ -152,10 +152,18 @@ class CheckoutController extends ApiController
         $customer = CustomerModel::where('user_id', $request->user()->id)->first();
         if ($pembelian->id_customer != $customer->id) return $this->sendError('Unauthorized', [], 403);
 
-        $gateway_name = $request->input('gateway', 'midtrans');
+        $gateway_name = strtolower($request->input('gateway', 'midtrans'));
+
+        if (!\App\Models\SettingWebsite::isGatewayActive($gateway_name)) {
+            return $this->sendError('Gateway pembayaran ' . strtoupper($gateway_name) . ' sedang dinonaktifkan oleh admin.', [], 422);
+        }
 
         if ($gateway_name === 'pakasir' && $pembelian->payment_gateway === 'pakasir' && $pembelian->gateway_reference && $pembelian->reserved_until > now()) {
             return $this->sendResponse(['redirect_url' => $pembelian->gateway_reference], 'Transaksi sudah aktif');
+        }
+
+        if ($gateway_name === 'tripay' && $pembelian->payment_gateway === 'tripay' && $pembelian->gateway_reference && $pembelian->reserved_until > now()) {
+            return $this->sendResponse(['reference' => $pembelian->gateway_reference], 'Transaksi TriPay sudah aktif');
         }
 
         $pembelian->payment_gateway = $gateway_name;
@@ -171,6 +179,12 @@ class CheckoutController extends ApiController
                 $pembelian->save();
                 
                 return $this->sendResponse(['redirect_url' => $redirectUrl], 'Generate Pakasir url success');
+            } elseif ($gateway_name === 'tripay') {
+                $channel = $request->input('channel', 'QRIS');
+                $gateway = PaymentGatewayFactory::make('tripay');
+                $transactionData = $gateway->createTransaction($pembelian, $channel);
+
+                return $this->sendResponse($transactionData, 'Generate TriPay transaction success');
             } else {
                 $gateway = PaymentGatewayFactory::make($gateway_name);
                 $transactionData = $gateway->createTransaction($pembelian, 'qris');
@@ -178,7 +192,12 @@ class CheckoutController extends ApiController
                 return $this->sendResponse(['snapToken' => $transactionData['token'] ?? null], 'Generate Midtrans token success');
             }
         } catch (\Exception $e) {
-            return $this->sendError('Gagal memproses pembayaran: ' . $e->getMessage(), [], 500);
+            \Illuminate\Support\Facades\Log::error('Api generateTransaction error', [
+                'order_id' => $order_id,
+                'gateway' => $gateway_name,
+                'error' => $e->getMessage()
+            ]);
+            return $this->sendError('Pembayaran gagal dibuat, silakan coba lagi.', [], 500);
         }
     }
 
