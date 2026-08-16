@@ -420,11 +420,12 @@
             <div class="footer-col">
                 <h5>Dukungan</h5>
                 <ul>
-                    <li><a href="#">Pusat Bantuan</a></li>
-                    <li><a href="#">Kebijakan Privasi</a></li>
-                    <li><a href="#">Syarat &amp; Ketentuan</a></li>
+                    <li><a href="{{ url('/') }}#faq">Pusat Bantuan</a></li>
+                    <li><a href="{{ route('kebijakan.privasi') }}">Kebijakan Privasi</a></li>
+                    <li><a href="{{ route('syarat.ketentuan') }}">Syarat &amp; Ketentuan</a></li>
                     <li><a href="{{ route('daftar.seller') }}">Daftar Jadi Seller</a></li>
-                    <li><a href="#">Hubungi Kami</a></li>
+                    <li><a href="{{ route('join.partner') }}">Join Partner</a></li>
+                    <li><a href="https://wa.me/6287897600086?text=Halo%20Admin%20Lapaktifikasi,%20saya%20ingin%20bertanya%20mengenai%20layanan%20Lapaktifikasi." target="_blank">Hubungi Kami</a></li>
                     @guest
                         <li><a href="{{ url('/pendaftaran') }}">Daftar Akun</a></li>
                     @endguest

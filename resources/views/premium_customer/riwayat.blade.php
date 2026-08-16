@@ -240,7 +240,7 @@
     </style>
 
     <div class="riwayat-container">
-        <h4 class="riwayat-header-title">Riwayat Premium</h4>
+        <h4 class="riwayat-header-title">Riwayat Pembelian</h4>
         
         <div class="row">
             <div class="col-12">

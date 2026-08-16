@@ -59,6 +59,14 @@ Route::get('/join-partner', function () {
     return view('join_partner');
 })->name('join.partner');
 
+Route::get('/kebijakan-privasi', function () {
+    return view('kebijakan_privasi');
+})->name('kebijakan.privasi');
+
+Route::get('/syarat-ketentuan', function () {
+    return view('syarat_ketentuan');
+})->name('syarat.ketentuan');
+
 
 Route::middleware('auth')->group(function () {
 

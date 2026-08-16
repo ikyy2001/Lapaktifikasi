@@ -45,7 +45,7 @@
                 <a href="{{ route('premium.referral') }}" class="nav-link"><i class="bi bi-people-fill pl-3"></i> <span>Ajak Teman</span></a>
             </li>
             <li class="nav-item @if(Request::path() == 'premium/riwayat') active @endif">
-                <a href="{{ route('premium.riwayat') }}" class="nav-link"><i class="bi bi-receipt pl-3"></i> <span>Riwayat Premium</span></a>
+                <a href="{{ route('premium.riwayat') }}" class="nav-link"><i class="bi bi-receipt pl-3"></i> <span>Riwayat Pembelian</span></a>
             </li>
             <li class="nav-item @if(Request::path() == 'premium/laporan') active @endif">
                 <a href="{{ route('customer.laporan') }}" class="nav-link"><i class="bi bi-chat-left-text-fill pl-3"></i> <span>Laporan Masalah</span></a>
