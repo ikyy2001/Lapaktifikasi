@@ -34,11 +34,6 @@
                 <a href="{{ url('/daftar_toko') }}" class="nav-link"><i class="bi bi-shop pl-3"></i> <span>Daftar Toko</span></a>
             </li>
 
-            <li class="menu-header">Pembayaran</li>
-            <li class="nav-item @if(Request::path() == 'bukti_pembayaran') active @endif">
-                <a href="{{ url('bukti_pembayaran') }}" class="nav-link"><i class="bi bi-credit-card-fill pl-3"></i> <span>Bukti Pembayaran</span></a>
-            </li>
-
             <li class="menu-header">Akun Premium</li>
             <li class="nav-item @if(Request::path() == 'premium/katalog') active @endif">
                 <a href="{{ route('premium.katalog') }}" class="nav-link"><i class="bi bi-shop pl-3"></i> <span>Katalog Premium</span></a>

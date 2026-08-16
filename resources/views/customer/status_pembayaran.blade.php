@@ -263,7 +263,7 @@
                                 <i class="bi bi-key-fill"></i> Lihat Detail Akun
                             </a>
                         @else
-                            <a href="{{ url('bukti_pembayaran') }}" class="btn-mono btn-mono-primary">
+                            <a href="{{ route('premium.riwayat') }}" class="btn-mono btn-mono-primary">
                                 <i class="bi bi-cloud-arrow-down-fill"></i> Unduh Produk
                             </a>
                         @endif

@@ -121,39 +121,7 @@ class PembayaranController extends Controller
 
     public function index()
     {
-        $id = session('id');
-
-        // Sync pending ZIP product transactions (hanya yang dibuat 24 jam terakhir, max 2)
-        $pending_purchases = BeliProdukModel::where('user_id', $id)
-            ->whereIn('status', ['pending', 'deny'])
-            ->where('created_at', '>=', now()->subHours(24))
-            ->orderBy('created_at', 'desc')
-            ->limit(2)
-            ->get();
-
-        foreach ($pending_purchases as $purchase) {
-            $this->syncTransactionStatus($purchase->order_id, $purchase);
-        }
-
-        // Sync pending Premium Account purchases (hanya yang dibuat 24 jam terakhir, max 2)
-        $customer = CustomerModel::where('user_id', $id)->first();
-        if ($customer) {
-            $pending_pembelian = \App\Models\Pembelian::where('id_customer', $customer->id)
-                ->where('status', \App\Enums\PembelianStatus::PENDING)
-                ->where('created_at', '>=', now()->subHours(24))
-                ->orderBy('created_at', 'desc')
-                ->limit(2)
-                ->get();
-            foreach ($pending_pembelian as $pembelian) {
-                $this->syncTransactionStatus($pembelian->order_id);
-            }
-        }
-
-        $produk = ProdukModel::withWhereHas('produk_beli', function ($query) use ($id) {
-            $query->where('user_id', $id)->with('toko');
-        })->get();
-
-        return view('pembayaran.bukti_pembayaran', compact('produk'));
+        return redirect()->route('premium.riwayat');
     }
 
     public function metode_pembayaran(Request $request, string $order_id)
@@ -226,11 +194,11 @@ class PembayaranController extends Controller
         $beli_produk = BeliProdukModel::where('order_id', $order_id)->first();
 
         if (!$beli_produk) {
-            return redirect('/bukti_pembayaran')->with('error', 'Order tidak ditemukan.');
+            return redirect()->route('premium.riwayat')->with('error', 'Order tidak ditemukan.');
         }
 
         if ($beli_produk->status == 'success') {
-            return redirect('/bukti_pembayaran')->with('success', 'Pembayaran berhasil dikonfirmasi.');
+            return redirect()->route('premium.riwayat')->with('success', 'Pembayaran berhasil dikonfirmasi.');
         } else {
             $produk = ProdukModel::find($beli_produk->produk_id);
             $user = User::find($id);
@@ -270,13 +238,13 @@ class PembayaranController extends Controller
                     try {
                         $status = \Midtrans\Transaction::status($orderIdProduk);
                         if ($status->transaction_status == 'pending') {
-                            return redirect('/bukti_pembayaran')->with('error', 'Pembayaran sedang ditangguhkan (pending) di Midtrans. Harap selesaikan pembayaran Anda.');
+                            return redirect()->route('premium.riwayat')->with('error', 'Pembayaran sedang ditangguhkan (pending) di Midtrans. Harap selesaikan pembayaran Anda.');
                         }
                     } catch (\Exception $statusEx) {
                         // ignore status check failure
                     }
                 }
-                return redirect('/bukti_pembayaran')->with('error', 'Gagal memproses pembayaran Midtrans: ' . $e->getMessage());
+                return redirect()->route('premium.riwayat')->with('error', 'Gagal memproses pembayaran Midtrans: ' . $e->getMessage());
             }
 
             return view('pembayaran.metode_pembayaran', compact('produk', 'snapToken', 'pathId', 'orderIdProduk', 'user', 'nomorTeleponCustomer'));

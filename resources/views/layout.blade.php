@@ -19,7 +19,7 @@
 
     @if(
             Request::path() == '/' && Auth::user()->role_id == 1 || Request::path() == 'menu_produk' || Request::path() ==
-            'produk_terjual' || Request::path() == 'bukti_pembayaran' || Request::path() == 'extract_screenshots' || Request::path() == 'kelola_seller' || Request::path() == 'saldo_toko' || Request::segment(1) == 'saldo_toko' || Request::path() == 'setting_komisi'
+            'produk_terjual' || Request::path() == 'extract_screenshots' || Request::path() == 'kelola_seller' || Request::path() == 'saldo_toko' || Request::segment(1) == 'saldo_toko' || Request::path() == 'setting_komisi'
         )
         <link rel="stylesheet" href="{{asset('assets/datatables.net-bs4/css/dataTables.bootstrap4.min.css')}}">
         <link rel="stylesheet" href="{{asset('assets/datatables.net-select-bs4/css/select.bootstrap4.min.css')}}">
@@ -629,7 +629,7 @@
 
     @if(
             Request::path() == '/' && Auth::user()->role_id == 1 || Request::path() == 'menu_produk' || Request::path() ==
-            'produk_terjual' || Request::path() == 'bukti_pembayaran' || Request::path() == 'extract_screenshots' || Request::path() == 'kelola_seller' || Request::path() == 'saldo_toko' || Request::segment(1) == 'saldo_toko' || Request::path() == 'setting_komisi'
+            'produk_terjual' || Request::path() == 'extract_screenshots' || Request::path() == 'kelola_seller' || Request::path() == 'saldo_toko' || Request::segment(1) == 'saldo_toko' || Request::path() == 'setting_komisi'
         )
         <!-- JS Libraies -->
         <script src="{{asset('assets/datatables/media/js/jquery.dataTables.min.js')}}"></script>
@@ -643,7 +643,7 @@
 
     @if(
             Request::path() == '/' && Auth::user()->role_id == 1 || Request::path() == 'menu_produk' || Request::path() ==
-            'produk_terjual' || Request::path() == 'bukti_pembayaran' || Request::path() == 'extract_screenshots' || Request::path() == 'kelola_seller' || Request::path() == 'saldo_toko' || Request::segment(1) == 'saldo_toko' || Request::path() == 'setting_komisi'
+            'produk_terjual' || Request::path() == 'extract_screenshots' || Request::path() == 'kelola_seller' || Request::path() == 'saldo_toko' || Request::segment(1) == 'saldo_toko' || Request::path() == 'setting_komisi'
         )
         <!-- Page Specific JS File -->
         <script src="{{asset('assets/js/page/modules-datatables.js')}}"></script>
