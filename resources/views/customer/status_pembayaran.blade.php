@@ -305,10 +305,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Lakukan polling hanya jika status saat ini masih pending
     if (currentStatus === 'pending') {
-        let pollingInterval = setInterval(checkStatus, 4000);
+        let pollingInterval = setInterval(checkStatus, 6000); // Polling tiap 6 detik (sesuai best practice)
 
         function checkStatus() {
-            fetch(`/api/status/${orderId}`)
+            @if(isset($is_db_only) && $is_db_only)
+                const fetchUrl = `/api/checkout/${orderId}/status`;
+            @else
+                const fetchUrl = `/api/status/${orderId}`;
+            @endif
+
+            fetch(fetchUrl)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok');

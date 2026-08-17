@@ -287,7 +287,8 @@ class PembayaranController extends Controller
             if ($gateway_name === 'pakasir') {
                 $slug = config('pakasir.project_slug');
                 $amount = (int) $pembelian->harga_saat_beli;
-                $redirectUrl = rtrim(config('pakasir.base_url', 'https://app.pakasir.com'), '/') . "/pay/{$slug}/{$amount}?order_id={$order_id}";
+                $returnUrl = urlencode(route('checkout.status', ['invoice_number' => $order_id]));
+                $redirectUrl = rtrim(config('pakasir.base_url', 'https://app.pakasir.com'), '/') . "/pay/{$slug}/{$amount}?order_id={$order_id}&redirect={$returnUrl}";
                 
                 $pembelian->gateway_reference = 'redirect';
                 $pembelian->save();
@@ -415,6 +416,48 @@ class PembayaranController extends Controller
             return response()->json([
                 'status' => strtolower($beli_produk->status),
                 'updated_at' => $beli_produk->tanggal_transaksi ? date('c', strtotime($beli_produk->tanggal_transaksi)) : null,
+            ]);
+        }
+
+        return response()->json(['error' => 'Transaksi tidak ditemukan.'], 404);
+    }
+
+    public function checkout_status(string $invoice_number)
+    {
+        // Query data Pembelian (Premium Account) - TANPA memanggil API Gateway
+        $pembelian = \App\Models\Pembelian::with(['varianLayanan.tipeLayanan.produk', 'pembayaran'])
+            ->where('order_id', $invoice_number)
+            ->first();
+
+        if ($pembelian) {
+            $this->authorize('view', $pembelian);
+            return view('customer.status_pembayaran', [
+                'type' => 'premium',
+                'order' => $pembelian,
+                'orderId' => $invoice_number,
+                'status' => strtolower($pembelian->status->value ?? $pembelian->status),
+                'is_db_only' => true,
+            ]);
+        }
+
+        abort(404, 'Transaksi tidak ditemukan.');
+    }
+
+    public function checkoutStatusApi(string $invoice_number)
+    {
+        // Query data Pembelian (Premium Account) - TANPA memanggil API Gateway
+        $pembelian = \App\Models\Pembelian::where('order_id', $invoice_number)->first();
+        
+        if ($pembelian) {
+            try {
+                $this->authorize('view', $pembelian);
+            } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+                return response()->json(['error' => 'Unauthorized'], 403);
+            }
+
+            return response()->json([
+                'status' => strtolower($pembelian->status->value ?? $pembelian->status),
+                'updated_at' => $pembelian->updated_at ? $pembelian->updated_at->toIso8601String() : null,
             ]);
         }
 

@@ -111,6 +111,10 @@ Route::middleware('auth')->group(function () {
             Route::get('/api/status/{order_id}', 'statusApi')
                  ->name('bukti_pembayaran.status_api')
                  ->middleware('throttle:30,1'); // Max 30 requests per minute
+            Route::get('/checkout/status/{invoice_number}', 'checkout_status')->name('checkout.status');
+            Route::get('/api/checkout/{invoice_number}/status', 'checkoutStatusApi')
+                 ->name('checkout.status_api')
+                 ->middleware('throttle:60,1');
         });
     });
 

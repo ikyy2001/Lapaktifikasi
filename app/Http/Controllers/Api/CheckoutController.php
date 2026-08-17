@@ -173,7 +173,8 @@ class CheckoutController extends ApiController
             if ($gateway_name === 'pakasir') {
                 $slug = config('pakasir.project_slug');
                 $amount = (int) $pembelian->harga_saat_beli;
-                $redirectUrl = rtrim(config('pakasir.base_url', 'https://app.pakasir.com'), '/') . "/pay/{$slug}/{$amount}?order_id={$order_id}";
+                $returnUrl = urlencode(route('checkout.status', ['invoice_number' => $order_id]));
+                $redirectUrl = rtrim(config('pakasir.base_url', 'https://app.pakasir.com'), '/') . "/pay/{$slug}/{$amount}?order_id={$order_id}&redirect={$returnUrl}";
                 
                 $pembelian->gateway_reference = 'redirect';
                 $pembelian->save();

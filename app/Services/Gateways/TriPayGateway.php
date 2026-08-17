@@ -126,7 +126,7 @@ class TriPayGateway implements PaymentGatewayInterface
                 'customer_email' => $customerEmail,
                 'customer_phone' => $customerPhone,
                 'order_items' => $orderItems,
-                'return_url' => route('bukti_pembayaran.status', ['order_id' => $merchantRef]),
+                'return_url' => route('checkout.status', ['invoice_number' => $merchantRef]),
                 'expired_time' => $expiredTime,
                 'signature' => $signature,
             ];

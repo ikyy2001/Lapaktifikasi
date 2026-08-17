@@ -57,7 +57,8 @@
                             @php
                                 $slug = config('pakasir.project_slug');
                                 $amount = (int) $pembelian->harga_saat_beli;
-                                $redirectUrl = rtrim(config('pakasir.base_url', 'https://app.pakasir.com'), '/') . "/pay/{$slug}/{$amount}?order_id={$pembelian->order_id}";
+                                $returnUrl = urlencode(route('checkout.status', ['invoice_number' => $pembelian->order_id]));
+                                $redirectUrl = rtrim(config('pakasir.base_url', 'https://app.pakasir.com'), '/') . "/pay/{$slug}/{$amount}?order_id={$pembelian->order_id}&redirect={$returnUrl}";
                             @endphp
                             <a href="{{ $redirectUrl }}" class="btn btn-success mt-3 mb-2 d-block mx-auto" style="max-width: 250px;">Buka Halaman Pembayaran</a>
                             
@@ -130,8 +131,8 @@
 
                                 @if($checkoutUrl)
                                     <div class="my-3">
-                                        <a href="{{ $checkoutUrl }}" target="_blank" class="btn btn-success px-4 py-2">
-                                            <i class="bi bi-box-arrow-up-right mr-1"></i> Buka Halaman Pembayaran TriPay
+                                        <a href="{{ $checkoutUrl }}" class="btn btn-success px-4 py-2">
+                                            <i class="bi bi-box-arrow-right mr-1"></i> Buka Halaman Pembayaran TriPay
                                         </a>
                                     </div>
                                 @endif
