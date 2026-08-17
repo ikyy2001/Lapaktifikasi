@@ -42,7 +42,7 @@
             position: fixed;
             inset: 0;
             z-index: -10;
-            background-color: #f4f6f9 !important;
+            background-color: #f4f6f9;
             background-image:
                 radial-gradient(at 40% 20%, hsla(220, 100%, 80%, 0.2) 0px, transparent 50%),
                 radial-gradient(at 80% 0%, hsla(280, 100%, 80%, 0.2) 0px, transparent 50%),
@@ -52,6 +52,7 @@
                 radial-gradient(at 80% 100%, hsla(120, 100%, 80%, 0.2) 0px, transparent 50%);
             /* Hardware acceleration to prevent mobile lag */
             transform: translateZ(0);
+            pointer-events: none;
         }
 
         body {
@@ -71,9 +72,9 @@
             }
         }
 
-        /* Sidebar Glassmorphism Styling */
+        /* Sidebar Glassmorphism Styling (Desktop) */
         .main-sidebar {
-            background: rgba(255, 255, 255, 0.45) !important;
+            background: rgba(255, 255, 255, 0.7) !important;
             backdrop-filter: blur(20px) saturate(180%);
             -webkit-backdrop-filter: blur(20px) saturate(180%);
             border-right: 1px solid rgba(255, 255, 255, 0.4) !important;
@@ -353,16 +354,49 @@
 
         /* Central mobile responsiveness overrides */
         @media (max-width: 1024px) {
+            /* Mobile Sidebar Styling - Clean solid surface for maximum readability & performance on mobile/iOS */
+            .main-sidebar {
+                position: fixed !important;
+                top: 0 !important;
+                left: -270px !important;
+                width: 270px !important;
+                height: 100% !important;
+                height: 100dvh !important;
+                background: #ffffff !important;
+                border-right: 1px solid rgba(0, 0, 0, 0.08) !important;
+                box-shadow: 4px 0 25px rgba(0, 0, 0, 0.15) !important;
+                z-index: 999 !important;
+                transition: left 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
+
+            body.sidebar-show .main-sidebar {
+                left: 0 !important;
+            }
+
+            body.sidebar-gone .main-sidebar {
+                left: -270px !important;
+            }
+
+            /* Dark Overlay when Sidebar is open on Mobile */
+            body.sidebar-show:before,
             body.sidebar-show::before {
-                content: "";
-                position: fixed;
-                inset: 0;
-                background: rgba(0, 0, 0, 0.4);
-                backdrop-filter: blur(4px);
-                z-index: 889;
-                animation: fadeInOverlay 0.3s ease forwards;
-                pointer-events: none;
-                /* Allow clicks to pass through to Stisla's backdrop */
+                content: "" !important;
+                position: fixed !important;
+                inset: 0 !important;
+                width: 100vw !important;
+                height: 100vh !important;
+                height: 100dvh !important;
+                background-color: rgba(0, 0, 0, 0.5) !important;
+                background-image: none !important;
+                backdrop-filter: blur(4px) !important;
+                -webkit-backdrop-filter: blur(4px) !important;
+                z-index: 990 !important;
+                opacity: 1 !important;
+                pointer-events: auto !important;
+                cursor: pointer !important;
+                animation: fadeInOverlay 0.25s ease forwards !important;
             }
 
             @keyframes fadeInOverlay {
@@ -685,6 +719,15 @@
     <script>
         $(document).ready(function () {
             $('.modal').appendTo('body');
+
+            // Mobile / iOS tap-outside to close sidebar smoothly
+            $(document).on('click touchend', function(e) {
+                if ($('body').hasClass('sidebar-show')) {
+                    if (!$(e.target).closest('.main-sidebar, [data-toggle="sidebar"]').length) {
+                        $('body').removeClass('sidebar-show').addClass('sidebar-gone');
+                    }
+                }
+            });
         });
     </script>
     @livewireScripts
