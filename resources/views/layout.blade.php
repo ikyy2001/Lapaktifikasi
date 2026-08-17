@@ -390,31 +390,8 @@
             /* Dark Overlay when Sidebar is open on Mobile */
             body.sidebar-show:before,
             body.sidebar-show::before {
-                content: "" !important;
-                position: fixed !important;
-                inset: 0 !important;
-                width: 100vw !important;
-                height: 100vh !important;
-                height: 100dvh !important;
-                background-color: rgba(0, 0, 0, 0.5) !important;
-                background-image: none !important;
                 backdrop-filter: blur(4px) !important;
                 -webkit-backdrop-filter: blur(4px) !important;
-                z-index: 990 !important;
-                opacity: 1 !important;
-                pointer-events: auto !important;
-                cursor: pointer !important;
-                animation: fadeInOverlay 0.25s ease forwards !important;
-            }
-
-            @keyframes fadeInOverlay {
-                from {
-                    opacity: 0;
-                }
-
-                to {
-                    opacity: 1;
-                }
             }
         }
 
