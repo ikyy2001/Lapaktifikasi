@@ -65,9 +65,13 @@ class KelolaSellerController extends Controller
                 'must_change_password' => true,
             ]);
 
+            $namaToko = $request->input('nama_toko');
+            $slug = Toko::generateUniqueSlug($namaToko);
+
             Toko::create([
                 'user_id' => $user->id,
-                'nama_toko' => $request->input('nama_toko'),
+                'nama_toko' => $namaToko,
+                'slug' => $slug,
                 'no_telp' => $request->input('no_telp'),
                 'akun_telegram' => $request->input('akun_telegram'),
                 'informasi_toko' => $request->input('informasi_toko'),
@@ -109,8 +113,12 @@ class KelolaSellerController extends Controller
         }
 
         $toko = Toko::findOrFail($id_toko);
+        $namaToko = $request->input('nama_toko');
+        $slug = $toko->slug ?: Toko::generateUniqueSlug($namaToko, $toko->id_toko);
+
         $toko->update([
-            'nama_toko' => $request->input('nama_toko'),
+            'nama_toko' => $namaToko,
+            'slug' => $slug,
             'no_telp' => $request->input('no_telp'),
             'akun_telegram' => $request->input('akun_telegram'),
             'informasi_toko' => $request->input('informasi_toko'),

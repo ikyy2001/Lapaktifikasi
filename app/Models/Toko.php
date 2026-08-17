@@ -30,6 +30,40 @@ class Toko extends Model
         'slug',
     ];
 
+    protected static function booted()
+    {
+        static::creating(function ($toko) {
+            if (empty($toko->slug)) {
+                $toko->slug = static::generateUniqueSlug($toko->nama_toko ?? 'toko');
+            }
+        });
+
+        static::updating(function ($toko) {
+            if ($toko->isDirty('nama_toko') && empty($toko->slug)) {
+                $toko->slug = static::generateUniqueSlug($toko->nama_toko ?? 'toko', $toko->id_toko);
+            }
+        });
+    }
+
+    public static function generateUniqueSlug(string $namaToko, ?int $ignoreId = null): string
+    {
+        $slug = \Illuminate\Support\Str::slug($namaToko);
+        if (empty($slug)) {
+            $slug = 'toko-' . \Illuminate\Support\Str::random(6);
+        }
+
+        $originalSlug = $slug;
+        $counter = 1;
+
+        while (static::where('slug', $slug)
+            ->when($ignoreId, fn($q) => $q->where('id_toko', '!=', $ignoreId))
+            ->exists()) {
+            $slug = $originalSlug . '-' . $counter++;
+        }
+
+        return $slug;
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id', 'id');

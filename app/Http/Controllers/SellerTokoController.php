@@ -60,8 +60,12 @@ class SellerTokoController extends Controller
             $file->move(public_path('assets/img/logo_toko'), $logoName);
         }
 
+        $namaToko = $request->input('nama_toko');
+        $slug = $toko->slug ?: Toko::generateUniqueSlug($namaToko, $toko->id_toko);
+
         $toko->update([
-            'nama_toko' => $request->input('nama_toko'),
+            'nama_toko' => $namaToko,
+            'slug' => $slug,
             'no_telp' => $request->input('no_telp'),
             'akun_telegram' => $request->input('akun_telegram'),
             'informasi_toko' => $request->input('informasi_toko'),
