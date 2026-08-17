@@ -541,7 +541,16 @@
                     <span><strong class="text-dark">{{ $countReviews }}</strong> Ulasan Pembeli</span>
                 </div>
 
-                <!-- 4. Price Box (Range / Single Price) -->
+                <!-- 
+                    ================================================================
+                    LIVEWIRE MIGRATION SECTION (ProductVariantSelector)
+                    Untuk mengaktifkan Livewire Component dan membandingkan hasilnya,
+                    cukup un-comment baris di bawah dan comment-out blok Vanilla JS (section 4 s/d 8).
+                    ================================================================
+                    <livewire:product-variant-selector :product="$produk" />
+                -->
+
+                <!-- 4. Price Box (Range / Single Price) [LEGACY BLADE + VANILLA JS] -->
                 <div class="shopee-price-box">
                     <span class="shopee-price-label">Harga:</span>
                     <span class="shopee-price-val" id="selected-price-display">
@@ -553,7 +562,7 @@
                     </span>
                 </div>
 
-                <!-- FORM CHECKOUT FORM -->
+                <!-- FORM CHECKOUT FORM [LEGACY BLADE + VANILLA JS] -->
                 <form action="{{ url('/proses_checkout_premium') }}" method="POST" id="checkout-form">
                     @csrf
                     <input type="hidden" name="id_varian" id="input_id_varian" value="">
@@ -853,26 +862,56 @@
         qtyInput.value = currentQty;
     }
 
-    // 4. Trigger Beli dari Sticky Bottom Bar di Mobile
+    // 4. Trigger Beli dari Sticky Bottom Bar di Mobile (Mendukung Legacy & Livewire)
     function triggerMobileBuy() {
-        if (!selectedVarianId) {
-            Swal.fire({
-                title: "Pilih Varian",
-                text: "Silakan pilih salah satu varian produk terlebih dahulu.",
-                icon: "warning"
-            });
+        const livewireForm = document.getElementById('livewire-checkout-form');
+        if (livewireForm) {
+            const hiddenInput = document.getElementById('livewire_input_id_varian');
+            if (!hiddenInput || !hiddenInput.value) {
+                Swal.fire({
+                    title: "Pilih Varian",
+                    text: "Silakan pilih salah satu varian produk terlebih dahulu.",
+                    icon: "warning"
+                });
+                return;
+            }
+            livewireForm.submit();
             return;
         }
-        if (selectedVarianStok <= 0) {
-            Swal.fire({
-                title: "Stok Habis",
-                text: "Maaf, stok untuk varian ini sedang habis.",
-                icon: "error"
-            });
-            return;
+
+        const legacyForm = document.getElementById('checkout-form');
+        if (legacyForm) {
+            if (!selectedVarianId) {
+                Swal.fire({
+                    title: "Pilih Varian",
+                    text: "Silakan pilih salah satu varian produk terlebih dahulu.",
+                    icon: "warning"
+                });
+                return;
+            }
+            if (selectedVarianStok <= 0) {
+                Swal.fire({
+                    title: "Stok Habis",
+                    text: "Maaf, stok untuk varian ini sedang habis.",
+                    icon: "error"
+                });
+                return;
+            }
+            legacyForm.submit();
         }
-        document.getElementById('checkout-form').submit();
     }
+
+    // Listener Event Livewire Variant Changed (Sinkronisasi Mobile Bar & State JS)
+    window.addEventListener('variant-changed', function(event) {
+        const data = event.detail && event.detail[0] ? event.detail[0] : (event.detail || {});
+        selectedVarianId = data.id_varian;
+        selectedVarianStok = data.stok || 0;
+
+        const buyMobile = document.getElementById('btn-buy-mobile');
+        const cartMobile = document.getElementById('btn-cart-mobile');
+        if (buyMobile) buyMobile.disabled = !data.is_available;
+        if (cartMobile) cartMobile.disabled = !data.is_available;
+    });
 
     // 5. Mock Add To Cart Toast
     function addToCartMock() {

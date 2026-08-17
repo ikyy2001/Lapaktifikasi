@@ -33,6 +33,7 @@
     <link rel="stylesheet" href="{{asset('assets/css/components.css')}}">
     <script src="https://app.sandbox.midtrans.com/snap/snap.js"
         data-client-key="{{config('midtrans.client_key')}}"></script>
+    @livewireStyles
     <style>
         /* Light Modern Background with subtle mesh gradient for glassmorphism pop */
         body::before {
@@ -685,6 +686,7 @@
             $('.modal').appendTo('body');
         });
     </script>
+    @livewireScripts
 </body>
 
 </html>
