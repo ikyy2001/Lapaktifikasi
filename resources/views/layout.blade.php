@@ -74,13 +74,20 @@
 
         /* Sidebar Glassmorphism Styling (Desktop) */
         .main-sidebar {
-            background: rgba(255, 255, 255, 0.85) !important;
+            background: rgba(255, 255, 255, 0.95) !important;
             backdrop-filter: blur(12px) saturate(150%);
             -webkit-backdrop-filter: blur(12px) saturate(150%);
             border-right: 1px solid rgba(255, 255, 255, 0.4) !important;
             box-shadow: 4px 0 24px rgba(0, 0, 0, 0.03) !important;
-            -webkit-transform: translateZ(0);
-            transform: translateZ(0);
+        }
+
+        /* Mobile Sidebar Fallback (Prevents blurring the black backdrop) */
+        @media (max-width: 1024px) {
+            .main-sidebar {
+                background: #ffffff !important;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+            }
         }
 
         .main-sidebar .sidebar-brand {
