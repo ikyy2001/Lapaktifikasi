@@ -387,11 +387,20 @@
                 left: -270px !important;
             }
 
-            /* Dark Overlay when Sidebar is open on Mobile */
+            /* Disable Dark Overlay when Sidebar is open on Mobile per user request */
             body.sidebar-show:before,
-            body.sidebar-show::before {
-                backdrop-filter: blur(4px) !important;
-                -webkit-backdrop-filter: blur(4px) !important;
+            body.sidebar-show::before,
+            body.search-show:before {
+                display: none !important;
+            }
+            
+            /* Ensure the body still scrolls or at least doesn't break sidebar scrolling */
+            body.sidebar-show {
+                overflow: hidden !important; /* Keep body from scrolling */
+            }
+
+            .main-sidebar {
+                padding-bottom: 80px !important; /* Extra padding so last items aren't cut off */
             }
         }
 
@@ -704,6 +713,28 @@
     <script>
         $(document).ready(function () {
             $('.modal').appendTo('body');
+
+            // Fix mobile sidebar scrolling (disable buggy nicescroll on touch devices)
+            if(window.innerWidth <= 1024) {
+                setTimeout(function() {
+                    if($(".main-sidebar").getNiceScroll().length) {
+                        $(".main-sidebar").getNiceScroll().remove();
+                        $(".main-sidebar").css({
+                            "overflow-y": "auto",
+                            "-webkit-overflow-scrolling": "touch"
+                        });
+                    }
+                }, 1000);
+            }
+
+            // Restore tap-outside to close sidebar since we removed the dark overlay
+            $(document).on('click touchend', function(e) {
+                if ($('body').hasClass('sidebar-show')) {
+                    if (!$(e.target).closest('.main-sidebar, [data-toggle="sidebar"]').length) {
+                        $('body').removeClass('sidebar-show').addClass('sidebar-gone');
+                    }
+                }
+            });
         });
     </script>
 </body>
