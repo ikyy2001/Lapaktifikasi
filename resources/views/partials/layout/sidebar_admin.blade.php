@@ -94,6 +94,9 @@
             <li class="nav-item @if(Request::path() == 'testimoni' || Request::segment(1) == 'testimoni') active @endif">
                 <a href="{{ route('admin.testimoni') }}" class="nav-link"><i class="bi bi-chat-quote-fill pl-3"></i> <span>Kelola Testimoni</span></a>
             </li>
+            <li class="nav-item @if(Request::segment(1) == 'admin' && Request::segment(2) == 'news') active @endif">
+                <a href="{{ route('admin.news.index') }}" class="nav-link"><i class="bi bi-newspaper pl-3"></i> <span>Kelola Berita</span></a>
+            </li>
 
             <li class="menu-header">Pengaturan</li>
             <li class="nav-item @if(Request::path() == 'profile_customer' || Request::segment(1) == 'profile_customer') active @endif">

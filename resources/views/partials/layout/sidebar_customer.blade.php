@@ -50,6 +50,9 @@
             <li class="nav-item @if(Request::path() == 'premium/laporan') active @endif">
                 <a href="{{ route('customer.laporan') }}" class="nav-link"><i class="bi bi-chat-left-text-fill pl-3"></i> <span>Laporan Masalah</span></a>
             </li>
+            <li class="nav-item @if(request()->routeIs('news.*')) active @endif">
+                <a href="{{ route('news.index') }}" class="nav-link"><i class="bi bi-newspaper pl-3"></i> <span>Berita</span></a>
+            </li>
 
             <li class="menu-header">Pengaturan</li>
             <li class="nav-item @if(Request::path() == 'profile_customer' || Request::segment(1) == 'profile_customer') active @endif">

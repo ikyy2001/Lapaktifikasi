@@ -67,6 +67,11 @@ Route::get('/syarat-ketentuan', function () {
     return view('syarat_ketentuan');
 })->name('syarat.ketentuan');
 
+// Berita / News Publik & Customer
+Route::controller(\App\Http\Controllers\CustomerNewsController::class)->group(function () {
+    Route::get('/news', 'index')->name('news.index');
+    Route::get('/news/{slug}', 'show')->name('news.show');
+});
 
 Route::middleware('auth')->group(function () {
 
@@ -210,6 +215,9 @@ Route::middleware('auth')->group(function () {
         Route::put('/testimoni/{id}', [\App\Http\Controllers\TestimoniController::class, 'update'])->name('admin.testimoni.update');
         Route::delete('/testimoni/{id}', [\App\Http\Controllers\TestimoniController::class, 'destroy'])->name('admin.testimoni.destroy');
         Route::post('/testimoni/{id}/toggle', [\App\Http\Controllers\TestimoniController::class, 'toggleStatus'])->name('admin.testimoni.toggle');
+
+        // Kelola Berita / News Admin
+        Route::resource('admin/news', \App\Http\Controllers\AdminNewsController::class)->names('admin.news');
     });
 
     // Premium Customer Routes

@@ -5,6 +5,11 @@ namespace App\Providers;
 // use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
+use App\Models\News;
+use App\Policies\NewsPolicy;
+use App\Models\Pembelian;
+use App\Policies\PembelianPolicy;
+
 class AuthServiceProvider extends ServiceProvider
 {
     /**
@@ -13,7 +18,8 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        // 'App\Models\Model' => 'App\Policies\ModelPolicy',
+        Pembelian::class => PembelianPolicy::class,
+        News::class => NewsPolicy::class,
     ];
 
     /**
