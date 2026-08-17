@@ -100,6 +100,11 @@
         background: #fafafa !important;
         text-decoration: none !important;
     }
+    textarea {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
     @keyframes formFadeIn {
         from { opacity: 0; transform: translateY(15px); }
         to { opacity: 1; transform: translateY(0); }
@@ -115,19 +120,19 @@
                 <!-- Info Produk & Toko -->
                 <div class="mb-4 p-3 bg-light rounded border">
                     <div class="row">
-                        <div class="col-sm-6">
-                            <span class="text-muted d-block" style="font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px;">Toko</span>
-                            <strong style="font-size: 1.05rem;">{{ $pembelian->varianLayanan->tipeLayanan->produk->toko->nama_toko }}</strong>
+                        <div class="col-12 col-sm-6 mb-3 mb-sm-0">
+                            <span class="text-muted d-block" style="font-size: clamp(0.7rem, 2vw, 0.78rem); text-transform: uppercase; letter-spacing: 0.5px;">Toko</span>
+                            <strong style="font-size: clamp(0.9rem, 3vw, 1.05rem); word-break: break-word;">{{ $pembelian->varianLayanan->tipeLayanan->produk->toko->nama_toko }}</strong>
                         </div>
-                        <div class="col-sm-6 mt-3 mt-sm-0">
-                            <span class="text-muted d-block" style="font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px;">Produk / Paket</span>
-                            <strong>{{ $pembelian->varianLayanan->tipeLayanan->produk->nama_produk }}</strong>
-                            <span class="text-muted d-block" style="font-size: 0.85rem;">{{ $pembelian->varianLayanan->tipeLayanan->nama_tipe }} ({{ $pembelian->varianLayanan->nama_varian }})</span>
+                        <div class="col-12 col-sm-6">
+                            <span class="text-muted d-block" style="font-size: clamp(0.7rem, 2vw, 0.78rem); text-transform: uppercase; letter-spacing: 0.5px;">Produk / Paket</span>
+                            <strong style="font-size: clamp(0.85rem, 2.5vw, 1rem); word-break: break-word;">{{ $pembelian->varianLayanan->tipeLayanan->produk->nama_produk }}</strong>
+                            <span class="text-muted d-block" style="font-size: clamp(0.75rem, 2.5vw, 0.85rem); word-break: break-word;">{{ $pembelian->varianLayanan->tipeLayanan->nama_tipe }} ({{ $pembelian->varianLayanan->nama_varian }})</span>
                         </div>
                     </div>
                 </div>
 
-                <form action="{{ route('premium.review.store', $pembelian->order_id) }}" method="POST">
+                <form action="{{ route('premium.review.store', $pembelian->order_id) }}" method="POST" style="width: 100%;">
                     @csrf
 
                     <!-- Rating Selector -->
@@ -156,10 +161,10 @@
                     </div>
 
                     <!-- Komentar -->
-                    <div class="form-group mb-4">
-                        <label for="komentar" class="font-weight-bold text-dark mb-1">Komentar / Ulasan</label>
-                        <span class="text-muted">(Opsional)</span>
-                        <textarea class="form-control @error('komentar') is-invalid @enderror" id="komentar" name="komentar" rows="5" placeholder="Tuliskan ulasan Anda tentang kualitas produk dan layanan toko ini..." style="border-radius: 8px; border: 1px solid #ccc; font-size: 0.92rem; padding: 12px; resize: none;">{{ old('komentar') }}</textarea>
+                    <div class="form-group mb-4" style="width: 100%;">
+                        <label for="komentar" class="font-weight-bold text-dark mb-1" style="font-size: clamp(0.85rem, 2.5vw, 1rem);">Komentar / Ulasan</label>
+                        <span class="text-muted" style="font-size: clamp(0.75rem, 2vw, 0.85rem);">(Opsional)</span>
+                        <textarea class="form-control @error('komentar') is-invalid @enderror w-100" id="komentar" name="komentar" rows="5" placeholder="Tuliskan ulasan Anda..." style="border-radius: 8px; border: 1px solid #ccc; font-size: clamp(0.85rem, 2.5vw, 0.92rem); padding: 12px; resize: none; width: 100%; box-sizing: border-box;"></textarea>
                         <small class="text-muted d-block mt-1">Maksimal 1000 karakter.</small>
                         @error('komentar')
                             <small class="text-danger d-block mt-1">{{ $message }}</small>

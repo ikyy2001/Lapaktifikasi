@@ -72,9 +72,9 @@
                     </div>
                 </div>
 
-                <div class="mt-4">
-                    <button type="submit" class="btn btn-primary px-4">Simpan Voucher Toko</button>
-                    <a href="{{ route('seller.voucher.index') }}" class="btn btn-secondary px-4">Batal</a>
+                <div class="mt-4 d-flex gap-2 flex-wrap">
+                    <button type="submit" class="btn btn-primary px-4 flex-grow-1 flex-sm-grow-0" style="min-height: 44px;">Simpan Voucher Toko</button>
+                    <a href="{{ route('seller.voucher.index') }}" class="btn btn-secondary px-4 flex-grow-1 flex-sm-grow-0" style="min-height: 44px; display: inline-flex; align-items: center; justify-content: center;">Batal</a>
                 </div>
             </form>
         </div>

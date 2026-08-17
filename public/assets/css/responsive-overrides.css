@@ -1,0 +1,190 @@
+/* 
+ * LAPAKTIFIKASI RESPONSIVE OVERRIDES
+ * Mobile-first approach, using clamp() for fluid sizing, and 100dvh for mobile layout issues.
+ */
+
+/* =========================================
+   VARIABLES & BASE
+========================================= */
+:root {
+    /* Fluid typography & spacing (xs to xl) */
+    --font-size-base: clamp(0.875rem, 1.5vw + 0.5rem, 1rem);
+    --font-size-lg: clamp(1rem, 2vw + 0.5rem, 1.25rem);
+    --font-size-h4: clamp(1.1rem, 3vw + 0.8rem, 1.5rem);
+    --spacing-fluid: clamp(1rem, 3vw, 2rem);
+    
+    /* Touch Target Minimum (Apple/Material Guidelines) */
+    --touch-target-min: 44px;
+}
+
+body {
+    font-size: var(--font-size-base) !important;
+}
+
+/* =========================================
+   ACCESSIBILITY & TOUCH TARGETS
+========================================= */
+/* Ensure all main interactive elements are at least 44x44px */
+.btn, .nav-link, .dropdown-item, .page-link {
+    min-height: var(--touch-target-min);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+/* Fix specific items that shouldn't be stretched completely if not intended */
+.nav-link {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+}
+.btn {
+    padding-left: 1.25rem !important;
+    padding-right: 1.25rem !important;
+}
+
+.input-group-text, .form-control, .custom-select {
+    min-height: var(--touch-target-min);
+}
+
+/* =========================================
+   MODALS (Mobile First: Fullscreen/Bottom Sheet)
+========================================= */
+.modal-dialog {
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 100dvh;
+    display: flex;
+    align-items: flex-end; /* Align bottom for bottom-sheet effect */
+}
+
+.modal-content {
+    border-radius: 20px 20px 0 0 !important;
+    min-height: 50dvh; /* At least half screen */
+    max-height: 95dvh;
+    overflow-y: auto;
+    border: none !important;
+}
+
+/* Desktop Modals (Centered) */
+@media (min-width: 768px) {
+    .modal-dialog {
+        align-items: center;
+        margin: 1.75rem auto !important;
+        max-width: 500px !important; /* Default bootstrap md */
+        min-height: auto;
+    }
+    
+    .modal-content {
+        border-radius: 20px !important;
+        max-height: 85dvh;
+    }
+    
+    /* Large modal support */
+    .modal-lg {
+        max-width: 800px !important;
+    }
+}
+
+/* =========================================
+   SIDEBAR & 100DVH
+========================================= */
+.main-sidebar {
+    height: 100dvh !important;
+}
+
+/* =========================================
+   TABLES & RESPONSIVENESS
+========================================= */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Fix table padding on extremely small screens */
+@media (max-width: 575px) {
+    .table th, .table td {
+        white-space: nowrap;
+        padding: 0.75rem !important;
+    }
+}
+
+/* =========================================
+   ULTRAWIDE LIMITS (2XL)
+========================================= */
+@media (min-width: 1440px) {
+    body {
+        background-color: #e9ecef !important; /* slightly darker background outside wrapper */
+    }
+    
+    .main-wrapper {
+        max-width: 1440px !important;
+        margin: 0 auto !important;
+        position: relative;
+        background-color: #f4f6f9; /* Original background */
+        box-shadow: 0 0 50px rgba(0,0,0,0.1);
+        min-height: 100dvh;
+    }
+    
+    .navbar {
+        max-width: 1440px !important;
+        left: auto !important;
+        right: auto !important;
+        margin: 0 auto !important;
+    }
+}
+
+/* =========================================
+   DASHBOARD CARDS & FLUID GRIDS
+========================================= */
+.card-header h4 {
+    font-size: var(--font-size-h4) !important;
+}
+
+.card-body {
+    padding: var(--spacing-fluid) !important;
+}
+
+/* Helper for stacking items horizontally but wrapping gracefully */
+.flex-fluid-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+}
+
+/* Floating Action Button (FAB) Mobile */
+.fab-mobile {
+    position: fixed;
+    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    right: 20px;
+    z-index: 1030;
+    border-radius: 50px !important;
+    padding: 12px 20px !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3) !important;
+    font-weight: 700 !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+@media (min-width: 768px) {
+    .fab-mobile {
+        display: none !important;
+    }
+}
+
+/* Safety Overflow Safeguard */
+.main-content, .main-wrapper {
+    overflow-x: hidden !important;
+}
+
+@media (max-width: 359px) {
+    .col-sm-6, .col-6, [class*="col-"] {
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+    }
+}
+

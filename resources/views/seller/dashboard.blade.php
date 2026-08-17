@@ -16,30 +16,40 @@
 </script>
 @endif
 
-<!-- Time Range Selector Form -->
+<!-- Time Range Selector Form (Collapsible on Mobile) -->
 <div class="row mb-4">
     <div class="col-12">
-        <form action="{{ url('seller/dashboard') }}" method="GET" class="form-inline p-3 bg-white border border-dark rounded" style="border-radius: 12px; gap: 10px;">
-            <div class="form-group mb-2 mb-sm-0">
-                <label for="filter_range" class="font-weight-bold text-dark mr-2">Rentang Waktu:</label>
-                <select name="filter_range" id="filter_range" class="form-control form-control-sm border-dark text-dark" onchange="toggleCustomDates(this.value)" style="border-radius: 6px;">
-                    <option value="today" {{ request('filter_range') == 'today' ? 'selected' : '' }}>Hari Ini</option>
-                    <option value="7_days" {{ request('filter_range', 'today') == '7_days' ? 'selected' : '' }}>7 Hari Terakhir</option>
-                    <option value="this_month" {{ request('filter_range') == 'this_month' ? 'selected' : '' }}>Bulan Ini</option>
-                    <option value="custom" {{ request('filter_range') == 'custom' ? 'selected' : '' }}>Rentang Custom</option>
-                </select>
+        <div class="card mb-0 shadow-sm border border-dark" style="border-radius: 12px; overflow: hidden;">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center py-3 px-3 d-md-none" data-toggle="collapse" data-target="#sellerFilterCollapse" style="cursor: pointer;">
+                <span class="font-weight-bold text-dark" style="font-size: 0.9rem;">
+                    <i class="bi bi-funnel-fill mr-1"></i> Filter Rentang Waktu
+                </span>
+                <i class="bi bi-chevron-down text-dark"></i>
             </div>
-            
-            <div id="custom-date-inputs" class="form-group mb-2 mb-sm-0" style="display: {{ request('filter_range') == 'custom' ? 'flex' : 'none' }}; align-items: center; gap: 10px;">
-                <input type="date" class="form-control form-control-sm border-dark text-dark" name="start_date" value="{{ request('start_date') }}" style="border-radius: 6px;">
-                <span class="text-muted">s/d</span>
-                <input type="date" class="form-control form-control-sm border-dark text-dark" name="end_date" value="{{ request('end_date') }}" style="border-radius: 6px;">
+            <div id="sellerFilterCollapse" class="collapse d-md-block">
+                <form action="{{ url('seller/dashboard') }}" method="GET" class="form-inline p-3 bg-white flex-wrap" style="gap: 10px;">
+                    <div class="form-group mb-2 mb-sm-0 flex-grow-1 flex-sm-grow-0">
+                        <label for="filter_range" class="font-weight-bold text-dark mr-2">Rentang Waktu:</label>
+                        <select name="filter_range" id="filter_range" class="form-control form-control-sm border-dark text-dark w-100" onchange="toggleCustomDates(this.value)" style="border-radius: 6px;">
+                            <option value="today" {{ request('filter_range') == 'today' ? 'selected' : '' }}>Hari Ini</option>
+                            <option value="7_days" {{ request('filter_range', 'today') == '7_days' ? 'selected' : '' }}>7 Hari Terakhir</option>
+                            <option value="this_month" {{ request('filter_range') == 'this_month' ? 'selected' : '' }}>Bulan Ini</option>
+                            <option value="custom" {{ request('filter_range') == 'custom' ? 'selected' : '' }}>Rentang Custom</option>
+                        </select>
+                    </div>
+                    
+                    <div id="custom-date-inputs" class="form-group mb-2 mb-sm-0 flex-wrap" style="display: {{ request('filter_range') == 'custom' ? 'flex' : 'none' }}; align-items: center; gap: 8px;">
+                        <input type="date" class="form-control form-control-sm border-dark text-dark" name="start_date" value="{{ request('start_date') }}" style="border-radius: 6px;">
+                        <span class="text-muted">s/d</span>
+                        <input type="date" class="form-control form-control-sm border-dark text-dark" name="end_date" value="{{ request('end_date') }}" style="border-radius: 6px;">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-sm btn-dark mb-2 mb-sm-0" style="border-radius: 6px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; min-height: 38px;">
+                        Apply
+                    </button>
+                </form>
             </div>
-            
-            <button type="submit" class="btn btn-sm btn-dark mb-2 mb-sm-0" style="border-radius: 6px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
-                Apply
-            </button>
-        </form>
+        </div>
     </div>
 </div>
 
@@ -51,7 +61,7 @@
 
 <div class="row">
     <!-- Statistic 1: Order Sukses -->
-    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+    <div class="col-12 col-sm-6 col-md-6 col-lg-3 col-xl-3 mb-3">
         <div class="card card-statistic-1">
             <div class="card-icon bg-success">
                 <i class="bi bi-cart-check fa-2x text-white"></i>
@@ -68,7 +78,7 @@
     </div>
  
     <!-- Statistic 2: Omzet -->
-    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+    <div class="col-12 col-sm-6 col-md-6 col-lg-3 col-xl-3 mb-3">
         <div class="card card-statistic-1">
             <div class="card-icon bg-dark">
                 <i class="bi bi-cash fa-2x text-white"></i>
@@ -85,7 +95,7 @@
     </div>
 
     <!-- Statistic 3: Saldo Toko -->
-    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+    <div class="col-12 col-sm-6 col-md-6 col-lg-3 col-xl-3 mb-3">
         <div class="card card-statistic-1">
             <div class="card-icon bg-primary">
                 <i class="bi bi-wallet2 fa-2x text-white"></i>
@@ -102,7 +112,7 @@
     </div>
 
     <!-- Statistic 4: Total Barang Terjual -->
-    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+    <div class="col-12 col-sm-6 col-md-6 col-lg-3 col-xl-3 mb-3">
         <div class="card card-statistic-1">
             <div class="card-icon bg-warning">
                 <i class="bi bi-box-seam fa-2x text-white"></i>
@@ -123,14 +133,15 @@
     <!-- Mutation Logs Section -->
     <div class="col-12">
         <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4>Riwayat Mutasi Saldo Terbaru (15 Terakhir)</h4>
-                <a href="{{ url('seller/mutasi') }}" class="btn btn-primary btn-sm">
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <h4>Riwayat Mutasi Saldo Terbaru</h4>
+                <a href="{{ url('seller/mutasi') }}" class="btn btn-primary btn-sm" aria-label="Lihat semua mutasi saldo">
                     <i class="fas fa-list mr-1"></i> Lihat Semua
                 </a>
             </div>
             <div class="card-body p-0">
-                <div class="table-responsive">
+                <!-- Desktop Table -->
+                <div class="table-responsive d-none d-md-block">
                     <table class="table table-striped table-md mb-0">
                         <thead>
                             <tr>
@@ -179,6 +190,43 @@
                             @endforelse
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Mobile Card List -->
+                <div class="d-md-none p-3">
+                    @forelse($riwayat_mutasi as $log)
+                    <div class="card mb-3 border shadow-sm rounded-lg" style="border-radius: 10px;">
+                        <div class="card-body p-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <small class="text-muted">{{ $log->created_at ? $log->created_at->format('d M Y H:i') : '-' }}</small>
+                                @if($log->tipe == 'kredit_penjualan')
+                                    <span class="badge badge-success">Kredit Penjualan</span>
+                                @elseif($log->tipe == 'potong_withdraw')
+                                    <span class="badge badge-danger">Potong Withdraw</span>
+                                @elseif($log->tipe == 'penyesuaian_admin')
+                                    <span class="badge badge-warning">Penyesuaian Admin</span>
+                                @else
+                                    <span class="badge badge-secondary">{{ $log->tipe }}</span>
+                                @endif
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="text-muted small">Nominal:</span>
+                                <span class="text-{{ $log->nominal > 0 ? 'success' : 'danger' }} font-weight-bold" style="font-size: 0.95rem;">
+                                    {{ $log->nominal > 0 ? '+' : '' }}Rp {{ number_format($log->nominal, 0, ',', '.') }}
+                                </span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted small">Saldo Akhir:</span>
+                                <span class="font-weight-bold text-dark" style="font-size: 0.88rem;">Rp {{ number_format($log->saldo_akhir, 0, ',', '.') }}</span>
+                            </div>
+                            <div class="pt-2 border-top text-muted small">
+                                <div><i class="bi bi-info-circle mr-1"></i> {{ $log->keterangan ?? '-' }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    @empty
+                    <div class="text-center text-muted py-4">Belum ada riwayat mutasi saldo.</div>
+                    @endforelse
                 </div>
             </div>
         </div>

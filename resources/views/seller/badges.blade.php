@@ -17,7 +17,7 @@
             $percent = $item['percent'];
             $progressText = $item['progress_text'];
         @endphp
-        <div class="col-md-6 col-lg-4 mb-4">
+        <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3 mb-4">
             <div class="card shadow-sm border-0 h-100 {{ $isOwned ? 'border-primary' : '' }}" style="border-radius: 12px; overflow: hidden; {{ $isOwned ? 'background: #faf5ff; border: 1.5px solid #8b5cf6 !important;' : '' }}">
                 <div class="card-body p-4 d-flex flex-column">
                     <div class="d-flex align-items-center justify-content-between mb-3">

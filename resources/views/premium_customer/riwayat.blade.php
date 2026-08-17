@@ -242,6 +242,13 @@
     <div class="riwayat-container">
         <h4 class="riwayat-header-title">Riwayat Pembelian</h4>
         
+        <div class="tab-nav-container mb-4" style="display: flex; gap: 8px; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; padding-bottom: 8px;">
+            <a href="{{ route('premium.riwayat') }}" class="tab-btn {{ !request('status') ? 'active' : '' }}" style="border-radius: 20px; padding: 8px 16px; background: {{ !request('status') ? '#000' : '#f8f9fa' }}; color: {{ !request('status') ? '#fff' : '#000' }}; border: 1px solid #000; text-decoration: none; font-weight: bold; font-size: 0.85rem;">Semua</a>
+            <a href="{{ route('premium.riwayat', ['status' => 'pending']) }}" class="tab-btn {{ request('status') == 'pending' ? 'active' : '' }}" style="border-radius: 20px; padding: 8px 16px; background: {{ request('status') == 'pending' ? '#000' : '#f8f9fa' }}; color: {{ request('status') == 'pending' ? '#fff' : '#000' }}; border: 1px solid #000; text-decoration: none; font-weight: bold; font-size: 0.85rem;">Pending</a>
+            <a href="{{ route('premium.riwayat', ['status' => 'success']) }}" class="tab-btn {{ request('status') == 'success' ? 'active' : '' }}" style="border-radius: 20px; padding: 8px 16px; background: {{ request('status') == 'success' ? '#000' : '#f8f9fa' }}; color: {{ request('status') == 'success' ? '#fff' : '#000' }}; border: 1px solid #000; text-decoration: none; font-weight: bold; font-size: 0.85rem;">Sukses</a>
+            <a href="{{ route('premium.riwayat', ['status' => 'failed']) }}" class="tab-btn {{ in_array(request('status'), ['failed', 'expired', 'cancelled']) ? 'active' : '' }}" style="border-radius: 20px; padding: 8px 16px; background: {{ in_array(request('status'), ['failed', 'expired', 'cancelled']) ? '#000' : '#f8f9fa' }}; color: {{ in_array(request('status'), ['failed', 'expired', 'cancelled']) ? '#fff' : '#000' }}; border: 1px solid #000; text-decoration: none; font-weight: bold; font-size: 0.85rem;">Gagal / Batal</a>
+        </div>
+        
         <div class="row">
             <div class="col-12">
                 <div class="mono-card">
@@ -358,70 +365,75 @@
                         @php
                             $isPendingActiveMobile = ($item->status->value == 'pending') && (!$item->reserved_until || $item->reserved_until > now());
                         @endphp
-                        <div class="card mb-3 border border-dark rounded-lg p-3" style="border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02); background: #ffffff;">
-                            <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
-                                <span class="text-muted" style="font-size: 0.8rem;">{{ $item->created_at->translatedFormat('d F Y, H:i') }}</span>
-                                @if($isPendingActiveMobile)
-                                <span class="mono-badge mono-badge-pending">Pending</span>
-                                @elseif($item->status->value == 'success')
-                                <span class="mono-badge mono-badge-success">Success</span>
-                                @elseif($item->status->value == 'expired' || $item->status->value == 'cancelled' || ($item->status->value == 'pending' && $item->reserved_until && $item->reserved_until <= now()))
-                                <span class="mono-badge mono-badge-expired">Transaksi Dibatalkan</span>
-                                @else
-                                <span class="mono-badge mono-badge-failed">Failed</span>
-                                @endif
-                            </div>
-                            
-                            <div class="row mb-2">
-                                <div class="col-6">
-                                    <small class="text-muted d-block">Order ID</small>
-                                    <code>{{ $item->order_id }}</code>
+                        <div class="card mb-3 border-0 shadow-sm" style="border-radius: 12px; background: #ffffff;">
+                            <div class="card-header bg-white d-flex justify-content-between align-items-center py-2 px-3 border-bottom" style="border-radius: 12px 12px 0 0;">
+                                <div class="d-flex align-items-center gap-2" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                    <i class="bi bi-shop text-muted"></i>
+                                    <span class="font-weight-bold text-dark" style="font-size: clamp(0.75rem, 2vw, 0.85rem);">{{ $item->varianLayanan?->tipeLayanan?->produk?->toko?->nama_toko ?? 'Toko' }}</span>
                                 </div>
-                                <div class="col-6 text-right">
-                                    <small class="text-muted d-block">Harga Beli</small>
-                                    <span class="font-weight-bold text-dark" style="font-size: 0.9rem;">Rp {{ number_format($item->harga_saat_beli, 0, ',', '.') }}</span>
-                                </div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <small class="text-muted d-block">Produk / Paket</small>
-                                <strong class="text-dark d-block" style="font-size: 0.92rem; line-height: 1.4;">
-                                    {{ $item->varianLayanan?->tipeLayanan?->produk?->nama_produk }}
-                                </strong>
-                                <span class="text-muted" style="font-size: 0.82rem;">
-                                    {{ $item->varianLayanan?->tipeLayanan?->nama_tipe }} ({{ $item->varianLayanan?->nama_varian }})
+                                <span class="text-right" style="flex-shrink: 0; padding-left: 10px;">
+                                    @if($isPendingActiveMobile)
+                                    <span class="mono-badge mono-badge-pending" style="font-size: 0.65rem !important;">Pending</span>
+                                    @elseif($item->status->value == 'success')
+                                    <span class="mono-badge mono-badge-success" style="font-size: 0.65rem !important;">Success</span>
+                                    @elseif(in_array($item->status->value, ['expired', 'cancelled']) || ($item->status->value == 'pending' && $item->reserved_until && $item->reserved_until <= now()))
+                                    <span class="mono-badge mono-badge-expired" style="font-size: 0.65rem !important;">Dibatalkan</span>
+                                    @else
+                                    <span class="mono-badge mono-badge-failed" style="font-size: 0.65rem !important;">Failed</span>
+                                    @endif
                                 </span>
                             </div>
+                            
+                            <div class="card-body p-3">
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <strong class="text-dark d-block" style="font-size: clamp(0.9rem, 3vw, 1rem); line-height: 1.3;">
+                                        {{ $item->varianLayanan?->tipeLayanan?->produk?->nama_produk }}
+                                    </strong>
+                                    <span class="font-weight-bold text-dark ml-2">x1</span>
+                                </div>
+                                <span class="text-muted d-block mb-2" style="font-size: clamp(0.75rem, 2.5vw, 0.85rem);">
+                                    Varian: {{ $item->varianLayanan?->tipeLayanan?->nama_tipe }} ({{ $item->varianLayanan?->nama_varian }})
+                                </span>
+                                <div class="d-flex justify-content-between text-muted" style="font-size: 0.75rem;">
+                                    <span>{{ $item->created_at->translatedFormat('d F Y, H:i') }}</span>
+                                    <code>{{ $item->order_id }}</code>
+                                </div>
+                            </div>
 
-                            <!-- Mobile Action Buttons -->
-                            <div class="pt-3 border-top">
-                                @if($isPendingActiveMobile)
-                                <a href="{{ route('metode_pembayaran', $item->order_id) }}" class="btn btn-block btn-dark font-weight-bold py-2" style="border-radius: 8px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center;">
-                                    <i class="bi bi-credit-card-fill mr-1"></i> Selesaikan Pembayaran
-                                </a>
-                                @elseif($item->status->value == 'success')
-                                <div class="d-flex flex-column" style="gap: 8px;">
-                                    @if($item->varianLayanan?->tipeLayanan?->produk?->tipe_produk == 'digital')
-                                    <a href="{{ route('premium.digital.download', $item->order_id) }}" class="btn btn-block btn-dark font-weight-bold py-2" style="border-radius: 8px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center;">
-                                        <i class="bi bi-download mr-1"></i> Download File Digital
+                            <!-- Mobile Action Buttons & Total -->
+                            <div class="card-footer bg-white px-3 py-3 d-flex flex-column gap-2" style="border-radius: 0 0 12px 12px; border-top: 1px dashed #e5e5e5;">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-dark font-weight-bold" style="font-size: 0.85rem;">Total Pesanan</span>
+                                    <span class="font-weight-bold text-dark" style="font-size: clamp(1rem, 4vw, 1.15rem);">Rp {{ number_format($item->harga_saat_beli, 0, ',', '.') }}</span>
+                                </div>
+                                
+                                <div class="d-flex justify-content-end gap-2 flex-wrap">
+                                    @if($isPendingActiveMobile)
+                                    <a href="{{ route('metode_pembayaran', $item->order_id) }}" class="btn btn-dark font-weight-bold" style="border-radius: 6px; font-size: 0.75rem; text-transform: uppercase; min-height: 40px; display: inline-flex; align-items: center; justify-content: center; flex: 1;">
+                                        Selesaikan
                                     </a>
+                                    @elseif($item->status->value == 'success')
+                                        @if($item->varianLayanan?->tipeLayanan?->produk?->tipe_produk == 'digital')
+                                        <a href="{{ route('premium.digital.download', $item->order_id) }}" class="btn btn-dark font-weight-bold" style="border-radius: 6px; font-size: 0.75rem; text-transform: uppercase; min-height: 40px; display: inline-flex; align-items: center; justify-content: center; flex: 1;">
+                                            Download
+                                        </a>
+                                        @else
+                                        <button class="btn btn-dark font-weight-bold" onclick="viewCredentials('{{ $item->order_id }}')" style="border-radius: 6px; font-size: 0.75rem; text-transform: uppercase; min-height: 40px; display: inline-flex; align-items: center; justify-content: center; flex: 1;">
+                                            Akun
+                                        </button>
+                                        @endif
+                                        <a href="{{ route('premium.invoice.download', $item->order_id) }}" class="btn btn-outline-dark font-weight-bold" target="_blank" style="border-radius: 6px; font-size: 0.75rem; text-transform: uppercase; min-height: 40px; display: inline-flex; align-items: center; justify-content: center; padding: 0 12px;">
+                                            Invoice
+                                        </a>
+                                        @if(!$item->review)
+                                        <a href="{{ route('premium.review.show', $item->order_id) }}" class="btn btn-outline-dark font-weight-bold" style="border-radius: 6px; font-size: 0.75rem; text-transform: uppercase; min-height: 40px; display: inline-flex; align-items: center; justify-content: center; padding: 0 12px;">
+                                            Ulas
+                                        </a>
+                                        @endif
                                     @else
-                                    <button class="btn btn-block btn-dark font-weight-bold py-2" onclick="viewCredentials('{{ $item->order_id }}')" style="border-radius: 8px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center;">
-                                        <i class="bi bi-key-fill mr-1"></i> Lihat Detail Akun
-                                    </button>
-                                    @endif
-                                    <a href="{{ route('premium.invoice.download', $item->order_id) }}" class="btn btn-block btn-outline-dark font-weight-bold py-2" target="_blank" style="border-radius: 8px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center;">
-                                        <i class="bi bi-file-earmark-pdf-fill mr-1"></i> Download Invoice
-                                    </a>
-                                    @if(!$item->review)
-                                    <a href="{{ route('premium.review.show', $item->order_id) }}" class="btn btn-block btn-outline-dark font-weight-bold py-2" style="border-radius: 8px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center;">
-                                        <i class="bi bi-star-fill mr-1"></i> Beri Review Toko
-                                    </a>
+                                    <div class="text-center text-muted" style="font-size: 0.85rem;">-</div>
                                     @endif
                                 </div>
-                                @else
-                                <div class="text-center text-muted" style="font-size: 0.85rem;">-</div>
-                                @endif
                             </div>
                         </div>
                         @empty
@@ -452,18 +464,18 @@
                     <div class="form-group">
                         <label class="mono-input-label">Username / Email</label>
                         <div class="input-group">
-                            <input type="text" class="form-control mono-input-val" id="kred-email" readonly>
+                            <input type="text" class="form-control mono-input-val" id="kred-email" readonly style="min-height: 44px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; font-size: clamp(0.85rem, 3vw, 1rem);">
                             <div class="input-group-append">
-                                <button class="btn mono-btn-outline" type="button" onclick="copyText('kred-email')">Salin</button>
+                                <button class="btn mono-btn-outline" type="button" onclick="copyText('kred-email')" style="min-height: 44px; display: inline-flex; align-items: center; justify-content: center; padding: 0 20px;">Salin</button>
                             </div>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="mono-input-label">Password</label>
                         <div class="input-group">
-                            <input type="text" class="form-control mono-input-val" id="kred-password" readonly>
+                            <input type="text" class="form-control mono-input-val" id="kred-password" readonly style="min-height: 44px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; font-size: clamp(0.85rem, 3vw, 1rem);">
                             <div class="input-group-append">
-                                <button class="btn mono-btn-outline" type="button" onclick="copyText('kred-password')">Salin</button>
+                                <button class="btn mono-btn-outline" type="button" onclick="copyText('kred-password')" style="min-height: 44px; display: inline-flex; align-items: center; justify-content: center; padding: 0 20px;">Salin</button>
                             </div>
                         </div>
                     </div>

@@ -31,6 +31,7 @@
     <!-- Template CSS -->
     <link rel="stylesheet" href="{{asset('assets/css/style.css')}}">
     <link rel="stylesheet" href="{{asset('assets/css/components.css')}}">
+    <link rel="stylesheet" href="{{asset('assets/css/responsive-overrides.css')}}">
     <script src="https://app.sandbox.midtrans.com/snap/snap.js"
         data-client-key="{{config('midtrans.client_key')}}"></script>
     @livewireStyles

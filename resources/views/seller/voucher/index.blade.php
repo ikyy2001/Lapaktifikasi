@@ -29,12 +29,13 @@
                 <div class="input-group" style="max-width: 400px;">
                     <input type="text" name="search" class="form-control" placeholder="Cari kode voucher..." value="{{ request('search') }}">
                     <div class="input-group-append">
-                        <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-search"></i></button>
+                        <button class="btn btn-outline-secondary" type="submit" aria-label="Cari Voucher"><i class="bi bi-search"></i></button>
                     </div>
                 </div>
             </form>
 
-            <div class="table-responsive">
+            <!-- Desktop Table -->
+            <div class="table-responsive d-none d-md-block">
                 <table class="table table-hover align-middle mb-0">
                     <thead class="thead-light">
                         <tr>
@@ -77,12 +78,12 @@
                             </td>
                             <td class="text-center">
                                 <div class="btn-group" role="group">
-                                    <a href="{{ route('seller.voucher.edit', $v->id_voucher) }}" class="btn btn-sm btn-outline-primary" title="Edit">
+                                    <a href="{{ route('seller.voucher.edit', $v->id_voucher) }}" class="btn btn-sm btn-outline-primary" title="Edit Voucher" aria-label="Edit Voucher {{ $v->kode }}">
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
                                     <form action="{{ route('seller.voucher.toggle_status', $v->id_voucher) }}" method="POST" style="display:inline;">
                                         @csrf
-                                        <button type="submit" class="btn btn-sm {{ $v->is_active ? 'btn-outline-danger' : 'btn-outline-success' }}" title="{{ $v->is_active ? 'Nonaktifkan' : 'Aktifkan' }}">
+                                        <button type="submit" class="btn btn-sm {{ $v->is_active ? 'btn-outline-danger' : 'btn-outline-success' }}" title="{{ $v->is_active ? 'Nonaktifkan' : 'Aktifkan' }}" aria-label="{{ $v->is_active ? 'Nonaktifkan' : 'Aktifkan' }} Voucher {{ $v->kode }}">
                                             <i class="bi {{ $v->is_active ? 'bi-power' : 'bi-check-circle' }}"></i>
                                         </button>
                                     </form>
@@ -98,10 +99,68 @@
                 </table>
             </div>
 
+            <!-- Mobile Card List -->
+            <div class="d-md-none">
+                @forelse($vouchers as $v)
+                <div class="card mb-3 border shadow-sm" style="border-radius: 12px;">
+                    <div class="card-body p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <strong class="font-monospace text-primary h5 mb-0">{{ $v->kode }}</strong>
+                            @if($v->is_active)
+                                <span class="badge badge-success">Aktif</span>
+                            @else
+                                <span class="badge badge-secondary">Nonaktif</span>
+                            @endif
+                        </div>
+                        
+                        <div class="mb-2">
+                            <span class="badge badge-info mr-1">{{ strtoupper($v->tipe_diskon) }}</span>
+                            <span class="font-weight-bold text-dark">
+                                Diskon {{ $v->tipe_diskon === 'persen' ? (float)$v->nilai_diskon . '%' : 'Rp ' . number_format((float)$v->nilai_diskon, 0, ',', '.') }}
+                            </span>
+                        </div>
+
+                        <div class="row text-muted small mb-2">
+                            <div class="col-6">
+                                Min: <strong>Rp {{ number_format((float)$v->minimal_transaksi, 0, ',', '.') }}</strong>
+                            </div>
+                            <div class="col-6 text-right">
+                                Quota: <strong>{{ $v->kuota_terpakai }}/{{ $v->kuota_total ?? '∞' }}</strong>
+                            </div>
+                        </div>
+
+                        <div class="pt-2 border-top d-flex justify-content-between align-items-center">
+                            <span class="small text-muted">
+                                {{ $v->berlaku_sampai ? $v->berlaku_sampai->format('d/m/Y') : 'Selamanya' }}
+                            </span>
+                            <div class="d-flex gap-2">
+                                <a href="{{ route('seller.voucher.edit', $v->id_voucher) }}" class="btn btn-sm btn-outline-primary" aria-label="Edit Voucher {{ $v->kode }}">
+                                    <i class="bi bi-pencil-square"></i> Edit
+                                </a>
+                                <form action="{{ route('seller.voucher.toggle_status', $v->id_voucher) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm {{ $v->is_active ? 'btn-outline-danger' : 'btn-outline-success' }}" aria-label="{{ $v->is_active ? 'Nonaktifkan' : 'Aktifkan' }} Voucher {{ $v->kode }}">
+                                        <i class="bi {{ $v->is_active ? 'bi-power' : 'bi-check-circle' }}"></i> {{ $v->is_active ? 'Matikan' : 'Aktifkan' }}
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @empty
+                <div class="text-center py-4 text-muted">Belum ada voucher toko yang dibuat.</div>
+                @endforelse
+            </div>
+
             <div class="mt-3">
                 {{ $vouchers->links() }}
             </div>
         </div>
     </div>
 </div>
+
+<!-- Floating Action Button (FAB) Mobile -->
+<a href="{{ route('seller.voucher.create') }}" class="btn btn-primary fab-mobile" aria-label="Buat Voucher Toko">
+    <i class="bi bi-plus-lg"></i> Voucher Baru
+</a>
 @endsection

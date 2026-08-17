@@ -448,7 +448,7 @@
                     $isCurrent = $tierCurrent && ($t->id_tier === $tierCurrent->id_tier);
                     $benefits = is_array($t->benefit_deskripsi) ? $t->benefit_deskripsi : json_decode($t->benefit_deskripsi ?? '[]', true);
                 @endphp
-                <div class="col-12 col-md-6 mb-4">
+                <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3 mb-4">
                     <div class="tier-card-item {{ $isUnlocked ? 'tier-card-unlocked' : 'tier-card-locked' }} {{ $isCurrent ? 'tier-card-current' : '' }}">
                         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
                             <div class="d-flex align-items-center gap-2">
@@ -519,7 +519,7 @@
                 @php
                     $alreadyClaimed = in_array($v->id_voucher, $claimedVoucherIds);
                 @endphp
-                <div class="col-12 col-md-6 col-lg-4 mb-4">
+                <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3 mb-4">
                     <div class="voucher-card">
                         <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-1">
                             @if($v->scope === 'global')
