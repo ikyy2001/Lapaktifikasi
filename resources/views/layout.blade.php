@@ -34,10 +34,10 @@
     <link rel="stylesheet" href="{{asset('assets/css/responsive-overrides.css')}}">
     <script src="https://app.sandbox.midtrans.com/snap/snap.js"
         data-client-key="{{config('midtrans.client_key')}}"></script>
-    @livewireStyles
+
     <style>
         /* Light Modern Background with subtle mesh gradient for glassmorphism pop */
-        body::before {
+        body::after {
             content: "";
             position: fixed;
             inset: 0;
@@ -74,12 +74,13 @@
 
         /* Sidebar Glassmorphism Styling (Desktop) */
         .main-sidebar {
-            background: rgba(255, 255, 255, 0.7) !important;
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            background: rgba(255, 255, 255, 0.85) !important;
+            backdrop-filter: blur(12px) saturate(150%);
+            -webkit-backdrop-filter: blur(12px) saturate(150%);
             border-right: 1px solid rgba(255, 255, 255, 0.4) !important;
             box-shadow: 4px 0 24px rgba(0, 0, 0, 0.03) !important;
-            z-index: 890;
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
         }
 
         .main-sidebar .sidebar-brand {
@@ -719,18 +720,8 @@
     <script>
         $(document).ready(function () {
             $('.modal').appendTo('body');
-
-            // Mobile / iOS tap-outside to close sidebar smoothly
-            $(document).on('click touchend', function(e) {
-                if ($('body').hasClass('sidebar-show')) {
-                    if (!$(e.target).closest('.main-sidebar, [data-toggle="sidebar"]').length) {
-                        $('body').removeClass('sidebar-show').addClass('sidebar-gone');
-                    }
-                }
-            });
         });
     </script>
-    @livewireScripts
 </body>
 
 </html>
