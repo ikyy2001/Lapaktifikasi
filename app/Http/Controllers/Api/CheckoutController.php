@@ -52,17 +52,22 @@ class CheckoutController extends ApiController
 
         try {
             $pembelian = DB::transaction(function () use ($id_varian, $id_customer, $kode_voucher) {
-                $stok = StokAkun::where('id_varian', $id_varian)
-                    ->where('status', StokStatus::TERSEDIA)
-                    ->orderBy('created_at', 'asc')
-                    ->lockForUpdate()
-                    ->first();
+                $varian = VarianLayanan::with('tipeLayanan.produk')->findOrFail($id_varian);
+                $isDigital = ($varian->tipeLayanan?->produk?->tipe_produk === 'digital');
 
-                if (!$stok) {
-                    throw new \Exception('Stok Habis');
+                $stok = null;
+                if (!$isDigital) {
+                    $stok = StokAkun::where('id_varian', $id_varian)
+                        ->where('status', StokStatus::TERSEDIA)
+                        ->orderBy('created_at', 'asc')
+                        ->lockForUpdate()
+                        ->first();
+
+                    if (!$stok) {
+                        throw new \Exception('Stok Akun Habis');
+                    }
                 }
 
-                $varian = VarianLayanan::with('tipeLayanan.produk')->findOrFail($id_varian);
                 $harga_varian = (float) $varian->harga;
                 $harga_saat_beli = $harga_varian;
                 $nominal_diskon = 0;
@@ -97,7 +102,7 @@ class CheckoutController extends ApiController
                         ]);
                     }
 
-                    if ($voucher->tipe_diskon === 'persen') {
+                    if ($voucher->tipe_diskon === 'persen' || $voucher->tipe_diskon === 'persentase') {
                         $potongan = ($harga_varian * (float) $voucher->nilai_diskon) / 100.0;
                         if ($voucher->maksimal_potongan !== null) $potongan = min($potongan, (float) $voucher->maksimal_potongan);
                     } else {
@@ -111,17 +116,19 @@ class CheckoutController extends ApiController
 
                 $reserved_expired_at = now()->addMinutes(15);
 
-                $stok->update([
-                    'status' => StokStatus::RESERVED,
-                    'reserved_at' => now(),
-                    'reserved_expired_at' => $reserved_expired_at,
-                ]);
+                if ($stok) {
+                    $stok->update([
+                        'status' => StokStatus::RESERVED,
+                        'reserved_at' => now(),
+                        'reserved_expired_at' => $reserved_expired_at,
+                    ]);
+                }
 
                 $pembelian = Pembelian::create([
                     'order_id' => (string) Str::ulid(),
                     'id_customer' => $id_customer,
                     'id_varian' => $id_varian,
-                    'id_stok' => $stok->id_stok,
+                    'id_stok' => $stok?->id_stok,
                     'harga_saat_beli' => $harga_saat_beli,
                     'id_voucher_dipakai' => $voucher_dipakai,
                     'nominal_diskon' => $nominal_diskon,
@@ -129,12 +136,14 @@ class CheckoutController extends ApiController
                     'reserved_until' => $reserved_expired_at,
                 ]);
 
-                $stok->update(['id_pembelian' => $pembelian->id_pembelian]);
+                if ($stok) {
+                    $stok->update(['id_pembelian' => $pembelian->id_pembelian]);
+                }
 
                 return $pembelian;
             });
 
-            return $this->sendResponse($pembelian, 'Checkout berhasil, lanjutkan ke pembayaran', 201);
+            return $this->sendResponse($pembelian, 'Checkout berhasil, silakan lanjutkan pembayaran', 201);
 
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), [], 400);
@@ -142,7 +151,7 @@ class CheckoutController extends ApiController
     }
 
     /**
-     * Generate Instruksi Transaksi (Midtrans/Pakasir)
+     * Generate Instruksi Transaksi (Midtrans / TriPay / Pakasir)
      */
     public function generateTransaction(Request $request, $order_id)
     {
@@ -179,18 +188,18 @@ class CheckoutController extends ApiController
                 $pembelian->gateway_reference = 'redirect';
                 $pembelian->save();
                 
-                return $this->sendResponse(['redirect_url' => $redirectUrl], 'Generate Pakasir url success');
+                return $this->sendResponse(['redirect_url' => $redirectUrl, 'gateway' => 'pakasir'], 'Generate Pakasir url success');
             } elseif ($gateway_name === 'tripay') {
                 $channel = $request->input('channel', 'QRIS');
                 $gateway = PaymentGatewayFactory::make('tripay');
                 $transactionData = $gateway->createTransaction($pembelian, $channel);
 
-                return $this->sendResponse($transactionData, 'Generate TriPay transaction success');
+                return $this->sendResponse(['data' => $transactionData, 'gateway' => 'tripay'], 'Generate TriPay transaction success');
             } else {
                 $gateway = PaymentGatewayFactory::make($gateway_name);
                 $transactionData = $gateway->createTransaction($pembelian, 'qris');
                 
-                return $this->sendResponse(['snapToken' => $transactionData['token'] ?? null], 'Generate Midtrans token success');
+                return $this->sendResponse(['snapToken' => $transactionData['token'] ?? null, 'gateway' => 'midtrans'], 'Generate Midtrans token success');
             }
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Api generateTransaction error', [
@@ -203,11 +212,14 @@ class CheckoutController extends ApiController
     }
 
     /**
-     * Check status pembayaran
+     * Check status pembayaran & sync gateway
      */
     public function status(Request $request, $order_id)
     {
-        $pembelian = Pembelian::where('order_id', $order_id)->first();
+        $pembelian = Pembelian::with(['varianLayanan.tipeLayanan.produk.toko', 'pembayaran'])
+            ->where('order_id', $order_id)
+            ->first();
+            
         if (!$pembelian) return $this->sendError('Pesanan tidak ditemukan', [], 404);
 
         $customer = CustomerModel::where('user_id', $request->user()->id)->first();
@@ -229,12 +241,17 @@ class CheckoutController extends ApiController
                     ]);
                 } elseif (in_array($statusData['status'], [PembelianStatus::FAILED, PembelianStatus::EXPIRED])) {
                     $this->paymentProcessor->markAsFailed($pembelian, $statusData['status']->value ?? 'failed', $gatewayName);
+                } elseif ($pembelian->reserved_until && $pembelian->reserved_until < now()) {
+                    $this->paymentProcessor->markAsFailed($pembelian, 'expire', $gatewayName);
                 }
                 
                 // Re-fetch
-                $pembelian = Pembelian::where('order_id', $order_id)->first();
+                $pembelian = Pembelian::with(['varianLayanan.tipeLayanan.produk.toko', 'pembayaran'])->where('order_id', $order_id)->first();
             } catch (\Exception $e) {
-                // ignore
+                if ($pembelian->reserved_until && $pembelian->reserved_until < now()) {
+                    $this->paymentProcessor->markAsFailed($pembelian, 'expire', $pembelian->payment_gateway ?? 'unknown');
+                    $pembelian = Pembelian::with(['varianLayanan.tipeLayanan.produk.toko', 'pembayaran'])->where('order_id', $order_id)->first();
+                }
             }
         }
 
@@ -242,6 +259,12 @@ class CheckoutController extends ApiController
             'order_id' => $pembelian->order_id,
             'status' => strtolower($pembelian->status->value ?? $pembelian->status),
             'harga' => $pembelian->harga_saat_beli,
+            'nominal_diskon' => $pembelian->nominal_diskon,
+            'payment_gateway' => $pembelian->payment_gateway,
+            'produk' => $pembelian->varianLayanan?->tipeLayanan?->produk?->nama_produk,
+            'tipe' => $pembelian->varianLayanan?->tipeLayanan?->nama_tipe,
+            'varian' => $pembelian->varianLayanan?->nama_varian,
+            'tipe_produk' => $pembelian->varianLayanan?->tipeLayanan?->produk?->tipe_produk,
             'updated_at' => $pembelian->updated_at,
         ], 'Status pembayaran');
     }

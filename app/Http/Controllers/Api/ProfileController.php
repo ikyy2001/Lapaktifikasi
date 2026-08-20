@@ -5,23 +5,37 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\CustomerModel;
+use App\Models\Toko;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends ApiController
 {
     public function getProfile(Request $request)
     {
         $user = $request->user();
+        
+        $roleName = match((int)$user->role_id) {
+            1 => 'admin',
+            3 => 'seller',
+            default => 'customer',
+        };
+
         $data = [
             'user' => $user,
+            'role' => $roleName,
         ];
 
-        if ($user->role_id == 2) { // Customer
-            $customer = CustomerModel::where('user_id', $user->id)->first();
-            $data['customer_details'] = $customer;
+        if ($user->role_id == 2) {
+            $customer = CustomerModel::with('tier')->where('user_id', $user->id)->first();
+            if ($customer) {
+                $data['customer'] = $customer;
+                $data['tier_progress'] = $customer->progressKeTierBerikutnya();
+            }
+        } elseif ($user->role_id == 3) {
+            $toko = Toko::with('badges')->where('user_id', $user->id)->first();
+            $data['toko'] = $toko;
         }
 
         return $this->sendResponse($data, 'Profil berhasil diambil');
@@ -35,37 +49,35 @@ class ProfileController extends ApiController
             'name' => 'nullable|string|max:255',
             'no_whatsapp' => 'nullable|string|max:20',
             'password' => 'nullable|min:10',
-            'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+            'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048'
         ]);
 
         if ($validator->fails()) {
             return $this->sendError('Validasi gagal', $validator->errors()->toArray(), 422);
         }
 
-        if ($request->has('name')) {
+        if ($request->filled('name')) {
             $user->name = $request->name;
         }
 
-        if ($request->has('no_whatsapp')) {
-            $user->no_whatsapp = $request->no_whatsapp;
-        }
-
-        if ($request->has('password') && !empty($request->password)) {
+        if ($request->filled('password')) {
             $user->password = Hash::make($request->password);
         }
 
         if ($request->hasFile('profile_picture')) {
             $file = $request->file('profile_picture');
             $filename = time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
+            $targetDir = public_path('assets/img/avatar');
+            if (!file_exists($targetDir)) {
+                @mkdir($targetDir, 0755, true);
+            }
             
-            // Move file to public/assets/img/avatar or appropriate directory
-            $file->move(public_path('assets/img/avatar'), $filename);
+            $file->move($targetDir, $filename);
             
-            // Delete old picture if it's not a default one
             if ($user->profile_picture && !in_array($user->profile_picture, ['avatar-1.png', 'avatar-2.png', 'avatar-3.png', 'avatar-4.png', 'avatar-5.png', 'avatar-admin.png', 'default.png'])) {
                 $oldPath = public_path('assets/img/avatar/' . $user->profile_picture);
                 if (file_exists($oldPath) && is_file($oldPath)) {
-                    unlink($oldPath);
+                    @unlink($oldPath);
                 }
             }
 
@@ -74,6 +86,20 @@ class ProfileController extends ApiController
 
         $user->save();
 
-        return $this->sendResponse(['user' => $user], 'Profil berhasil diperbarui');
+        // Customer details update
+        if ($user->role_id == 2) {
+            $customer = CustomerModel::where('user_id', $user->id)->first();
+            if ($customer) {
+                if ($request->filled('name')) {
+                    $customer->nama_customer = $request->name;
+                }
+                if ($request->has('no_whatsapp')) {
+                    $customer->nomor_telepon = $request->no_whatsapp;
+                }
+                $customer->save();
+            }
+        }
+
+        return $this->getProfile($request);
     }
 }

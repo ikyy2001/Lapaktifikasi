@@ -11,14 +11,24 @@ use App\Models\VoucherKlaim;
 use App\Models\Review;
 use App\Models\Laporan;
 use App\Enums\PembelianStatus;
+use App\Services\PaymentProcessingService;
+use App\Services\Gateways\PaymentGatewayFactory;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 
 class CustomerPremiumController extends ApiController
 {
+    protected PaymentProcessingService $paymentProcessor;
+
+    public function __construct(PaymentProcessingService $paymentProcessor)
+    {
+        $this->paymentProcessor = $paymentProcessor;
+    }
+
     /**
-     * Data keanggotaan customer (Member / Tier / Progress)
+     * Data keanggotaan customer (Member / Tier / Progress / Eligible Vouchers)
      */
     public function getMemberData(Request $request)
     {
@@ -76,7 +86,7 @@ class CustomerPremiumController extends ApiController
         $shareUrl = url('/pendaftaran?ref=' . $customer->kode_referral);
         $bonusAmount = (float) config('referral.bonus_akumulasi', 50000);
 
-        $referredCustomers = CustomerModel::with('user')
+        $referredCustomers = CustomerModel::with('user:id,name,email,created_at')
             ->where('direferensikan_oleh', $customer->id)
             ->get();
 
@@ -84,6 +94,7 @@ class CustomerPremiumController extends ApiController
             'kode_referral' => $customer->kode_referral,
             'share_url' => $shareUrl,
             'bonus_akumulasi' => $bonusAmount,
+            'jumlah_referral_sukses' => $customer->jumlah_referral_sukses,
             'referred_customers' => $referredCustomers
         ], 'Data referral berhasil diambil');
     }
@@ -121,7 +132,7 @@ class CustomerPremiumController extends ApiController
     }
 
     /**
-     * Riwayat Pembelian
+     * Riwayat Pembelian & Auto-Sync
      */
     public function getRiwayat(Request $request)
     {
@@ -130,7 +141,37 @@ class CustomerPremiumController extends ApiController
 
         if (!$customer) return $this->sendError('Profil pelanggan tidak ditemukan.', [], 404);
 
-        $query = Pembelian::with(['varianLayanan.tipeLayanan.produk', 'pembayaran', 'review'])
+        // Auto-sync pending transactions in last 24h
+        $pendingPurchases = Pembelian::where('id_customer', $customer->id)
+            ->where('status', PembelianStatus::PENDING)
+            ->where('created_at', '>=', now()->subHours(24))
+            ->get();
+
+        foreach ($pendingPurchases as $pPending) {
+            $isExpiredByTime = $pPending->reserved_until && $pPending->reserved_until < now();
+            try {
+                $gatewayName = $pPending->payment_gateway ?? 'midtrans';
+                $gateway = PaymentGatewayFactory::make($gatewayName);
+                $statusData = $gateway->verifyStatus($pPending->order_id, (int)$pPending->harga_saat_beli);
+
+                if ($statusData['status'] === PembelianStatus::SUCCESS) {
+                    $this->paymentProcessor->markAsSuccess($pPending, [
+                        'payment_type' => $statusData['payment_type'] ?? 'unknown',
+                        'payment_gateway' => $gatewayName,
+                        'gross_amount' => $statusData['gross_amount'] ?? $pPending->harga_saat_beli,
+                        'transaction_id' => $statusData['transaction_id'] ?? null,
+                    ]);
+                } elseif (in_array($statusData['status'], [PembelianStatus::FAILED, PembelianStatus::EXPIRED]) || $isExpiredByTime) {
+                    $this->paymentProcessor->markAsFailed($pPending, $statusData['status']->value ?? 'expire', $gatewayName);
+                }
+            } catch (\Exception $e) {
+                if ($isExpiredByTime) {
+                    $this->paymentProcessor->markAsFailed($pPending, 'expire', $pPending->payment_gateway ?? 'system');
+                }
+            }
+        }
+
+        $query = Pembelian::with(['varianLayanan.tipeLayanan.produk.toko', 'pembayaran', 'review'])
             ->where('id_customer', $customer->id);
 
         $startDateInput = $request->input('start_date');
@@ -151,9 +192,10 @@ class CustomerPremiumController extends ApiController
             }
         }
 
-        $pembelian = $query->orderBy('created_at', 'desc')->get();
+        $perPage = (int) $request->input('per_page', 15);
+        $pembelian = $query->orderBy('created_at', 'desc')->paginate($perPage);
 
-        return $this->sendResponse(['riwayat' => $pembelian], 'Riwayat pembelian berhasil diambil');
+        return $this->sendResponse($pembelian, 'Riwayat pembelian berhasil diambil');
     }
 
     /**
@@ -177,14 +219,77 @@ class CustomerPremiumController extends ApiController
         }
 
         return $this->sendResponse([
+            'order_id' => $pembelian->order_id,
             'email_username' => $pembelian->stokAkun->email_username,
             'password' => $pembelian->stokAkun->password_encrypted,
             'catatan' => $pembelian->stokAkun->catatan,
-        ], 'Kredensial berhasil diambil');
+        ], 'Kredensial akun berhasil diambil');
     }
 
     /**
-     * Buat Review
+     * Download File Digital
+     */
+    public function downloadDigital(Request $request, $order_id)
+    {
+        $pembelian = Pembelian::with(['varianLayanan.tipeLayanan.produk', 'customer'])
+            ->where('order_id', $order_id)
+            ->first();
+
+        if (!$pembelian) return $this->sendError('Pesanan tidak ditemukan', [], 404);
+
+        $customer = CustomerModel::where('user_id', $request->user()->id)->first();
+        if ($pembelian->id_customer != $customer->id) return $this->sendError('Unauthorized', [], 403);
+
+        if ($pembelian->status !== PembelianStatus::SUCCESS) {
+            return $this->sendError('Pembayaran belum diselesaikan atau transaksi expired.', [], 403);
+        }
+
+        if ($pembelian->varianLayanan?->tipeLayanan?->produk?->tipe_produk !== 'digital') {
+            return $this->sendError('Ini bukan produk digital.', [], 400);
+        }
+
+        if (empty($pembelian->varianLayanan->file_path)) {
+            return $this->sendError('File belum tersedia. Silakan hubungi seller.', [], 404);
+        }
+
+        $filePath = public_path('assets/file_digital/' . $pembelian->varianLayanan->file_path);
+        
+        if (!file_exists($filePath)) {
+            return $this->sendError('File digital tidak ditemukan di server.', [], 404);
+        }
+
+        return response()->download($filePath);
+    }
+
+    /**
+     * Download Invoice PDF
+     */
+    public function downloadInvoice(Request $request, $order_id)
+    {
+        $pembelian = Pembelian::with([
+            'customer.user',
+            'varianLayanan.tipeLayanan.produk.toko',
+            'pembayaran'
+        ])
+        ->where('order_id', $order_id)
+        ->first();
+
+        if (!$pembelian) return $this->sendError('Pesanan tidak ditemukan', [], 404);
+
+        $customer = CustomerModel::where('user_id', $request->user()->id)->first();
+        if ($pembelian->id_customer != $customer->id) return $this->sendError('Unauthorized', [], 403);
+
+        if ($pembelian->status !== PembelianStatus::SUCCESS) {
+            return $this->sendError('Invoice hanya tersedia untuk transaksi yang sudah sukses.', [], 400);
+        }
+
+        $pdf = Pdf::loadView('invoice.pdf_invoice', compact('pembelian'));
+        
+        return $pdf->download("invoice-{$order_id}.pdf");
+    }
+
+    /**
+     * Buat Review Toko
      */
     public function storeReview(Request $request, $order_id)
     {
@@ -211,7 +316,7 @@ class CustomerPremiumController extends ApiController
 
         $toko = $pembelian->varianLayanan->tipeLayanan->produk->toko;
 
-        Review::create([
+        $review = Review::create([
             'id_pembelian' => $pembelian->id_pembelian,
             'id_toko' => $toko->id_toko,
             'id_customer' => $pembelian->id_customer,
@@ -219,15 +324,9 @@ class CustomerPremiumController extends ApiController
             'komentar' => $request->komentar ? strip_tags($request->komentar) : null,
         ]);
 
-        $avgRating = Review::where('id_toko', $toko->id_toko)->avg('rating');
-        $countReviews = Review::where('id_toko', $toko->id_toko)->count();
+        $toko->syncRatings();
 
-        $toko->update([
-            'rating_rata_rata' => round($avgRating, 2),
-            'jumlah_review' => $countReviews,
-        ]);
-
-        return $this->sendResponse([], 'Review berhasil disimpan', 201);
+        return $this->sendResponse($review, 'Review berhasil disimpan', 201);
     }
 
     /**
@@ -236,9 +335,10 @@ class CustomerPremiumController extends ApiController
     public function getLaporan(Request $request)
     {
         $userId = $request->user()->id;
-        $laporan = Laporan::where('user_id', $userId)->orderBy('created_at', 'desc')->get();
+        $perPage = (int) $request->input('per_page', 10);
+        $laporan = Laporan::where('user_id', $userId)->orderBy('created_at', 'desc')->paginate($perPage);
 
-        return $this->sendResponse(['laporan' => $laporan], 'Daftar laporan berhasil diambil');
+        return $this->sendResponse($laporan, 'Daftar laporan berhasil diambil');
     }
 
     /**
@@ -249,7 +349,7 @@ class CustomerPremiumController extends ApiController
         $validator = Validator::make($request->all(), [
             'judul' => 'required|string|max:255',
             'deskripsi' => 'required|string',
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048'
         ]);
 
         if ($validator->fails()) return $this->sendError('Validasi gagal', $validator->errors()->toArray(), 422);
@@ -259,7 +359,7 @@ class CustomerPremiumController extends ApiController
             $file = $request->file('gambar');
             $filename = time() . '_' . $file->getClientOriginalName();
             $targetDir = public_path('assets/img/laporan');
-            if (!file_exists($targetDir)) mkdir($targetDir, 0755, true);
+            if (!file_exists($targetDir)) @mkdir($targetDir, 0755, true);
             $file->move($targetDir, $filename);
             $gambarPath = $filename;
         }
@@ -272,6 +372,6 @@ class CustomerPremiumController extends ApiController
             'status' => 'pending'
         ]);
 
-        return $this->sendResponse(['laporan' => $laporan], 'Laporan berhasil dibuat', 201);
+        return $this->sendResponse($laporan, 'Laporan berhasil dibuat', 201);
     }
 }

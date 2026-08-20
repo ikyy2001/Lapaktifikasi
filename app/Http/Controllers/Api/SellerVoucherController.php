@@ -16,7 +16,7 @@ class SellerVoucherController extends ApiController
         $toko = Toko::where('user_id', $userId)->first();
         if (!$toko) return $this->sendError('Toko tidak ditemukan', [], 404);
 
-        $perPage = $request->input('per_page', 10);
+        $perPage = (int) $request->input('per_page', 15);
         $vouchers = Voucher::where('id_toko', $toko->id_toko)->orderBy('created_at', 'desc')->paginate($perPage);
 
         return $this->sendResponse($vouchers, 'Daftar voucher berhasil diambil');
@@ -32,7 +32,7 @@ class SellerVoucherController extends ApiController
             'kode' => 'required|string|max:50|unique:tbl_voucher,kode',
             'nama_voucher' => 'required|string|max:255',
             'deskripsi' => 'nullable|string',
-            'tipe_diskon' => 'required|in:persen,nominal',
+            'tipe_diskon' => 'required|in:persen,nominal,persentase',
             'nilai_diskon' => 'required|numeric|min:0',
             'maksimal_potongan' => 'nullable|numeric|min:0',
             'minimal_transaksi' => 'required|numeric|min:0',
@@ -47,7 +47,8 @@ class SellerVoucherController extends ApiController
         $data = $request->all();
         $data['id_toko'] = $toko->id_toko;
         $data['scope'] = 'toko_spesifik';
-        $data['kode'] = strtoupper($data['kode']);
+        $data['kode'] = strtoupper(trim($data['kode']));
+        if ($data['tipe_diskon'] === 'persentase') $data['tipe_diskon'] = 'persen';
         $data['is_active'] = $request->has('is_active') ? $request->is_active : true;
 
         $voucher = Voucher::create($data);
@@ -68,7 +69,7 @@ class SellerVoucherController extends ApiController
             'kode' => 'required|string|max:50|unique:tbl_voucher,kode,'.$id.',id_voucher',
             'nama_voucher' => 'required|string|max:255',
             'deskripsi' => 'nullable|string',
-            'tipe_diskon' => 'required|in:persen,nominal',
+            'tipe_diskon' => 'required|in:persen,nominal,persentase',
             'nilai_diskon' => 'required|numeric|min:0',
             'maksimal_potongan' => 'nullable|numeric|min:0',
             'minimal_transaksi' => 'required|numeric|min:0',
@@ -81,11 +82,27 @@ class SellerVoucherController extends ApiController
         if ($validator->fails()) return $this->sendError('Validasi gagal', $validator->errors()->toArray(), 422);
 
         $data = $request->all();
-        $data['kode'] = strtoupper($data['kode']);
+        $data['kode'] = strtoupper(trim($data['kode']));
+        if (isset($data['tipe_diskon']) && $data['tipe_diskon'] === 'persentase') $data['tipe_diskon'] = 'persen';
         
         $voucher->update($data);
 
         return $this->sendResponse($voucher, 'Voucher berhasil diperbarui');
+    }
+
+    public function toggleStatus(Request $request, $id)
+    {
+        $userId = $request->user()->id;
+        $toko = Toko::where('user_id', $userId)->first();
+        if (!$toko) return $this->sendError('Toko tidak ditemukan', [], 404);
+
+        $voucher = Voucher::where('id_voucher', $id)->where('id_toko', $toko->id_toko)->first();
+        if (!$voucher) return $this->sendError('Voucher tidak ditemukan atau bukan milik Anda', [], 404);
+
+        $voucher->is_active = !$voucher->is_active;
+        $voucher->save();
+
+        return $this->sendResponse($voucher, 'Status voucher berhasil diubah');
     }
 
     public function destroy(Request $request, $id)
