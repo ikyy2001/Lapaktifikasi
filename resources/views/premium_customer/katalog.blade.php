@@ -49,9 +49,9 @@
         /* Search Form Styling */
         .mono-search-input {
             background-color: #ffffff !important;
-            border: 1px solid #000000 !important;
-            border-radius: 8px 0 0 8px !important;
-            color: #000000 !important;
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 10px 0 0 10px !important;
+            color: #0f172a !important;
             font-size: 0.9rem !important;
             padding: 12px 18px !important;
             height: auto !important;
@@ -59,15 +59,16 @@
         }
 
         .mono-search-input:focus {
-            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1) !important;
+            border-color: #2563eb !important;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1) !important;
             outline: none !important;
         }
 
         .mono-search-btn {
-            background-color: #000000 !important;
+            background-color: #0f172a !important;
             color: #ffffff !important;
-            border: 1px solid #000000 !important;
-            border-radius: 0 8px 8px 0 !important;
+            border: 1px solid #0f172a !important;
+            border-radius: 0 10px 10px 0 !important;
             padding: 0 24px !important;
             font-weight: 700 !important;
             text-transform: uppercase !important;
@@ -77,44 +78,47 @@
         }
 
         .mono-search-btn:hover {
-            background-color: #222222 !important;
-            border-color: #222222 !important;
+            background-color: #1e293b !important;
+            border-color: #1e293b !important;
         }
 
-        /* Modern Compact Product Card Styling */
-        .mono-product-card-link {
+        /* =========================================================
+           Modern Clean Product Card (As per reference design)
+           ========================================================= */
+        .katalog-card-link {
             display: block;
             color: inherit;
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .mono-product-card-link:hover {
+        .katalog-card-link:hover {
             text-decoration: none !important;
             color: inherit !important;
         }
 
-        .mono-product-card {
+        .katalog-card {
             background: #ffffff !important;
             border: 1px solid #e2e8f0 !important;
-            border-radius: 14px !important;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important;
+            border-radius: 20px !important;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03) !important;
             overflow: hidden !important;
             height: 100% !important;
             display: flex !important;
             flex-direction: column !important;
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            position: relative;
         }
 
-        .mono-product-card-link:hover .mono-product-card {
-            transform: translateY(-6px) scale(1.01) !important;
-            box-shadow: 0 16px 32px rgba(0, 0, 0, 0.1) !important;
-            border-color: #000000 !important;
+        .katalog-card-link:hover .katalog-card {
+            transform: translateY(-6px) !important;
+            box-shadow: 0 16px 36px rgba(37, 99, 235, 0.08), 0 4px 12px rgba(0, 0, 0, 0.04) !important;
+            border-color: #cbd5e1 !important;
         }
 
-        /* 1. Thumbnail Image 4:3 Ratio */
-        .product-thumbnail-container {
+        /* Thumbnail Container (16:10 aspect ratio) */
+        .katalog-thumbnail-wrapper {
             width: 100% !important;
-            aspect-ratio: 4 / 3 !important;
+            aspect-ratio: 16 / 10 !important;
             background-color: #f8fafc !important;
             position: relative !important;
             overflow: hidden !important;
@@ -124,61 +128,164 @@
             border-bottom: 1px solid #f1f5f9 !important;
         }
 
-        .product-thumbnail-img {
+        .katalog-thumbnail-img {
             width: 100% !important;
             height: 100% !important;
             object-fit: cover !important;
-            transition: transform 0.35s ease !important;
+            transition: transform 0.4s ease !important;
         }
 
-        .mono-product-card-link:hover .product-thumbnail-img {
-            transform: scale(1.05) !important;
+        .katalog-card-link:hover .katalog-thumbnail-img {
+            transform: scale(1.04) !important;
         }
 
-        .product-thumbnail-placeholder {
+        /* Vector Placeholder */
+        .katalog-thumbnail-placeholder {
             display: flex !important;
+            flex-direction: column !important;
             align-items: center !important;
             justify-content: center !important;
             width: 100% !important;
             height: 100% !important;
-            background-color: #f1f5f9 !important;
-            color: #94a3b8 !important;
-            font-size: 2.5rem !important;
+            background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 100%) !important;
+            gap: 6px !important;
         }
 
-        /* Content Container */
-        .product-card-content {
-            padding: 14px 16px 16px 16px !important;
+        .placeholder-label {
+            font-size: 0.65rem !important;
+            font-weight: 800 !important;
+            letter-spacing: 1px !important;
+            color: #64748b !important;
+            text-transform: uppercase !important;
+        }
+
+        /* Overlaid Badges */
+        .katalog-badge-top-left {
+            position: absolute !important;
+            top: 12px !important;
+            left: 12px !important;
+            z-index: 2 !important;
+        }
+
+        .badge-type-pill {
+            background: #1e293b !important;
+            color: #ffffff !important;
+            font-size: 0.68rem !important;
+            font-weight: 800 !important;
+            padding: 3px 10px !important;
+            border-radius: 999px !important;
+            letter-spacing: 0.5px !important;
+            text-transform: uppercase !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
+            display: inline-block !important;
+        }
+
+        .katalog-badge-bottom-right {
+            position: absolute !important;
+            bottom: 10px !important;
+            right: 10px !important;
+            z-index: 2 !important;
+        }
+
+        .badge-duration-pill {
+            background: #059669 !important;
+            color: #ffffff !important;
+            font-size: 0.72rem !important;
+            font-weight: 700 !important;
+            padding: 3px 8px !important;
+            border-radius: 6px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 4px !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+        }
+
+        /* Card Body */
+        .katalog-card-body {
+            padding: 16px 18px 18px !important;
             display: flex !important;
             flex-direction: column !important;
             flex-grow: 1 !important;
         }
 
-        /* 2. Product Title (Max 2 lines) */
-        .product-card-title {
-            color: #0f172a !important;
-            font-size: 0.95rem !important;
-            font-weight: 700 !important;
-            line-height: 1.35 !important;
+        .katalog-store-name {
+            font-size: 0.75rem !important;
+            font-weight: 600 !important;
+            color: #64748b !important;
             margin-bottom: 6px !important;
-            display: -webkit-box !important;
-            -webkit-line-clamp: 2 !important;
-            -webkit-box-orient: vertical !important;
+            white-space: nowrap !important;
             overflow: hidden !important;
             text-overflow: ellipsis !important;
+            line-height: 1.2 !important;
         }
 
-        /* 3. Product Short Description (Max 2 lines) */
-        .product-card-desc {
-            color: #64748b !important;
-            font-size: 0.82rem !important;
-            line-height: 1.45 !important;
-            margin-bottom: 0 !important;
+        .katalog-product-title {
+            color: #0f172a !important;
+            font-size: 0.98rem !important;
+            font-weight: 800 !important;
+            line-height: 1.38 !important;
+            margin-bottom: 16px !important;
             display: -webkit-box !important;
             -webkit-line-clamp: 2 !important;
             -webkit-box-orient: vertical !important;
             overflow: hidden !important;
             text-overflow: ellipsis !important;
+            min-height: 2.7em !important;
+            transition: color 0.2s ease !important;
+        }
+
+        .katalog-card-link:hover .katalog-product-title {
+            color: #2563eb !important;
+        }
+
+        /* Card Footer */
+        .katalog-card-footer {
+            margin-top: auto !important;
+            display: flex !important;
+            align-items: flex-end !important;
+            justify-content: space-between !important;
+            gap: 8px !important;
+        }
+
+        .katalog-price-block {
+            display: flex !important;
+            flex-direction: column !important;
+        }
+
+        .katalog-price-label {
+            font-size: 0.72rem !important;
+            font-weight: 500 !important;
+            color: #94a3b8 !important;
+            line-height: 1 !important;
+            margin-bottom: 3px !important;
+        }
+
+        .katalog-price-value {
+            font-size: 1.12rem !important;
+            font-weight: 800 !important;
+            color: #2563eb !important;
+            line-height: 1 !important;
+            letter-spacing: -0.3px !important;
+        }
+
+        .katalog-rating-pill {
+            background: #fffdf0 !important;
+            border: 1px solid #fef08a !important;
+            color: #b45309 !important;
+            padding: 4px 9px !important;
+            border-radius: 8px !important;
+            font-size: 0.8rem !important;
+            font-weight: 800 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 4px !important;
+            box-shadow: 0 1px 2px rgba(217, 119, 6, 0.04) !important;
+            flex-shrink: 0 !important;
+        }
+
+        .katalog-rating-pill .bi-star-fill {
+            color: #f59e0b !important;
+            font-size: 0.76rem !important;
         }
 
         /* RESPONSIVE */
@@ -187,6 +294,9 @@
             .shop-header-title span { font-size: 1.1rem !important; }
             .mono-search-input { padding: 10px 14px !important; font-size: 0.85rem !important; }
             .mono-search-btn { padding: 0 16px !important; font-size: 0.8rem !important; }
+            .katalog-card-body { padding: 12px 14px 14px !important; }
+            .katalog-product-title { font-size: 0.9rem !important; margin-bottom: 12px !important; }
+            .katalog-price-value { font-size: 1rem !important; }
         }
         @media (max-width: 480px) {
             .shop-header-title { font-size: 1.25rem; }
@@ -200,7 +310,7 @@
     <div class="shop-container">
         <div class="d-flex align-items-center justify-content-between mb-4" style="flex-wrap:wrap; gap:12px;">
             <h4 class="shop-header-title mb-0">
-                Katalog Akun Premium
+                Katalog Produk & Layanan
                 @if($toko)
                     &nbsp;<span style="font-weight:600; color:#555; font-size:1.3rem;">— {{ $toko->nama_toko }}</span>
                 @endif
@@ -219,7 +329,7 @@
                 <div class="row align-items-center">
                     <div class="col-lg-2 text-center mb-3 mb-lg-0">
                         @if($toko->logo_toko)
-                            <img src="{{ asset('assets/img/logo_toko/' . $toko->logo_toko) }}" alt="{{ $toko->nama_toko }}" style="max-height: 100px; max-width: 100%; object-fit: contain; border-radius: 12px; border: 1px solid #e5e5e5; padding: 5px;">
+                            <img src="{{ asset('assets/img/toko/' . $toko->logo_toko) }}" alt="{{ $toko->nama_toko }}" style="max-height: 100px; max-width: 100%; object-fit: contain; border-radius: 12px; border: 1px solid #e5e5e5; padding: 5px;">
                         @else
                             <div class="rounded-circle bg-dark d-inline-flex align-items-center justify-content-center text-white" style="width: 90px; height: 90px; font-size: 2.5rem;">
                                 <i class="bi bi-shop"></i>
@@ -302,14 +412,14 @@
         <!-- Search & Category Filter -->
         <div class="row mb-4 align-items-center">
             <div class="col-12 col-md-6 mb-3 mb-md-0">
-                <div class="btn-group" role="group">
-                    <a href="{{ route('premium.katalog', array_merge(request()->except('kategori'), ['kategori' => 'all'])) }}" class="btn btn-sm {{ !request('kategori') || request('kategori') == 'all' ? 'btn-dark font-weight-bold' : 'btn-outline-dark' }}" style="border-radius: 8px 0 0 8px;">
+                <div class="btn-group shadow-sm" role="group">
+                    <a href="{{ route('premium.katalog', array_merge(request()->except('kategori'), ['kategori' => 'all'])) }}" class="btn btn-sm {{ !request('kategori') || request('kategori') == 'all' ? 'btn-dark font-weight-bold' : 'btn-outline-dark' }}" style="border-radius: 8px 0 0 8px; padding: 7px 14px;">
                         Semua Produk
                     </a>
-                    <a href="{{ route('premium.katalog', array_merge(request()->except('kategori'), ['kategori' => 'premium'])) }}" class="btn btn-sm {{ request('kategori') == 'premium' ? 'btn-dark font-weight-bold' : 'btn-outline-dark' }}">
+                    <a href="{{ route('premium.katalog', array_merge(request()->except('kategori'), ['kategori' => 'premium'])) }}" class="btn btn-sm {{ request('kategori') == 'premium' ? 'btn-dark font-weight-bold' : 'btn-outline-dark' }}" style="padding: 7px 14px;">
                         <i class="bi bi-shield-check mr-1"></i> Akun Premium
                     </a>
-                    <a href="{{ route('premium.katalog', array_merge(request()->except('kategori'), ['kategori' => 'digital'])) }}" class="btn btn-sm {{ request('kategori') == 'digital' ? 'btn-dark font-weight-bold' : 'btn-outline-dark' }}" style="border-radius: 0 8px 8px 0;">
+                    <a href="{{ route('premium.katalog', array_merge(request()->except('kategori'), ['kategori' => 'digital'])) }}" class="btn btn-sm {{ request('kategori') == 'digital' ? 'btn-dark font-weight-bold' : 'btn-outline-dark' }}" style="border-radius: 0 8px 8px 0; padding: 7px 14px;">
                         <i class="bi bi-file-earmark-code-fill mr-1"></i> Produk Digital
                     </a>
                 </div>
@@ -319,10 +429,13 @@
                     @if(request('id_toko'))
                         <input type="hidden" name="id_toko" value="{{ request('id_toko') }}">
                     @endif
+                    @if(request('toko'))
+                        <input type="hidden" name="toko" value="{{ request('toko') }}">
+                    @endif
                     @if(request('kategori'))
                         <input type="hidden" name="kategori" value="{{ request('kategori') }}">
                     @endif
-                    <div class="input-group">
+                    <div class="input-group shadow-sm">
                         <input type="text" name="search" class="form-control mono-search-input" placeholder="Cari layanan premium / produk digital..." value="{{ request('search') }}">
                         <div class="input-group-append">
                             <button class="btn mono-search-btn" type="submit">
@@ -347,7 +460,7 @@
 
         @if($toko && $reviews)
         <!-- Ulasan Pembeli Section -->
-        <hr class="my-5" style="border-top: 2px solid #000000;">
+        <hr class="my-5" style="border-top: 2px solid #e2e8f0;">
         
         <div class="mb-5">
             <h4 class="font-weight-bold text-uppercase mb-4" style="letter-spacing: -0.5px; border-left: 4px solid #000000; padding-left: 14px;">Ulasan Pembeli</h4>

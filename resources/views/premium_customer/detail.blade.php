@@ -541,14 +541,14 @@
                     <span><strong class="text-dark">{{ $countReviews }}</strong> Ulasan Pembeli</span>
                 </div>
 
-                <!-- 
+                {{-- 
                     ================================================================
                     LIVEWIRE MIGRATION SECTION (ProductVariantSelector)
                     Untuk mengaktifkan Livewire Component dan membandingkan hasilnya,
                     cukup un-comment baris di bawah dan comment-out blok Vanilla JS (section 4 s/d 8).
                     ================================================================
                     <livewire:product-variant-selector :product="$produk" />
-                -->
+                --}}
 
                 <!-- 4. Price Box (Range / Single Price) [LEGACY BLADE + VANILLA JS] -->
                 <div class="shopee-price-box">
