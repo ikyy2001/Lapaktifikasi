@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\MitraIndustri;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Cache;
 
 class MitraIndustriController extends Controller
 {
@@ -32,6 +33,7 @@ class MitraIndustriController extends Controller
         }
 
         $mitra->save();
+        Cache::forget('api_landing_home');
 
         return redirect()->back()->with('success', 'Mitra Industri berhasil ditambahkan!');
     }
@@ -59,6 +61,7 @@ class MitraIndustriController extends Controller
         }
 
         $mitra->save();
+        Cache::forget('api_landing_home');
 
         return redirect()->back()->with('success', 'Mitra Industri berhasil diupdate!');
     }
@@ -72,6 +75,7 @@ class MitraIndustriController extends Controller
         }
         
         $mitra->delete();
+        Cache::forget('api_landing_home');
 
         return redirect()->back()->with('success', 'Mitra Industri berhasil dihapus!');
     }
@@ -81,6 +85,7 @@ class MitraIndustriController extends Controller
         $mitra = MitraIndustri::findOrFail($id);
         $mitra->is_active = !$mitra->is_active;
         $mitra->save();
+        Cache::forget('api_landing_home');
 
         $status = $mitra->is_active ? 'diaktifkan' : 'dinonaktifkan';
         return redirect()->back()->with('success', "Mitra Industri berhasil $status!");

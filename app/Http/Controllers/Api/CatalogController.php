@@ -10,27 +10,32 @@ use App\Models\VarianLayanan;
 use App\Models\Review;
 use App\Enums\StokStatus;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class CatalogController extends ApiController
 {
     /**
-     * Get list of active shops
+     * Get list of active shops (Cached)
      */
     public function getShops(Request $request)
     {
-        $search = $request->input('search');
-        $perPage = (int) $request->input('per_page', 12);
+        $cacheKey = 'api_shops_list_' . md5(json_encode($request->all()));
 
-        $query = Toko::where('status', 'aktif')->where('is_banned', false)->with('badges');
+        $shops = Cache::remember($cacheKey, 300, function () use ($request) {
+            $search = $request->input('search');
+            $perPage = (int) $request->input('per_page', 12);
 
-        if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('nama_toko', 'like', '%' . $search . '%')
-                  ->orWhere('informasi_toko', 'like', '%' . $search . '%');
-            });
-        }
+            $query = Toko::where('status', 'aktif')->where('is_banned', false)->with('badges');
 
-        $shops = $query->paginate($perPage);
+            if ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('nama_toko', 'like', '%' . $search . '%')
+                      ->orWhere('informasi_toko', 'like', '%' . $search . '%');
+                });
+            }
+
+            return $query->paginate($perPage);
+        });
 
         return $this->sendResponse($shops, 'Daftar toko berhasil diambil');
     }

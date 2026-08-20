@@ -12,6 +12,8 @@ use App\Models\VoucherKlaim;
 use App\Enums\PembelianStatus;
 use App\Enums\StokStatus;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Support\Str;
 use App\Services\PaymentProcessingService;
 use App\Services\Gateways\PaymentGatewayFactory;
@@ -49,8 +51,16 @@ class CheckoutController extends ApiController
         }
 
         $id_customer = $customer->id;
+        $lock = null;
 
         try {
+            try {
+                $lock = Cache::lock("checkout_varian_{$id_varian}", 10);
+                $lock->block(5);
+            } catch (\Throwable $e) {
+                // fallback if lock is not supported by driver
+            }
+
             $pembelian = DB::transaction(function () use ($id_varian, $id_customer, $kode_voucher) {
                 $varian = VarianLayanan::with('tipeLayanan.produk')->findOrFail($id_varian);
                 $isDigital = ($varian->tipeLayanan?->produk?->tipe_produk === 'digital');
@@ -145,8 +155,14 @@ class CheckoutController extends ApiController
 
             return $this->sendResponse($pembelian, 'Checkout berhasil, silakan lanjutkan pembayaran', 201);
 
+        } catch (LockTimeoutException $e) {
+            return $this->sendError('Sistem sedang sibuk memproses pesanan varian ini, silakan coba beberapa detik lagi.', [], 429);
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), [], 400);
+        } finally {
+            if ($lock) {
+                optional($lock)->release();
+            }
         }
     }
 

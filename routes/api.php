@@ -15,9 +15,11 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Webhook / Callbacks
-Route::post('/callback', [\App\Http\Controllers\MidtransController::class, 'callback']);
-Route::post('/callback/pakasir', [\App\Http\Controllers\PakasirController::class, 'callback']);
-Route::post('/callback/tripay', [\App\Http\Controllers\TriPayController::class, 'callback']);
+Route::middleware('throttle:webhook_rate_limit')->group(function () {
+    Route::post('/callback', [\App\Http\Controllers\MidtransController::class, 'callback']);
+    Route::post('/callback/pakasir', [\App\Http\Controllers\PakasirController::class, 'callback']);
+    Route::post('/callback/tripay', [\App\Http\Controllers\TriPayController::class, 'callback']);
+});
 
 // API V1
 Route::prefix('v1')->namespace('App\Http\Controllers\Api')->group(function () {
@@ -36,11 +38,13 @@ Route::prefix('v1')->namespace('App\Http\Controllers\Api')->group(function () {
     Route::get('/produk/{id}', 'CatalogController@getProductDetail');
     Route::get('/produk/varian/{id}/stok', 'CatalogController@checkStock');
 
-    // Auth
-    Route::post('/auth/login', 'AuthController@login');
-    Route::post('/auth/register', 'AuthController@register');
-    Route::post('/auth/forgot-password', 'AuthController@forgotPassword');
-    Route::post('/auth/reset-password', 'AuthController@resetPassword');
+    // Auth (Protected with Auth Rate Limiter)
+    Route::middleware('throttle:auth_rate_limit')->group(function () {
+        Route::post('/auth/login', 'AuthController@login');
+        Route::post('/auth/register', 'AuthController@register');
+        Route::post('/auth/forgot-password', 'AuthController@forgotPassword');
+        Route::post('/auth/reset-password', 'AuthController@resetPassword');
+    });
 
     // Protected Routes (auth:sanctum)
     Route::middleware('auth:sanctum')->group(function () {
@@ -52,10 +56,12 @@ Route::prefix('v1')->namespace('App\Http\Controllers\Api')->group(function () {
 
         // Customer Only Features
         Route::middleware('only.customer')->group(function () {
-            // Checkout & Pembayaran
-            Route::post('/checkout', 'CheckoutController@checkout');
-            Route::post('/pembayaran/generate/{order_id}', 'CheckoutController@generateTransaction');
-            Route::get('/pembayaran/status/{order_id}', 'CheckoutController@status');
+            // Checkout & Pembayaran (Protected with Checkout Rate Limiter)
+            Route::middleware('throttle:checkout_rate_limit')->group(function () {
+                Route::post('/checkout', 'CheckoutController@checkout');
+                Route::post('/pembayaran/generate/{order_id}', 'CheckoutController@generateTransaction');
+                Route::get('/pembayaran/status/{order_id}', 'CheckoutController@status');
+            });
             
             // Premium Customer Data, Orders & Downloads
             Route::get('/customer/member', 'CustomerPremiumController@getMemberData');

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Testimoni;
+use Illuminate\Support\Facades\Cache;
 
 class TestimoniController extends Controller
 {
@@ -30,6 +31,8 @@ class TestimoniController extends Controller
             'is_active' => true,
         ]);
 
+        Cache::forget('api_landing_home');
+
         return redirect()->back()->with('success', 'Testimoni berhasil ditambahkan!');
     }
 
@@ -50,6 +53,8 @@ class TestimoniController extends Controller
             'comment' => $request->comment,
         ]);
 
+        Cache::forget('api_landing_home');
+
         return redirect()->back()->with('success', 'Testimoni berhasil diperbarui!');
     }
 
@@ -57,6 +62,7 @@ class TestimoniController extends Controller
     {
         $testimoni = Testimoni::findOrFail($id);
         $testimoni->delete();
+        Cache::forget('api_landing_home');
 
         return redirect()->back()->with('success', 'Testimoni berhasil dihapus!');
     }
@@ -66,6 +72,7 @@ class TestimoniController extends Controller
         $testimoni = Testimoni::findOrFail($id);
         $testimoni->is_active = !$testimoni->is_active;
         $testimoni->save();
+        Cache::forget('api_landing_home');
 
         $status = $testimoni->is_active ? 'diaktifkan' : 'dinonaktifkan';
         return redirect()->back()->with('success', "Testimoni berhasil $status!");

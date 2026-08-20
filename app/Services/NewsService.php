@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\News;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Cache;
 
 class NewsService
 {
@@ -66,7 +67,11 @@ class NewsService
             $data['published_at'] = now();
         }
 
-        return News::create($data);
+        $news = News::create($data);
+
+        Cache::forget('api_landing_home');
+
+        return $news;
     }
 
     /**
@@ -79,6 +84,8 @@ class NewsService
      */
     public function update(News $news, array $data): News
     {
+        $oldSlug = $news->slug;
+
         // Regenerate unique slug jika judul diubah dan slug tidak diinputkan manual
         if (isset($data['judul']) && !isset($data['slug']) && $data['judul'] !== $news->judul) {
             $slug = Str::slug($data['judul']);
@@ -99,6 +106,12 @@ class NewsService
 
         $news->update($data);
 
+        Cache::forget('api_landing_home');
+        Cache::forget("api_news_detail_{$oldSlug}");
+        if (isset($data['slug'])) {
+            Cache::forget("api_news_detail_{$data['slug']}");
+        }
+
         return $news->fresh();
     }
 
@@ -110,6 +123,9 @@ class NewsService
      */
     public function delete(News $news): bool
     {
+        Cache::forget('api_landing_home');
+        Cache::forget("api_news_detail_{$news->slug}");
+
         return (bool) $news->delete();
     }
 }

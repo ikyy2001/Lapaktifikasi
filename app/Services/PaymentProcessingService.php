@@ -5,6 +5,7 @@ namespace App\Services;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Cache;
 use App\Models\Pembelian;
 use App\Models\Pembayaran;
 use App\Models\StokAkun;
@@ -29,100 +30,114 @@ class PaymentProcessingService
             return;
         }
 
-        DB::transaction(function () use ($pembelian, $paymentDetails) {
-            // Re-fetch and lock the record to prevent race conditions
-            $lockedPembelian = Pembelian::where('id_pembelian', $pembelian->id_pembelian)->lockForUpdate()->first();
-            
-            if (!$lockedPembelian || $lockedPembelian->status === PembelianStatus::SUCCESS) {
-                return;
+        $lock = null;
+        try {
+            try {
+                $lock = Cache::lock("process_payment_{$pembelian->id_pembelian}", 10);
+                $lock->block(5);
+            } catch (\Throwable $e) {
+                // fallback if lock not supported by driver
             }
 
-            $gateway = $paymentDetails['payment_gateway'] ?? 'unknown';
-            Pembelian::$sumberPerubahan = "webhook_{$gateway}";
-            
-            $lockedPembelian->update([
-                'status' => PembelianStatus::SUCCESS,
-                'reserved_until' => null,
-            ]);
-            
-            Pembelian::$sumberPerubahan = null;
+            DB::transaction(function () use ($pembelian, $paymentDetails) {
+                // Re-fetch and lock the record to prevent race conditions
+                $lockedPembelian = Pembelian::where('id_pembelian', $pembelian->id_pembelian)->lockForUpdate()->first();
+                
+                if (!$lockedPembelian || $lockedPembelian->status === PembelianStatus::SUCCESS) {
+                    return;
+                }
 
-            $pembayaranExists = Pembayaran::where('id_pembelian', $lockedPembelian->id_pembelian)->exists();
-            if (!$pembayaranExists) {
-                Pembayaran::create([
-                    'id_pembelian' => $pembelian->id_pembelian,
-                    'metode_pembayaran' => $paymentDetails['payment_type'] ?? 'unknown',
-                    'payment_gateway' => $gateway,
-                    'jumlah_dibayar' => $paymentDetails['gross_amount'] ?? $pembelian->harga_saat_beli,
-                    'midtrans_transaction_id' => $paymentDetails['transaction_id'] ?? null,
-                    'tanggal_bayar' => now(),
+                $gateway = $paymentDetails['payment_gateway'] ?? 'unknown';
+                Pembelian::$sumberPerubahan = "webhook_{$gateway}";
+                
+                $lockedPembelian->update([
+                    'status' => PembelianStatus::SUCCESS,
+                    'reserved_until' => null,
                 ]);
-            }
+                
+                Pembelian::$sumberPerubahan = null;
 
-            $stok = StokAkun::find($pembelian->id_stok);
+                $pembayaranExists = Pembayaran::where('id_pembelian', $lockedPembelian->id_pembelian)->exists();
+                if (!$pembayaranExists) {
+                    Pembayaran::create([
+                        'id_pembelian' => $pembelian->id_pembelian,
+                        'metode_pembayaran' => $paymentDetails['payment_type'] ?? 'unknown',
+                        'payment_gateway' => $gateway,
+                        'jumlah_dibayar' => $paymentDetails['gross_amount'] ?? $pembelian->harga_saat_beli,
+                        'midtrans_transaction_id' => $paymentDetails['transaction_id'] ?? null,
+                        'tanggal_bayar' => now(),
+                    ]);
+                }
 
-            $canUseOldStok = $stok && (
-                ($stok->status === StokStatus::RESERVED && $stok->id_pembelian == $pembelian->id_pembelian) ||
-                ($stok->status === StokStatus::TERSEDIA)
-            );
+                $stok = StokAkun::find($pembelian->id_stok);
 
-            if ($canUseOldStok) {
-                $stok->update([
-                    'status' => StokStatus::TERJUAL,
-                    'id_pembelian' => $pembelian->id_pembelian,
-                    'tanggal_terjual' => now(),
-                ]);
-            } else {
-                $newStok = StokAkun::where('id_varian', $pembelian->id_varian)
-                    ->where('status', StokStatus::TERSEDIA)
-                    ->orderBy('created_at', 'asc')
-                    ->lockForUpdate()
-                    ->first();
+                $canUseOldStok = $stok && (
+                    ($stok->status === StokStatus::RESERVED && $stok->id_pembelian == $pembelian->id_pembelian) ||
+                    ($stok->status === StokStatus::TERSEDIA)
+                );
 
-                if ($newStok) {
-                    $newStok->update([
+                if ($canUseOldStok) {
+                    $stok->update([
                         'status' => StokStatus::TERJUAL,
                         'id_pembelian' => $pembelian->id_pembelian,
                         'tanggal_terjual' => now(),
                     ]);
-
-                    $lockedPembelian->update([
-                        'id_stok' => $newStok->id_stok,
-                    ]);
                 } else {
-                    try {
-                        $orderId = $pembelian->order_id;
-                        Mail::raw(
-                            "Peringatan: Transaksi dengan Order ID {$orderId} berhasil dibayar, tetapi stok untuk varian tersebut telah habis. Silakan lakukan pengisian stok secara manual untuk pengguna.",
-                            function ($message) use ($orderId) {
-                                $message->to('g4lihanggoro@gmail.com')
-                                    ->subject("Peringatan: Stok Akun Premium Habis (Order ID: {$orderId})");
-                            }
-                        );
-                    } catch (\Exception $mailEx) {
-                        Log::error('Failed to send admin out-of-stock notification: ' . $mailEx->getMessage());
+                    $newStok = StokAkun::where('id_varian', $pembelian->id_varian)
+                        ->where('status', StokStatus::TERSEDIA)
+                        ->orderBy('created_at', 'asc')
+                        ->lockForUpdate()
+                        ->first();
+
+                    if ($newStok) {
+                        $newStok->update([
+                            'status' => StokStatus::TERJUAL,
+                            'id_pembelian' => $pembelian->id_pembelian,
+                            'tanggal_terjual' => now(),
+                        ]);
+
+                        $lockedPembelian->update([
+                            'id_stok' => $newStok->id_stok,
+                        ]);
+                    } else {
+                        try {
+                            $orderId = $pembelian->order_id;
+                            Mail::raw(
+                                "Peringatan: Transaksi dengan Order ID {$orderId} berhasil dibayar, tetapi stok untuk varian tersebut telah habis. Silakan lakukan pengisian stok secara manual untuk pengguna.",
+                                function ($message) use ($orderId) {
+                                    $message->to('g4lihanggoro@gmail.com')
+                                        ->subject("Peringatan: Stok Akun Premium Habis (Order ID: {$orderId})");
+                                }
+                            );
+                        } catch (\Exception $mailEx) {
+                            Log::error('Failed to send admin out-of-stock notification: ' . $mailEx->getMessage());
+                        }
                     }
                 }
+            });
+
+            SendAccountInvoiceWhatsapp::dispatch($pembelian->id_pembelian);
+
+            try {
+                $pembelian->refresh();
+                $customerUser = $pembelian->customer->user;
+                $varian = $pembelian->varianLayanan;
+                $namaProdukVarian = $varian->tipeLayanan->produk->nama_produk . ' - ' . $varian->tipeLayanan->nama_tipe . ' (' . $varian->nama_varian . ')';
+
+                Mail::to($customerUser->email)->send(new \App\Mail\MailPremiumBeli(
+                    $customerUser->name ?? $customerUser->email,
+                    $namaProdukVarian,
+                    $pembelian->harga_saat_beli,
+                    $pembelian->order_id
+                ));
+            } catch (\Exception $mailEx) {
+                $gateway = $paymentDetails['payment_gateway'] ?? 'unknown';
+                Log::error("Failed to send premium purchase email in {$gateway} callback: " . $mailEx->getMessage());
             }
-        });
-
-        SendAccountInvoiceWhatsapp::dispatch($pembelian->id_pembelian);
-
-        try {
-            $pembelian->refresh();
-            $customerUser = $pembelian->customer->user;
-            $varian = $pembelian->varianLayanan;
-            $namaProdukVarian = $varian->tipeLayanan->produk->nama_produk . ' - ' . $varian->tipeLayanan->nama_tipe . ' (' . $varian->nama_varian . ')';
-
-            Mail::to($customerUser->email)->send(new \App\Mail\MailPremiumBeli(
-                $customerUser->name ?? $customerUser->email,
-                $namaProdukVarian,
-                $pembelian->harga_saat_beli,
-                $pembelian->order_id
-            ));
-        } catch (\Exception $mailEx) {
-            $gateway = $paymentDetails['payment_gateway'] ?? 'unknown';
-            Log::error("Failed to send premium purchase email in {$gateway} callback: " . $mailEx->getMessage());
+        } finally {
+            if ($lock) {
+                optional($lock)->release();
+            }
         }
     }
 

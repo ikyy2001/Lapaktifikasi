@@ -636,6 +636,10 @@ class AdminController extends ApiController
 
         $settings->save();
 
+        Cache::forget('setting_website_global');
+        Cache::forget('api_landing_home');
+        Cache::forget('api_payment_channels');
+
         return $this->sendResponse($settings, 'Setting website berhasil diperbarui');
     }
 

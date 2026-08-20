@@ -87,6 +87,10 @@ class SettingWebsiteController extends Controller
 
         $settings->save();
 
+        \Illuminate\Support\Facades\Cache::forget('setting_website_global');
+        \Illuminate\Support\Facades\Cache::forget('api_landing_home');
+        \Illuminate\Support\Facades\Cache::forget('api_payment_channels');
+
         return redirect()->back()->with('success', 'Pengaturan Website berhasil diperbarui!');
     }
 }

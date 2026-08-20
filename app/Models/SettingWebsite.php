@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 class SettingWebsite extends Model
 {
@@ -30,13 +31,23 @@ class SettingWebsite extends Model
     ];
 
     /**
+     * Get cached site settings
+     */
+    public static function getCached(): ?self
+    {
+        return Cache::remember('setting_website_global', 3600, function () {
+            return self::first();
+        });
+    }
+
+    /**
      * Get list of currently active payment gateway slugs.
      *
      * @return array
      */
     public static function getActiveGateways(): array
     {
-        $settings = self::first();
+        $settings = self::getCached();
         if (!$settings) {
             return ['midtrans', 'tripay', 'pakasir'];
         }
@@ -69,4 +80,3 @@ class SettingWebsite extends Model
         return in_array($gateway, $active, true);
     }
 }
-
