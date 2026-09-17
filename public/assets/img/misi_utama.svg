@@ -1,0 +1,18 @@
+<svg width="200" height="235" viewBox="0 0 200 235" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M100 8C155 8 186 28 186 28V125C186 178 100 225 100 225C100 225 14 178 14 125V28C14 28 45 8 100 8Z" fill="#CFCFCF" stroke="#2B2B2B" stroke-width="4.5" stroke-linejoin="round"/>
+    <text x="100" y="48" font-family="'Space Grotesk', 'Arial Black', sans-serif" font-weight="900" font-size="20" fill="#111111" text-anchor="middle" letter-spacing="4">DIVISI</text>
+    
+    <g transform="translate(100, 116)">
+        <path d="M-36 -12H-46V12H-36V-12ZM36 -12H46V12H36V-12ZM-12 -36V-46H12V-36H-12ZM-12 36V46H12V36H-12ZM-28 -28L-35 -35L-18 -52L-11 -45L-28 -28ZM28 28L35 35L18 52L11 45L28 28ZM28 -28L35 -35L52 -18L45 -11L28 -28ZM-28 28L-35 35L-52 18L-45 11L-28 28Z" fill="#555B63"/>
+        <circle cx="0" cy="0" r="36" fill="#555B63"/>
+        <circle cx="0" cy="0" r="28" fill="#EAEAEA"/>
+        <path d="M -20 -8 A 21 21 0 0 1 20 -8" fill="none" stroke="#2B2B2B" stroke-width="3.5" stroke-linecap="round"/>
+        <path d="M 20 8 A 21 21 0 0 1 -20 8" fill="none" stroke="#2B2B2B" stroke-width="3.5" stroke-linecap="round"/>
+        <polyline points="-16,-14 -20,-8 -12,-8" fill="none" stroke="#2B2B2B" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <polyline points="16,14 20,8 12,8" fill="none" stroke="#2B2B2B" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="0" cy="0" r="21" fill="#E60000" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="0" y="5" font-family="monospace" font-weight="900" font-size="15" fill="#FFFFFF" text-anchor="middle" letter-spacing="-1">&lt;/&gt;</text>
+    </g>
+
+    <text x="100" y="196" font-family="'Space Grotesk', 'Arial Black', sans-serif" font-weight="900" font-size="22" fill="#111111" text-anchor="middle" letter-spacing="4">RPL</text>
+</svg>

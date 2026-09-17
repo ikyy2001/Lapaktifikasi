@@ -2,6 +2,10 @@
 
 @section('title', 'Dashboard Seller: ' . $toko->nama_toko)
 
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/pages/seller-dashboard.css') }}">
+@endpush
+
 @section('content')
 
 @if($success = Session::get('success'))
@@ -16,41 +20,40 @@
 </script>
 @endif
 
-<!-- Time Range Selector Form (Collapsible on Mobile) -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card mb-0 shadow-sm border border-dark" style="border-radius: 12px; overflow: hidden;">
-            <div class="card-header bg-white d-flex justify-content-between align-items-center py-3 px-3 d-md-none" data-toggle="collapse" data-target="#sellerFilterCollapse" style="cursor: pointer;">
-                <span class="font-weight-bold text-dark" style="font-size: 0.9rem;">
-                    <i class="bi bi-funnel-fill mr-1"></i> Filter Rentang Waktu
-                </span>
-                <i class="bi bi-chevron-down text-dark"></i>
-            </div>
-            <div id="sellerFilterCollapse" class="collapse d-md-block">
-                <form action="{{ url('seller/dashboard') }}" method="GET" class="form-inline p-3 bg-white flex-wrap" style="gap: 10px;">
-                    <div class="form-group mb-2 mb-sm-0 flex-grow-1 flex-sm-grow-0">
-                        <label for="filter_range" class="font-weight-bold text-dark mr-2">Rentang Waktu:</label>
-                        <select name="filter_range" id="filter_range" class="form-control form-control-sm border-dark text-dark w-100" onchange="toggleCustomDates(this.value)" style="border-radius: 6px;">
-                            <option value="today" {{ request('filter_range') == 'today' ? 'selected' : '' }}>Hari Ini</option>
-                            <option value="7_days" {{ request('filter_range', 'today') == '7_days' ? 'selected' : '' }}>7 Hari Terakhir</option>
-                            <option value="this_month" {{ request('filter_range') == 'this_month' ? 'selected' : '' }}>Bulan Ini</option>
-                            <option value="custom" {{ request('filter_range') == 'custom' ? 'selected' : '' }}>Rentang Custom</option>
-                        </select>
-                    </div>
-                    
-                    <div id="custom-date-inputs" class="form-group mb-2 mb-sm-0 flex-wrap" style="display: {{ request('filter_range') == 'custom' ? 'flex' : 'none' }}; align-items: center; gap: 8px;">
-                        <input type="date" class="form-control form-control-sm border-dark text-dark" name="start_date" value="{{ request('start_date') }}" style="border-radius: 6px;">
-                        <span class="text-muted">s/d</span>
-                        <input type="date" class="form-control form-control-sm border-dark text-dark" name="end_date" value="{{ request('end_date') }}" style="border-radius: 6px;">
-                    </div>
-                    
-                    <button type="submit" class="btn btn-sm btn-dark mb-2 mb-sm-0" style="border-radius: 6px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; min-height: 38px;">
-                        Apply
-                    </button>
-                </form>
-            </div>
+<x-page-header title="Dashboard {{ $toko->nama_toko }}" subtitle="Kelola statistik toko, penjualan, dan saldo mutasi toko Anda.">
+    <x-slot:actions>
+        <a href="{{ url('seller/profil') }}" class="px-5 py-2.5 rounded-full text-xs font-semibold text-indigo-950 bg-white border border-gray-200 hover:bg-gray-50 transition-colors shadow-sm">
+            Profil Toko
+        </a>
+        <a href="{{ route('seller.voucher.index') }}" class="px-5 py-2.5 rounded-full text-xs font-semibold text-white bg-violet-700 hover:bg-violet-800 transition-colors shadow-sm">
+            Voucher Toko
+        </a>
+    </x-slot:actions>
+</x-page-header>
+
+<!-- Time Range Selector Form -->
+<div class="seller-filter-card mb-8">
+    <form action="{{ url('seller/dashboard') }}" method="GET" class="flex flex-wrap items-center gap-4">
+        <div class="flex items-center gap-2">
+            <label for="filter_range" class="font-bold text-indigo-950 text-sm mb-0">Rentang Waktu:</label>
+            <select name="filter_range" id="filter_range" class="seller-filter-input bg-white text-gray-800 font-medium focus:outline-none focus:border-violet-600" onchange="toggleCustomDates(this.value)">
+                <option value="today" {{ request('filter_range') == 'today' ? 'selected' : '' }}>Hari Ini</option>
+                <option value="7_days" {{ request('filter_range', 'today') == '7_days' ? 'selected' : '' }}>7 Hari Terakhir</option>
+                <option value="this_month" {{ request('filter_range') == 'this_month' ? 'selected' : '' }}>Bulan Ini</option>
+                <option value="custom" {{ request('filter_range') == 'custom' ? 'selected' : '' }}>Rentang Custom</option>
+            </select>
         </div>
-    </div>
+        
+        <div id="custom-date-inputs" class="flex items-center gap-2" style="display: {{ request('filter_range') == 'custom' ? 'flex' : 'none' }};">
+            <input type="date" class="seller-filter-input" name="start_date" value="{{ request('start_date') }}">
+            <span class="text-xs text-gray-400">s/d</span>
+            <input type="date" class="seller-filter-input" name="end_date" value="{{ request('end_date') }}">
+        </div>
+        
+        <button type="submit" class="px-5 py-2 bg-indigo-950 hover:bg-indigo-900 text-white text-xs font-bold rounded-lg uppercase tracking-wider transition-colors">
+            Terapkan Filter
+        </button>
+    </form>
 </div>
 
 <script>
@@ -59,178 +62,101 @@
     }
 </script>
 
-<div class="row">
-    <!-- Statistic 1: Order Sukses -->
-    <div class="col-12 col-sm-6 col-md-6 col-lg-3 col-xl-3 mb-3">
-        <div class="card card-statistic-1">
-            <div class="card-icon bg-success">
-                <i class="bi bi-cart-check fa-2x text-white"></i>
-            </div>
-            <div class="card-wrap">
-                <div class="card-header">
-                    <h4>{{ $range === 'today' ? 'Order Sukses Hari Ini' : 'Order Sukses (' . $startDate->format('d/m') . '-' . $endDate->format('d/m') . ')' }}</h4>
-                </div>
-                <div class="card-body">
-                    {{ $total_order }}
-                </div>
-            </div>
-        </div>
-    </div>
- 
-    <!-- Statistic 2: Omzet -->
-    <div class="col-12 col-sm-6 col-md-6 col-lg-3 col-xl-3 mb-3">
-        <div class="card card-statistic-1">
-            <div class="card-icon bg-dark">
-                <i class="bi bi-cash fa-2x text-white"></i>
-            </div>
-            <div class="card-wrap">
-                <div class="card-header">
-                    <h4>{{ $range === 'today' ? 'Omzet Hari Ini' : 'Omzet (' . $startDate->format('d/m') . '-' . $endDate->format('d/m') . ')' }}</h4>
-                </div>
-                <div class="card-body">
-                    Rp {{ $total_penjualan }}
-                </div>
-            </div>
-        </div>
-    </div>
+<!-- Stat Cards Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+    <x-stat-card 
+        title="{{ $range === 'today' ? 'Order Sukses Hari Ini' : 'Order Sukses' }}" 
+        value="{{ $total_order }}" 
+        icon="bi bi-cart-check"
+        iconBg="bg-emerald-600"
+        badgeText="Berhasil"
+        badgeClass="text-emerald-700 bg-emerald-50"
+    />
 
-    <!-- Statistic 3: Saldo Toko -->
-    <div class="col-12 col-sm-6 col-md-6 col-lg-3 col-xl-3 mb-3">
-        <div class="card card-statistic-1">
-            <div class="card-icon bg-primary">
-                <i class="bi bi-wallet2 fa-2x text-white"></i>
-            </div>
-            <div class="card-wrap">
-                <div class="card-header">
-                    <h4>Saldo Saat Ini</h4>
-                </div>
-                <div class="card-body">
-                    Rp {{ number_format($saldo_toko, 0, ',', '.') }}
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-stat-card 
+        title="{{ $range === 'today' ? 'Omzet Hari Ini' : 'Omzet Toko' }}" 
+        value="Rp {{ is_numeric($total_penjualan) ? number_format($total_penjualan, 0, ',', '.') : $total_penjualan }}" 
+        icon="bi bi-cash-stack"
+        iconBg="bg-indigo-950"
+        badgeText="Pendapatan"
+        badgeClass="text-indigo-700 bg-indigo-50"
+    />
 
-    <!-- Statistic 4: Total Barang Terjual -->
-    <div class="col-12 col-sm-6 col-md-6 col-lg-3 col-xl-3 mb-3">
-        <div class="card card-statistic-1">
-            <div class="card-icon bg-warning">
-                <i class="bi bi-box-seam fa-2x text-white"></i>
-            </div>
-            <div class="card-wrap">
-                <div class="card-header">
-                    <h4>Total Produk Terjual</h4>
-                </div>
-                <div class="card-body">
-                    {{ $total_produk_terjual }}
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-stat-card 
+        title="Saldo Toko Saat Ini" 
+        value="Rp {{ number_format($saldo_toko, 0, ',', '.') }}" 
+        icon="bi bi-wallet2"
+        iconBg="bg-violet-700"
+        badgeText="Saldo"
+        badgeClass="text-violet-700 bg-violet-50"
+    />
+
+    <x-stat-card 
+        title="Total Produk Terjual" 
+        value="{{ $total_produk_terjual }}" 
+        icon="bi bi-box-seam"
+        iconBg="bg-amber-600"
+        badgeText="Unit"
+        badgeClass="text-amber-700 bg-amber-50"
+    />
 </div>
 
-<div class="row">
-    <!-- Mutation Logs Section -->
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <h4>Riwayat Mutasi Saldo Terbaru</h4>
-                <a href="{{ url('seller/mutasi') }}" class="btn btn-primary btn-sm" aria-label="Lihat semua mutasi saldo">
-                    <i class="fas fa-list mr-1"></i> Lihat Semua
-                </a>
-            </div>
-            <div class="card-body p-0">
-                <!-- Desktop Table -->
-                <div class="table-responsive d-none d-md-block">
-                    <table class="table table-striped table-md mb-0">
-                        <thead>
-                            <tr>
-                                <th>Tanggal</th>
-                                <th>Tipe</th>
-                                <th>Nominal</th>
-                                <th>Saldo Akhir</th>
-                                <th>Keterangan</th>
-                                <th>Petugas</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($riwayat_mutasi as $log)
-                            <tr>
-                                <td>{{ $log->created_at ? $log->created_at->format('d M Y H:i') : '-' }}</td>
-                                <td>
-                                    @if($log->tipe == 'kredit_penjualan')
-                                        <span class="badge badge-success">Kredit Penjualan</span>
-                                    @elseif($log->tipe == 'potong_withdraw')
-                                        <span class="badge badge-danger">Potong Withdraw</span>
-                                    @elseif($log->tipe == 'penyesuaian_admin')
-                                        <span class="badge badge-warning">Penyesuaian Admin</span>
-                                    @else
-                                        <span class="badge badge-secondary">{{ $log->tipe }}</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    <span class="text-{{ $log->nominal > 0 ? 'success' : 'danger' }} font-weight-bold">
-                                        {{ $log->nominal > 0 ? '+' : '' }}Rp {{ number_format($log->nominal, 0, ',', '.') }}
-                                    </span>
-                                </td>
-                                <td>Rp {{ number_format($log->saldo_akhir, 0, ',', '.') }}</td>
-                                <td>{{ $log->keterangan ?? '-' }}</td>
-                                <td>
-                                    @if($log->tipe == 'kredit_penjualan')
-                                        <small class="text-muted">Sistem</small>
-                                    @else
-                                        <small class="text-muted">{{ $log->dibuatOleh->name ?? 'Admin' }}</small>
-                                    @endif
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="6" class="text-center text-muted py-4">Belum ada riwayat mutasi saldo.</td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+<!-- Mutation Logs Section -->
+<x-card title="Riwayat Mutasi Saldo Terbaru" subtitle="Mutasi kredit dan debit saldo toko Anda">
+    <x-slot:headerAction>
+        <a href="{{ url('seller/mutasi') }}" class="px-4 py-2 bg-violet-700 hover:bg-violet-800 text-white rounded-full text-xs font-semibold inline-flex items-center gap-1.5 transition-colors">
+            <i class="bi bi-list"></i> Lihat Semua Mutasi
+        </a>
+    </x-slot:headerAction>
 
-                <!-- Mobile Card List -->
-                <div class="d-md-none p-3">
-                    @forelse($riwayat_mutasi as $log)
-                    <div class="card mb-3 border shadow-sm rounded-lg" style="border-radius: 10px;">
-                        <div class="card-body p-3">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <small class="text-muted">{{ $log->created_at ? $log->created_at->format('d M Y H:i') : '-' }}</small>
-                                @if($log->tipe == 'kredit_penjualan')
-                                    <span class="badge badge-success">Kredit Penjualan</span>
-                                @elseif($log->tipe == 'potong_withdraw')
-                                    <span class="badge badge-danger">Potong Withdraw</span>
-                                @elseif($log->tipe == 'penyesuaian_admin')
-                                    <span class="badge badge-warning">Penyesuaian Admin</span>
-                                @else
-                                    <span class="badge badge-secondary">{{ $log->tipe }}</span>
-                                @endif
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="text-muted small">Nominal:</span>
-                                <span class="text-{{ $log->nominal > 0 ? 'success' : 'danger' }} font-weight-bold" style="font-size: 0.95rem;">
-                                    {{ $log->nominal > 0 ? '+' : '' }}Rp {{ number_format($log->nominal, 0, ',', '.') }}
-                                </span>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="text-muted small">Saldo Akhir:</span>
-                                <span class="font-weight-bold text-dark" style="font-size: 0.88rem;">Rp {{ number_format($log->saldo_akhir, 0, ',', '.') }}</span>
-                            </div>
-                            <div class="pt-2 border-top text-muted small">
-                                <div><i class="bi bi-info-circle mr-1"></i> {{ $log->keterangan ?? '-' }}</div>
-                            </div>
-                        </div>
-                    </div>
-                    @empty
-                    <div class="text-center text-muted py-4">Belum ada riwayat mutasi saldo.</div>
-                    @endforelse
-                </div>
-            </div>
-        </div>
+    <div class="dash-table-wrapper overflow-x-auto">
+        <table class="table dash-table table-hover w-full">
+            <thead>
+                <tr>
+                    <th>Tanggal</th>
+                    <th>Tipe</th>
+                    <th>Nominal</th>
+                    <th>Saldo Akhir</th>
+                    <th>Keterangan</th>
+                    <th>Petugas</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($riwayat_mutasi as $log)
+                <tr>
+                    <td class="text-xs text-gray-500 font-medium">{{ $log->created_at ? $log->created_at->format('d M Y H:i') : '-' }}</td>
+                    <td>
+                        @if($log->tipe == 'kredit_penjualan')
+                            <span class="dash-badge dash-badge-success">Kredit Penjualan</span>
+                        @elseif($log->tipe == 'potong_withdraw')
+                            <span class="dash-badge dash-badge-danger">Potong Withdraw</span>
+                        @elseif($log->tipe == 'penyesuaian_admin')
+                            <span class="dash-badge dash-badge-warning">Penyesuaian Admin</span>
+                        @else
+                            <span class="dash-badge dash-badge-info">{{ $log->tipe }}</span>
+                        @endif
+                    </td>
+                    <td class="font-bold {{ $log->nominal > 0 ? 'text-emerald-600' : 'text-rose-600' }}">
+                        {{ $log->nominal > 0 ? '+' : '' }}Rp {{ number_format($log->nominal, 0, ',', '.') }}
+                    </td>
+                    <td class="font-semibold text-indigo-950">Rp {{ number_format($log->saldo_akhir, 0, ',', '.') }}</td>
+                    <td class="text-xs text-gray-600">{{ $log->keterangan ?? '-' }}</td>
+                    <td class="text-xs text-gray-400">
+                        @if($log->tipe == 'kredit_penjualan')
+                            Sistem
+                        @else
+                            {{ $log->dibuatOleh->name ?? 'Admin' }}
+                        @endif
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="6" class="text-center text-gray-400 py-6">Belum ada riwayat mutasi saldo.</td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
-</div>
+</x-card>
 
 @endsection

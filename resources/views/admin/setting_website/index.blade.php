@@ -86,6 +86,38 @@
                                     <input type="file" name="auth_hero" class="form-control-file mt-2" accept="image/*">
                                     <small class="text-muted text-left d-block mt-1">Gambar ilustrasi di panel kanan halaman login & register.</small>
                                 </div>
+
+                                <hr>
+
+                                <div class="form-group text-center">
+                                    <label class="d-block font-weight-bold text-left">Logo Visi Kami (Landing Page)</label>
+                                    <div class="mb-2 p-3 bg-white border rounded d-inline-block" style="min-width: 140px; min-height: 120px;">
+                                        @if($settings->visi_logo_path)
+                                            <img src="{{ asset($settings->visi_logo_path) }}" alt="Logo Visi" style="max-width: 120px; max-height: 100px; object-fit: contain;">
+                                        @else
+                                            <img src="{{ asset('assets/img/visi_kami.svg') }}" alt="Default Logo Visi" style="max-width: 120px; max-height: 100px; object-fit: contain;">
+                                            <small class="text-muted d-block mt-1">(Gambar Default)</small>
+                                        @endif
+                                    </div>
+                                    <input type="file" name="visi_logo" class="form-control-file mt-2" accept="image/*">
+                                    <small class="text-muted text-left d-block mt-1">Logo kartu Visi Kami di landing page.</small>
+                                </div>
+
+                                <hr>
+
+                                <div class="form-group text-center">
+                                    <label class="d-block font-weight-bold text-left">Logo Misi Utama (Landing Page)</label>
+                                    <div class="mb-2 p-3 bg-white border rounded d-inline-block" style="min-width: 140px; min-height: 120px;">
+                                        @if($settings->misi_logo_path)
+                                            <img src="{{ asset($settings->misi_logo_path) }}" alt="Logo Misi" style="max-width: 120px; max-height: 100px; object-fit: contain;">
+                                        @else
+                                            <img src="{{ asset('assets/img/misi_utama.svg') }}" alt="Default Logo Misi" style="max-width: 120px; max-height: 100px; object-fit: contain;">
+                                            <small class="text-muted d-block mt-1">(Gambar Default)</small>
+                                        @endif
+                                    </div>
+                                    <input type="file" name="misi_logo" class="form-control-file mt-2" accept="image/*">
+                                    <small class="text-muted text-left d-block mt-1">Logo kartu Misi Utama di landing page.</small>
+                                </div>
                             </div>
                         </div>
 

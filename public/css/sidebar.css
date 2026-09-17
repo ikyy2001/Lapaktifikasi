@@ -1,0 +1,77 @@
+/* Sidebar Styles based on index.html DashPro layout */
+
+.left-sidebar {
+    width: 250px;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    background-color: #ffffff;
+    z-index: 40;
+    border-right: 1px solid #f3f4f6;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1.5rem 1rem;
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+
+.left-sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.left-sidebar::-webkit-scrollbar-thumb {
+    background-color: #e5e7eb;
+    border-radius: 4px;
+}
+
+.sidebar-section-title {
+    font-size: 0.75rem; /* 12px */
+    font-weight: 600;
+    color: #9ca3af;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+}
+
+.sidebar-menu-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.sidebar-menu-item a {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #1e1b4b; /* text-indigo-950 */
+    text-decoration: none;
+    transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.sidebar-menu-item a:hover {
+    color: #6d28d9; /* text-violet-700 */
+    transform: translateX(2px);
+}
+
+.sidebar-menu-item.active a {
+    color: #6d28d9 !important;
+}
+
+.sidebar-menu-item a svg,
+.sidebar-menu-item a i {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+/* Mobile Sidebar Drawer Overlay */
+#dropdown-menu {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}

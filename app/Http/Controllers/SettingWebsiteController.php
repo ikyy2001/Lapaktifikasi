@@ -31,6 +31,8 @@ class SettingWebsiteController extends Controller
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,svg,webp|max:2048',
             'favicon' => 'nullable|image|mimes:jpeg,png,jpg,ico,svg|max:1024',
             'auth_hero' => 'nullable|image|mimes:jpeg,png,jpg,svg,webp|max:3072',
+            'visi_logo' => 'nullable|image|mimes:jpeg,png,jpg,svg,webp|max:2048',
+            'misi_logo' => 'nullable|image|mimes:jpeg,png,jpg,svg,webp|max:2048',
         ]);
 
         $isMidtrans = $request->boolean('is_midtrans_active');
@@ -83,6 +85,26 @@ class SettingWebsiteController extends Controller
             $authHeroName = 'auth_hero_' . time() . '.' . $authHero->getClientOriginalExtension();
             $authHero->move(public_path('assets/img'), $authHeroName);
             $settings->auth_hero_path = 'assets/img/' . $authHeroName;
+        }
+
+        if ($request->hasFile('visi_logo')) {
+            if ($settings->visi_logo_path && File::exists(public_path($settings->visi_logo_path))) {
+                File::delete(public_path($settings->visi_logo_path));
+            }
+            $visiLogo = $request->file('visi_logo');
+            $visiLogoName = 'visi_logo_' . time() . '.' . $visiLogo->getClientOriginalExtension();
+            $visiLogo->move(public_path('assets/img'), $visiLogoName);
+            $settings->visi_logo_path = 'assets/img/' . $visiLogoName;
+        }
+
+        if ($request->hasFile('misi_logo')) {
+            if ($settings->misi_logo_path && File::exists(public_path($settings->misi_logo_path))) {
+                File::delete(public_path($settings->misi_logo_path));
+            }
+            $misiLogo = $request->file('misi_logo');
+            $misiLogoName = 'misi_logo_' . time() . '.' . $misiLogo->getClientOriginalExtension();
+            $misiLogo->move(public_path('assets/img'), $misiLogoName);
+            $settings->misi_logo_path = 'assets/img/' . $misiLogoName;
         }
 
         $settings->save();

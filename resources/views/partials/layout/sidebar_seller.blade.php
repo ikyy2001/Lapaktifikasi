@@ -1,80 +1,124 @@
-<div class="main-sidebar sidebar-style-2">
-    <aside id="sidebar-wrapper">
-
-        <div class="sidebar-brand">
-            <a href="{{ url('/seller/dashboard') }}">
+<div class="flex flex-col justify-between h-full">
+    <div>
+        <!-- Sidebar Brand Logo Header -->
+        <div class="logo flex flex-row items-center justify-start gap-x-2 mb-8 px-2">
+            <a href="{{ url('/seller/dashboard') }}" class="flex items-center gap-x-2">
                 @if(isset($websiteSettings) && $websiteSettings->logo_path)
-                    <img src="{{ asset($websiteSettings->logo_path) }}" alt="{{ $websiteSettings->site_name }}" style="max-height: 55px; width: auto; object-fit: contain;">
+                    <img src="{{ asset($websiteSettings->logo_path) }}" alt="{{ $websiteSettings->site_name }}" class="h-10 max-w-[200px] w-auto object-contain">
                 @else
-                    {{ isset($websiteSettings) ? $websiteSettings->site_name : 'Lapaktifikasi' }}
+                    <svg id="logo-85" width="36" height="36" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path class="ccustom" fill-rule="evenodd" clip-rule="evenodd"
+                            d="M10 0C15.5228 0 20 4.47715 20 10V0H30C35.5228 0 40 4.47715 40 10C40 15.5228 35.5228 20 30 20C35.5228 20 40 24.4772 40 30C40 32.7423 38.8961 35.2268 37.1085 37.0334L37.0711 37.0711L37.0379 37.1041C35.2309 38.8943 32.7446 40 30 40C27.2741 40 24.8029 38.9093 22.999 37.1405C22.9756 37.1175 22.9522 37.0943 22.9289 37.0711C22.907 37.0492 22.8852 37.0272 22.8635 37.0051C21.0924 35.2009 20 32.728 20 30C20 35.5228 15.5228 40 10 40C4.47715 40 0 35.5228 0 30V20H10C4.47715 20 0 15.5228 0 10C0 4.47715 4.47715 0 10 0ZM18 10C18 14.4183 14.4183 18 10 18V2C14.4183 2 18 5.58172 18 10ZM38 30C38 25.5817 34.4183 22 30 22C25.5817 22 22 25.5817 22 30H38ZM2 22V30C2 34.4183 5.58172 38 10 38C14.4183 38 18 34.4183 18 30V22H2ZM22 18V2L30 2C34.4183 2 38 5.58172 38 10C38 14.4183 34.4183 18 30 18H22Z"
+                            fill="#5417D7"></path>
+                    </svg>
+                    <h2 class="font-bold text-xl text-indigo-950 mb-0 truncate">
+                        {{ isset($websiteSettings) ? $websiteSettings->site_name : 'Lapaktifikasi' }}
+                    </h2>
                 @endif
             </a>
         </div>
-        <div class="sidebar-brand sidebar-brand-sm">
-            <a href="{{ url('/seller/dashboard') }}">
-                @if(isset($websiteSettings) && $websiteSettings->favicon_path)
-                    <img src="{{ asset($websiteSettings->favicon_path) }}" alt="Logo" style="max-height: 30px;">
-                @else
-                    {{ isset($websiteSettings) ? substr($websiteSettings->site_name, 0, 2) : 'LA' }}
-                @endif
-            </a>
+
+        <div class="flex flex-col gap-y-7">
+            <!-- GENERAL SECTION -->
+            <div class="flex flex-col gap-y-3">
+                <h6 class="sidebar-section-title">GENERAL</h6>
+                <ul class="sidebar-menu-list">
+                    <li class="sidebar-menu-item {{ Request::path() == 'seller/dashboard' ? 'active' : '' }}">
+                        <a href="{{ url('/seller/dashboard') }}">
+                            <i class="bi bi-speedometer2 text-lg"></i>
+                            Dashboard Seller
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- TOKO & SELLER SECTION -->
+            <div class="flex flex-col gap-y-3">
+                <h6 class="sidebar-section-title">SELLER MENU</h6>
+                <ul class="sidebar-menu-list">
+                    <li class="sidebar-menu-item @if(Request::path() == 'seller/profil') active @endif">
+                        <a href="{{ url('seller/profil') }}">
+                            <i class="bi bi-shop text-lg"></i>
+                            Profil Toko
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item @if(Request::path() == 'seller/badges') active @endif">
+                        <a href="{{ route('seller.badges') }}">
+                            <i class="bi bi-patch-check text-lg"></i>
+                            Badge Toko
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item @if(Request::segment(2) == 'voucher') active @endif">
+                        <a href="{{ route('seller.voucher.index') }}">
+                            <i class="bi bi-ticket-detailed text-lg"></i>
+                            Voucher Toko
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- PRODUK SECTION -->
+            <div class="flex flex-col gap-y-3">
+                <h6 class="sidebar-section-title">PRODUK SELLER</h6>
+                <ul class="sidebar-menu-list">
+                    <li class="sidebar-menu-item @if(Request::path() == 'menu_produk' || Request::segment(1) == 'menu_produk') active @endif">
+                        <a href="{{ url('/menu_produk') }}">
+                            <i class="bi bi-bag-check text-lg"></i>
+                            Menu Produk Premium
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item @if(Request::path() == 'menu_produk_digital' || Request::segment(1) == 'menu_produk_digital') active @endif">
+                        <a href="{{ url('/menu_produk_digital') }}">
+                            <i class="bi bi-file-earmark-code text-lg"></i>
+                            Menu Produk Digital
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item @if(Request::path() == 'produk_terjual') active @endif">
+                        <a href="{{ url('produk_terjual') }}">
+                            <i class="bi bi-cart-dash text-lg"></i>
+                            Produk Terjual
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- INVENTARIS SECTION -->
+            <div class="flex flex-col gap-y-3">
+                <h6 class="sidebar-section-title">INVENTARIS</h6>
+                <ul class="sidebar-menu-list">
+                    <li class="sidebar-menu-item @if(Request::segment(1) == 'premium' && Request::segment(2) == 'inventaris') active @endif">
+                        <a href="{{ route('premium.inventaris.index') }}">
+                            <i class="bi bi-box-seam text-lg"></i>
+                            Inventaris Premium
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item @if(Request::segment(2) == 'histori') active @endif">
+                        <a href="{{ route('premium.histori.index') }}">
+                            <i class="bi bi-journal-text text-lg"></i>
+                            Histori Premium
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item @if(Request::segment(1) == 'digital' && Request::segment(2) == 'inventaris') active @endif">
+                        <a href="{{ route('digital.inventaris.index') }}">
+                            <i class="bi bi-cloud-arrow-down text-lg"></i>
+                            Inventaris Digital
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- PENGATURAN SECTION -->
+            <div class="flex flex-col gap-y-3">
+                <h6 class="sidebar-section-title">PENGATURAN</h6>
+                <ul class="sidebar-menu-list">
+                    <li class="sidebar-menu-item @if(Request::path() == 'ganti_password') active @endif">
+                        <a href="{{ url('ganti_password') }}">
+                            <i class="bi bi-key text-lg"></i>
+                            Ganti Password
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </div>
-
-        <ul class="sidebar-menu">
-            <li class="menu-header">Dashboard</li>
-
-            <li class="nav-item {{ Request::path() == 'seller/dashboard' ? 'active' : '' }}">
-                <a href="{{ url('/seller/dashboard') }}" class="nav-link">
-                    <i class="bi bi-speedometer pl-3"></i><span>Dashboard</span>
-                </a>
-            </li>
-
-            <li class="menu-header">Produk</li>
-            <li class="nav-item @if(Request::path() == 'menu_produk' || Request::path() == 'menu_produk/create' || Request::segment(1) == 'menu_produk') active @endif">
-                <a href="{{ url('/menu_produk') }}" class="nav-link"><i class="bi bi-cart-fill pl-3"></i> <span>Menu Produk Premium</span></a>
-            </li>
-            <li class="nav-item @if(Request::path() == 'menu_produk_digital' || Request::path() == 'menu_produk_digital/create' || Request::segment(1) == 'menu_produk_digital') active @endif">
-                <a href="{{ url('/menu_produk_digital') }}" class="nav-link"><i class="bi bi-file-earmark-code-fill pl-3"></i> <span>Menu Produk Digital</span></a>
-            </li>
-
-            <li class="nav-item @if(Request::path() == 'produk_terjual') active @endif">
-                <a href="{{ url('produk_terjual') }}" class="nav-link"><i class="bi bi-cart-dash-fill pl-3"></i> <span>Produk Terjual</span></a>
-            </li>
-
-            <li class="menu-header">Seller Menu</li>
-            <li class="nav-item @if(Request::path() == 'seller/profil') active @endif">
-                <a href="{{ url('seller/profil') }}" class="nav-link"><i class="bi bi-shop pl-3"></i> <span>Profil Toko</span></a>
-            </li>
-            <li class="nav-item @if(Request::path() == 'seller/badges') active @endif">
-                <a href="{{ route('seller.badges') }}" class="nav-link"><i class="bi bi-patch-check-fill pl-3"></i> <span>Badge Toko</span></a>
-            </li>
-            <li class="nav-item @if(Request::segment(2) == 'voucher') active @endif">
-                <a href="{{ route('seller.voucher.index') }}" class="nav-link"><i class="bi bi-ticket-detailed-fill pl-3"></i> <span>Voucher Toko</span></a>
-            </li>
-
-            <li class="menu-header">Premium Layanan</li>
-            <li class="nav-item @if(Request::segment(1) == 'premium' && Request::segment(2) == 'inventaris') active @endif">
-                <a href="{{ route('premium.inventaris.index') }}" class="nav-link"><i class="bi bi-box-seam pl-3"></i> <span>Inventaris Premium</span></a>
-            </li>
-            <li class="nav-item @if(Request::segment(2) == 'histori') active @endif">
-                <a href="{{ route('premium.histori.index') }}" class="nav-link"><i class="bi bi-journal-text pl-3"></i> <span>Histori Premium</span></a>
-            </li>
-
-            <li class="menu-header">Digital Layanan</li>
-            <li class="nav-item @if(Request::segment(1) == 'digital' && Request::segment(2) == 'inventaris') active @endif">
-                <a href="{{ route('digital.inventaris.index') }}" class="nav-link"><i class="bi bi-cloud-arrow-down-fill pl-3"></i> <span>Inventaris Digital</span></a>
-            </li>
-
-            <li class="menu-header">Pengaturan</li>
-            <li class="nav-item @if(Request::path() == 'profile_customer' || Request::segment(1) == 'profile_customer') active @endif">
-                <a href="{{ url('profile_customer/' . Auth::id()) }}" class="nav-link"><i class="bi bi-person-circle pl-3"></i> <span>Ganti Nama Profil</span></a>
-            </li>
-            <li class="nav-item @if(Request::path() == 'ganti_password') active @endif">
-                <a href="{{ url('ganti_password') }}" class="nav-link"><i class="bi bi-key-fill pl-3"></i> <span>Ganti Password</span></a>
-            </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link text-danger" data-toggle="modal" data-target="#exampleModal"><i class="bi bi-box-arrow-right pl-3"></i> <span class="text-danger">Keluar</span></a>
-            </li>
-        </ul>
-    </aside>
+    </div>
 </div>

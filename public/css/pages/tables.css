@@ -1,0 +1,42 @@
+/* DataTables & Modern Table Styling matching index.html */
+
+.dash-table-wrapper {
+    background-color: #ffffff;
+    border-radius: 1rem;
+    overflow: hidden;
+    border: 1px solid #f3f4f6;
+}
+
+.table.dash-table {
+    margin-bottom: 0 !important;
+}
+
+.table.dash-table thead th {
+    background-color: #f9fafb !important;
+    color: #4b5563 !important;
+    font-size: 0.8rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    padding: 1rem 1.25rem !important;
+}
+
+.table.dash-table tbody td {
+    padding: 1rem 1.25rem !important;
+    vertical-align: middle !important;
+    color: #1f2937 !important;
+    font-size: 0.9rem !important;
+    border-bottom: 1px solid #f3f4f6 !important;
+}
+
+.table.dash-table tbody tr:last-child td {
+    border-bottom: none !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: #6d28d9 !important;
+    color: #ffffff !important;
+    border-radius: 9999px !important;
+    border: none !important;
+}
