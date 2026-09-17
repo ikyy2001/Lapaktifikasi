@@ -4,17 +4,60 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ isset($websiteSettings) ? $websiteSettings->site_name : 'Lapaktifikasi' }} -
-        {{ isset($websiteSettings) ? $websiteSettings->site_description : 'Solusi Terbaik' }}
-    </title>
-    <meta name="description"
-        content="{{ isset($websiteSettings) ? $websiteSettings->site_description : 'Lapaktifikasi - Platform Jasa Digital' }}">
+@section('title', (isset($websiteSettings) ? $websiteSettings->site_name : 'Lapaktifikasi') . ' - Marketplace Produk Digital & Akun Premium')
+@section('meta_title', (isset($websiteSettings) ? $websiteSettings->site_name : 'Lapaktifikasi') . ' - Marketplace Produk Digital, Source Code & Akun Premium SMK Pelita')
+@section('meta_description', 'Platform marketplace produk digital, source code aplikasi, dan akun premium murah terpercaya. Pengiriman otomatis instan kurang dari 5 detik, bergaransi resmi, dan didukung payment gateway terpercaya.')
+@section('og_image', asset('assets/img/smk_pelita_ambassadors.jpg'))
+
+@push('schema')
+<!-- Schema.org FAQPage Structured Data (Google Rich Results SERP) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Apakah akun premium yang dijual di Lapaktifikasi aman dan legal?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ya, seluruh produk yang kami jual merupakan akun premium yang aman untuk digunakan. Kami berkomitmen untuk menjaga keamanan dan kenyamanan setiap pelanggan dengan sistem yang terverifikasi."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Berapa lama waktu yang dibutuhkan untuk menerima akun setelah pembayaran?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sistem kami memproses pengiriman secara otomatis. Setelah pembayaran Anda dikonfirmasi oleh Payment Gateway, kredensial akun akan langsung tersedia di halaman riwayat belanja dalam hitungan detik — umumnya kurang dari 5 detik."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Metode pembayaran apa saja yang tersedia?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Kami menyediakan berbagai metode pembayaran terverifikasi termasuk QRIS, transfer bank (BCA, BNI, BRI, Mandiri), e-wallet (GoPay, OVO, Dana, ShopeePay), dan Virtual Account melalui 3 payment gateway terpercaya (Midtrans, Duitku, Pakasir)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Apa yang terjadi jika akun yang saya beli bermasalah?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Kepuasan pelanggan adalah prioritas kami. Jika Anda mengalami masalah dengan akun yang dibeli, segera hubungi tim dukungan kami melalui WhatsApp atau menu Laporan, dan kami akan memberikan garansi replace/refund sesuai ketentuan."
+      }
+    }
+  ]
+}
+</script>
+@endpush
+
+@include('partials.seo')
 
     <!-- Favicon -->
     <link rel="icon" type="image/png"
         href="{{ isset($websiteSettings) && $websiteSettings->favicon_path ? asset($websiteSettings->favicon_path) : asset('assets/img/favicon.png') }}">
-    <meta name="keywords" content="akun premium, smk plus pelita nusantara, lapaktifikasi, beli akun premium">
-    <meta name="robots" content="index, follow">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -2456,6 +2499,7 @@
         </a>
         <ul class="nav-links">
             <li><a href="#hero">Beranda</a></li>
+            <li><a href="{{ route('premium.katalog') }}">Katalog Produk</a></li>
             <li><a href="#fitur">Kelebihan</a></li>
             <li><a href="#visimisi">Visi &amp; Misi</a></li>
             <li><a href="#produk">Produk</a></li>
@@ -2463,7 +2507,7 @@
             <li><a href="{{ route('daftar.seller') }}">Jadi Seller</a></li>
             @auth
                 @if(Auth::user()->role_id == 2)
-                    <li><a href="{{ route('premium.katalog') }}">Belanja</a></li>
+                    <li><a href="{{ route('premium.riwayat') }}">Riwayat</a></li>
                 @else
                     <li><a href="{{ url('/dashboard') }}">Dashboard</a></li>
                 @endif
@@ -2494,6 +2538,7 @@
         </button>
         <ul class="mobile-nav-links">
             <li><a href="#hero" onclick="closeMobileMenu()">Beranda</a></li>
+            <li><a href="{{ route('premium.katalog') }}" onclick="closeMobileMenu()">Katalog Produk</a></li>
             <li><a href="#fitur" onclick="closeMobileMenu()">Kelebihan</a></li>
             <li><a href="#visimisi" onclick="closeMobileMenu()">Visi &amp; Misi</a></li>
             <li><a href="#produk" onclick="closeMobileMenu()">Produk</a></li>
@@ -2501,7 +2546,7 @@
             <li><a href="{{ route('daftar.seller') }}" onclick="closeMobileMenu()">Jadi Seller</a></li>
             @auth
                 @if(Auth::user()->role_id == 2)
-                    <li><a href="{{ route('premium.katalog') }}" onclick="closeMobileMenu()">Belanja</a></li>
+                    <li><a href="{{ route('premium.riwayat') }}" onclick="closeMobileMenu()">Riwayat</a></li>
                 @else
                     <li><a href="{{ url('/dashboard') }}" onclick="closeMobileMenu()">Dashboard</a></li>
                 @endif
@@ -2546,7 +2591,7 @@
                                 Dashboard</a>
                         @endif
                     @else
-                        <a href="#" class="btn-primary" onclick="openModal(); return false;"><i class="bi bi-bag-fill"></i>
+                        <a href="{{ route('premium.katalog') }}" class="btn-primary"><i class="bi bi-bag-fill"></i>
                             Belanja Produk Digital</a>
                         <a href="{{ url('/pendaftaran') }}" class="btn-secondary"><i class="bi bi-person-plus"></i> Daftar
                             Akun Gratis</a>
@@ -2571,11 +2616,7 @@
                             <span></span>
                             <span></span>
                         </div>
-                        @auth
-                            <a href="{{ route('premium.katalog', ['kategori' => 'digital']) }}" class="btn-3card">Beli</a>
-                        @else
-                            <a href="#" onclick="openModal(); return false;" class="btn-3card">Beli</a>
-                        @endauth
+                        <a href="{{ route('premium.katalog', ['kategori' => 'digital']) }}" class="btn-3card">Beli</a>
                     </div>
 
                     <!-- Card 2: Middle (Featured) -->
@@ -2588,11 +2629,7 @@
                             <span></span>
                             <span></span>
                         </div>
-                        @auth
-                            <a href="{{ route('premium.katalog', ['kategori' => 'premium']) }}" class="btn-3card">Beli</a>
-                        @else
-                            <a href="#" onclick="openModal(); return false;" class="btn-3card">Beli</a>
-                        @endauth
+                        <a href="{{ route('premium.katalog', ['kategori' => 'premium']) }}" class="btn-3card">Beli</a>
                     </div>
 
                     <!-- Card 3: Right -->
@@ -2605,11 +2642,7 @@
                             <span></span>
                             <span></span>
                         </div>
-                        @auth
-                            <a href="{{ route('premium.katalog', ['kategori' => 'digital']) }}" class="btn-3card">Beli</a>
-                        @else
-                            <a href="#" onclick="openModal(); return false;" class="btn-3card">Beli</a>
-                        @endauth
+                        <a href="{{ route('premium.katalog', ['kategori' => 'digital']) }}" class="btn-3card">Beli</a>
                     </div>
                 </div>
 
@@ -2879,13 +2912,8 @@
                         format ZIP/RAR.</p>
                     <div class="product-card-footer">
                         <div class="product-card-price"><small>File Digital</small><strong>Unduh Instan</strong></div>
-                        @auth
-                            <a href="{{ route('premium.katalog', ['kategori' => 'digital']) }}" class="btn-see">Lihat <i
-                                    class="bi bi-arrow-right"></i></a>
-                        @else
-                            <a href="#" onclick="openModal(); return false;" class="btn-see">Cek File <i
-                                    class="bi bi-arrow-right"></i></a>
-                        @endauth
+                        <a href="{{ route('premium.katalog', ['kategori' => 'digital']) }}" class="btn-see">Cek File <i
+                                class="bi bi-arrow-right"></i></a>
                     </div>
                 </div>
                 <div class="glass-card product-card reveal" style="transition-delay:.1s">
@@ -2896,13 +2924,8 @@
                     <div class="product-card-footer">
                         <div class="product-card-price"><small>Akun Premium</small><strong>Mulai Rp 15.000</strong>
                         </div>
-                        @auth
-                            <a href="{{ route('premium.katalog', ['kategori' => 'premium']) }}" class="btn-see">Lihat <i
-                                    class="bi bi-arrow-right"></i></a>
-                        @else
-                            <a href="#" onclick="openModal(); return false;" class="btn-see">Beli <i
-                                    class="bi bi-arrow-right"></i></a>
-                        @endauth
+                        <a href="{{ route('premium.katalog', ['kategori' => 'premium']) }}" class="btn-see">Beli <i
+                                class="bi bi-arrow-right"></i></a>
                     </div>
                 </div>
                 <div class="glass-card product-card reveal" style="transition-delay:.2s">
@@ -2910,17 +2933,12 @@
                             alt="Gambar & Desain Grafis"></div>
                     <h3>Gambar &amp; Desain Grafis</h3>
                     <p>Elemen desain, template Canva/Photoshop, ilustrasi, foto, dan aset grafis berkualitas tinggi
-                        untuk kebutuhan konten.</p>
+                    untuk kebutuhan konten.</p>
                     <div class="product-card-footer">
                         <div class="product-card-price"><small>Aset Kreatif</small><strong>Download Direct</strong>
                         </div>
-                        @auth
-                            <a href="{{ route('premium.katalog', ['kategori' => 'digital']) }}" class="btn-see">Lihat <i
-                                    class="bi bi-arrow-right"></i></a>
-                        @else
-                            <a href="#" onclick="openModal(); return false;" class="btn-see">Beli <i
-                                    class="bi bi-arrow-right"></i></a>
-                        @endauth
+                        <a href="{{ route('premium.katalog', ['kategori' => 'digital']) }}" class="btn-see">Beli <i
+                                class="bi bi-arrow-right"></i></a>
                     </div>
                 </div>
                 <div class="glass-card product-card reveal" style="transition-delay:.3s">
@@ -2932,13 +2950,8 @@
                     <div class="product-card-footer">
                         <div class="product-card-price"><small>File Teks / TXT</small><strong>Akses Langsung</strong>
                         </div>
-                        @auth
-                            <a href="{{ route('premium.katalog', ['kategori' => 'digital']) }}" class="btn-see">Lihat <i
-                                    class="bi bi-arrow-right"></i></a>
-                        @else
-                            <a href="#" onclick="openModal(); return false;" class="btn-see">Beli <i
-                                    class="bi bi-arrow-right"></i></a>
-                        @endauth
+                        <a href="{{ route('premium.katalog', ['kategori' => 'digital']) }}" class="btn-see">Beli <i
+                                class="bi bi-arrow-right"></i></a>
                     </div>
                 </div>
                 <div class="glass-card product-card reveal" style="transition-delay:.4s">
@@ -2949,13 +2962,8 @@
                         teknologi.</p>
                     <div class="product-card-footer">
                         <div class="product-card-price"><small>Format PDF</small><strong>Unduh Seketika</strong></div>
-                        @auth
-                            <a href="{{ route('premium.katalog', ['kategori' => 'digital']) }}" class="btn-see">Lihat <i
-                                    class="bi bi-arrow-right"></i></a>
-                        @else
-                            <a href="#" onclick="openModal(); return false;" class="btn-see">Beli <i
-                                    class="bi bi-arrow-right"></i></a>
-                        @endauth
+                        <a href="{{ route('premium.katalog', ['kategori' => 'digital']) }}" class="btn-see">Beli <i
+                                class="bi bi-arrow-right"></i></a>
                     </div>
                 </div>
                 <div class="glass-card product-card reveal" style="transition-delay:.5s">
@@ -2967,12 +2975,8 @@
                     <div class="product-card-footer">
                         <div class="product-card-price"><small>Karya Siswa</small><strong>Dukungan Ekonomi</strong>
                         </div>
-                        @auth
-                            <a href="{{ route('premium.katalog') }}" class="btn-see">Jelajahi <i
-                                    class="bi bi-arrow-right"></i></a>
-                        @else
-                            <a href="{{ url('/pendaftaran') }}" class="btn-see">Daftar <i class="bi bi-arrow-right"></i></a>
-                        @endauth
+                        <a href="{{ route('premium.katalog') }}" class="btn-see">Jelajahi <i
+                                class="bi bi-arrow-right"></i></a>
                     </div>
                 </div>
             </div>
@@ -3239,11 +3243,10 @@
                 <div class="footer-col">
                     <h5>Layanan</h5>
                     <ul>
-                        <li><a href="#produk">Spotify Premium</a></li>
-                        <li><a href="#produk">Netflix Premium</a></li>
-                        <li><a href="#produk">YouTube Premium</a></li>
-                        <li><a href="#produk">Layanan Gaming</a></li>
-                        <li><a href="#produk">Platform Edukasi</a></li>
+                        <li><a href="{{ route('premium.katalog') }}">Semua Katalog Produk</a></li>
+                        <li><a href="{{ route('daftar_toko') }}">Daftar Toko / Jurusan</a></li>
+                        <li><a href="{{ route('premium.katalog', ['kategori' => 'premium']) }}">Spotify &amp; Netflix Premium</a></li>
+                        <li><a href="{{ route('premium.katalog', ['kategori' => 'digital']) }}">Source Code &amp; File Digital</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">

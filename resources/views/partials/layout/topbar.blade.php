@@ -2,7 +2,7 @@
     <div class="flex flex-row justify-between items-center gap-3">
         <!-- Search bar (Collapsible/Flexible on mobile) -->
         <div class="relative flex-1 max-w-[450px]">
-            <form action="{{ url('menu_produk') }}" method="GET">
+            <form action="{{ route('premium.katalog') }}" method="GET">
                 <div class="relative">
                     <input type="text" name="search" placeholder="Cari produk / layanan..."
                         class="dash-search-input w-full py-2 sm:py-2.5 rounded-full pl-4 sm:pl-5 pr-10 sm:pr-12 border border-gray-300 text-xs sm:text-sm focus:outline-none focus:border-violet-600 transition-all">

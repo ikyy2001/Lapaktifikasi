@@ -122,7 +122,7 @@ class AuthController extends Controller
             } elseif ($userFromDatabase->role_id == 3) {
                 return redirect('/seller/dashboard');
             } else {
-                return redirect('profile_customer/' . $userFromDatabase->id);
+                return redirect()->intended(route('premium.katalog'));
             }
         } else {
             $this->setSessionFlash('error', 'Proses login gagal. Pastikan dengan memasukkan identitas dengan benar.');

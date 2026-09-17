@@ -23,7 +23,7 @@
             <div class="flex flex-col gap-y-3">
                 <h6 class="sidebar-section-title">GENERAL</h6>
                 <ul class="sidebar-menu-list">
-                    <li class="sidebar-menu-item @if(Request::path() == 'premium/katalog' || Request::path() == '/') active @endif">
+                    <li class="sidebar-menu-item @if(Request::path() == 'premium/katalog' || Request::path() == 'katalog' || Request::path() == '/') active @endif">
                         <a href="{{ route('premium.katalog') }}">
                             <i class="bi bi-grid text-lg"></i>
                             Katalog Produk
@@ -35,9 +35,16 @@
                             Daftar Toko
                         </a>
                     </li>
+                    <li class="sidebar-menu-item @if(request()->routeIs('news.*')) active @endif">
+                        <a href="{{ route('news.index') }}">
+                            <i class="bi bi-newspaper text-lg"></i>
+                            Berita & Info
+                        </a>
+                    </li>
                 </ul>
             </div>
 
+            @auth
             <!-- AKUN & TRANSAKSI SECTION -->
             <div class="flex flex-col gap-y-3">
                 <h6 class="sidebar-section-title">AKUN & TRANSAKSI</h6>
@@ -66,12 +73,6 @@
                             Laporan Masalah
                         </a>
                     </li>
-                    <li class="sidebar-menu-item @if(request()->routeIs('news.*')) active @endif">
-                        <a href="{{ route('news.index') }}">
-                            <i class="bi bi-newspaper text-lg"></i>
-                            Berita & Info
-                        </a>
-                    </li>
                 </ul>
             </div>
 
@@ -87,6 +88,44 @@
                     </li>
                 </ul>
             </div>
+            @else
+            <!-- MITRA & AKUN SECTION (GUEST) -->
+            <div class="flex flex-col gap-y-3">
+                <h6 class="sidebar-section-title">GABUNG & MITRA</h6>
+                <ul class="sidebar-menu-list">
+                    <li class="sidebar-menu-item @if(Request::path() == 'daftar_seller') active @endif">
+                        <a href="{{ route('daftar.seller') }}">
+                            <i class="bi bi-briefcase text-lg"></i>
+                            Jadi Seller
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item @if(Request::path() == 'join_partner') active @endif">
+                        <a href="{{ route('join.partner') }}">
+                            <i class="bi bi-handshake text-lg"></i>
+                            Join Partner
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="flex flex-col gap-y-3">
+                <h6 class="sidebar-section-title">AKUN</h6>
+                <ul class="sidebar-menu-list">
+                    <li class="sidebar-menu-item">
+                        <a href="{{ url('/login') }}">
+                            <i class="bi bi-box-arrow-in-right text-lg"></i>
+                            Masuk
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a href="{{ url('/pendaftaran') }}">
+                            <i class="bi bi-person-plus text-lg"></i>
+                            Daftar Akun
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            @endauth
         </div>
     </div>
 </div>

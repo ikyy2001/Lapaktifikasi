@@ -1,6 +1,44 @@
 @extends('layout')
 
+@php
+    $newsDesc = Str::limit(strip_tags($news->subjudul ?? $news->konten), 160);
+    $newsImg = $news->gambar_url ?? asset('assets/img/smk_pelita_ambassadors.jpg');
+@endphp
+
 @section('title', $news->judul)
+@section('meta_title', $news->judul . ' - Berita Lapaktifikasi')
+@section('meta_description', $newsDesc)
+@section('og_type', 'article')
+@section('og_image', $newsImg)
+
+@push('schema')
+<!-- Schema.org NewsArticle Structured Data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "NewsArticle",
+  "headline": {!! json_encode($news->judul) !!},
+  "image": [
+    {!! json_encode($newsImg) !!}
+  ],
+  "datePublished": "{{ $news->published_at ? $news->published_at->toAtomString() : $news->created_at->toAtomString() }}",
+  "dateModified": "{{ $news->updated_at ? $news->updated_at->toAtomString() : now()->toAtomString() }}",
+  "author": [{
+      "@type": "Person",
+      "name": "{{ $news->admin ? $news->admin->name : 'Redaksi Lapaktifikasi' }}"
+  }],
+  "publisher": {
+      "@type": "Organization",
+      "name": "Lapaktifikasi",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "{{ isset($websiteSettings) && $websiteSettings->logo_path ? asset($websiteSettings->logo_path) : asset('assets/img/visi_kami.svg') }}"
+      }
+  },
+  "description": {!! json_encode($newsDesc) !!}
+}
+</script>
+@endpush
 
 @section('content')
 <style>

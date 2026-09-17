@@ -1,6 +1,98 @@
 @extends('layout')
 
-@section('title', $produk->nama_produk . ' - Detail Produk')
+@php
+    $minPriceFormatted = number_format($minPrice, 0, ',', '.');
+    $storeName = $toko ? $toko->nama_toko : 'Lapaktifikasi';
+    $productCleanDesc = Str::limit(strip_tags($produk->deskripsi ?? 'Beli ' . $produk->nama_produk . ' dengan harga terbaik, garansi resmi, dan pengiriman otomatis instan di Lapaktifikasi.'), 155);
+    $productImage = $produk->gambar ? asset('assets/img/produk_premium/' . $produk->gambar) : asset('assets/img/smk_pelita_ambassadors.jpg');
+    $productRating = $toko ? (float) $toko->rating_rata_rata : 5.0;
+    $productReviewCount = $toko ? (int) $toko->jumlah_review : 0;
+@endphp
+
+@section('title', $produk->nama_produk . ' - ' . $storeName)
+@section('meta_title', 'Jual ' . $produk->nama_produk . ' Murah & Bergaransi - ' . $storeName)
+@section('meta_description', $productCleanDesc)
+@section('meta_keywords', 'jual ' . strtolower($produk->nama_produk) . ', beli ' . strtolower($produk->nama_produk) . ', ' . strtolower($produk->nama_produk) . ' murah, akun premium, produk digital, karya siswa, ' . strtolower($storeName))
+@section('og_type', 'product')
+@section('og_image', $productImage)
+
+@section('og_extra')
+<meta property="product:price:amount" content="{{ $minPrice }}">
+<meta property="product:price:currency" content="IDR">
+<meta property="product:availability" content="in stock">
+<meta property="product:retailer_item_id" content="{{ $produk->id_produk }}">
+@endsection
+
+@push('schema')
+<!-- Schema.org Product Structured Data (Google Rich Results / Shopee Standard) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": {!! json_encode($produk->nama_produk) !!},
+  "image": [
+    {!! json_encode($productImage) !!}
+  ],
+  "description": {!! json_encode(Str::limit(strip_tags($produk->deskripsi ?? $produk->nama_produk), 350)) !!},
+  "sku": "PROD-{{ $produk->id_produk }}",
+  "mpn": "{{ $produk->id_produk }}",
+  "brand": {
+    "@type": "Brand",
+    "name": {!! json_encode($storeName) !!}
+  },
+  @if($productReviewCount > 0)
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "{{ number_format($productRating, 1) }}",
+    "reviewCount": "{{ $productReviewCount }}",
+    "bestRating": "5",
+    "worstRating": "1"
+  },
+  @endif
+  "offers": {
+    "@type": "Offer",
+    "url": "{{ url()->current() }}",
+    "priceCurrency": "IDR",
+    "price": "{{ $minPrice }}",
+    "priceValidUntil": "{{ now()->addYear()->format('Y-m-d') }}",
+    "itemCondition": "https://schema.org/NewCondition",
+    "availability": "https://schema.org/InStock",
+    "seller": {
+      "@type": "Organization",
+      "name": {!! json_encode($storeName) !!}
+    }
+  }
+}
+</script>
+
+<!-- BreadcrumbList Schema for Google Navigation Trail -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Beranda",
+      "item": "{{ url('/') }}"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Katalog Produk",
+      "item": "{{ route('premium.katalog') }}"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": {!! json_encode($produk->nama_produk) !!},
+      "item": "{{ url()->current() }}"
+    }
+  ]
+}
+</script>
+@endpush
 
 @section('content')
 
@@ -879,6 +971,24 @@
             return;
         }
 
+        const isUserAuth = {{ auth()->check() ? 'true' : 'false' }};
+        if (!isUserAuth) {
+            Swal.fire({
+                title: "Perlu Login",
+                text: "Silakan masuk ke akun Anda terlebih dahulu untuk melanjutkan proses pembelian.",
+                icon: "info",
+                showCancelButton: true,
+                confirmButtonText: "Login Sekarang",
+                cancelButtonText: "Nanti Saja",
+                confirmButtonColor: "#000000"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "{{ route('login') }}?redirect=" + encodeURIComponent(window.location.href);
+                }
+            });
+            return;
+        }
+
         const legacyForm = document.getElementById('checkout-form');
         if (legacyForm) {
             if (!selectedVarianId) {
@@ -945,6 +1055,25 @@
 
     // 6. Submit Form Validation
     document.getElementById('checkout-form').addEventListener('submit', function(e) {
+        const isUserAuth = {{ auth()->check() ? 'true' : 'false' }};
+        if (!isUserAuth) {
+            e.preventDefault();
+            Swal.fire({
+                title: "Perlu Login",
+                text: "Silakan masuk ke akun Anda terlebih dahulu untuk melanjutkan pembelian.",
+                icon: "info",
+                showCancelButton: true,
+                confirmButtonText: "Login Sekarang",
+                cancelButtonText: "Nanti Saja",
+                confirmButtonColor: "#000000"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "{{ route('login') }}?redirect=" + encodeURIComponent(window.location.href);
+                }
+            });
+            return;
+        }
+
         if (!selectedVarianId) {
             e.preventDefault();
             Swal.fire({

@@ -18,6 +18,7 @@ use App\Http\Controllers\AdminVoucherController;
 use App\Http\Controllers\SellerVoucherController;
 use App\Http\Controllers\ProductDigitalController;
 use App\Http\Controllers\DigitalAdminController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Middleware\OnlyCustomer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
@@ -52,11 +53,15 @@ Route::get('/banned', function () {
 })->name('banned.page');
 
 Route::get('/daftar-jadi-seller', function () {
-    return view('daftar_seller');
+    $mitras = MitraIndustri::where('is_active', true)->orderBy('id', 'desc')->get();
+    $testimonis = Testimoni::where('is_active', true)->orderBy('id', 'desc')->get();
+    return view('daftar_seller', compact('mitras', 'testimonis'));
 })->name('daftar.seller');
 
 Route::get('/join-partner', function () {
-    return view('join_partner');
+    $mitras = MitraIndustri::where('is_active', true)->orderBy('id', 'desc')->get();
+    $testimonis = Testimoni::where('is_active', true)->orderBy('id', 'desc')->get();
+    return view('join_partner', compact('mitras', 'testimonis'));
 })->name('join.partner');
 
 Route::get('/kebijakan-privasi', function () {
@@ -66,6 +71,19 @@ Route::get('/kebijakan-privasi', function () {
 Route::get('/syarat-ketentuan', function () {
     return view('syarat_ketentuan');
 })->name('syarat.ketentuan');
+
+// Dynamic XML Sitemap for SEO Crawlers
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+
+// Katalog & Produk Publik (SEO Friendly / Shopee Style)
+Route::get('/katalog', [PremiumCustomerController::class, 'katalog'])->name('katalog');
+Route::get('/premium/katalog', [PremiumCustomerController::class, 'katalog'])->name('premium.katalog');
+Route::get('/produk/{product_slug}', [PremiumCustomerController::class, 'showWithoutStore'])->name('produk.show');
+Route::get('/toko/{store_slug}/produk/{product_slug}', [PremiumCustomerController::class, 'show'])->name('toko.produk.detail');
+Route::get('/premium/produk/{id}', [PremiumCustomerController::class, 'detail'])->name('premium.produk.detail');
+Route::get('/daftar_toko', [ProductController::class, 'daftar_toko'])->name('daftar_toko');
+Route::get('/toko/{store_slug}/produk', [ProductController::class, 'katalog_toko'])->name('toko.produk');
+Route::get('/toko/{store_slug}', [ProductController::class, 'katalog_toko'])->name('toko.show');
 
 // Berita / News Publik & Customer
 Route::controller(\App\Http\Controllers\CustomerNewsController::class)->group(function () {
@@ -93,10 +111,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/produk_terjual', 'produk_terjual')->middleware('prevent.customer');
         Route::post('/proses_checkout_premium', 'proses_checkout_premium')->name('proses_checkout_premium');
         Route::get('/varian/{id_varian}/stok', 'get_stok_varian');
-
-        // Customer shop list & scoped catalog (redirects to premium.katalog)
-        Route::get('/daftar_toko', 'daftar_toko')->name('daftar_toko');
-        Route::get('/toko/{store_slug}/produk', 'katalog_toko')->name('toko.produk');
     });
 
     Route::resource('menu_produk', ProductController::class, ['only' => ['index']]);
@@ -226,9 +240,6 @@ Route::middleware('auth')->group(function () {
 
     // Premium Customer Routes
     Route::middleware('only.customer')->group(function () {
-        Route::get('/premium/katalog', [PremiumCustomerController::class, 'katalog'])->name('premium.katalog');
-        Route::get('/toko/{store_slug}/produk/{product_slug}', [PremiumCustomerController::class, 'show'])->name('toko.produk.detail');
-        Route::get('/premium/produk/{id}', [PremiumCustomerController::class, 'detail'])->name('premium.produk.detail');
         Route::get('/premium/member', [PremiumCustomerController::class, 'member'])->name('premium.member');
         Route::get('/premium/referral', [PremiumCustomerController::class, 'referral'])->name('premium.referral');
         Route::post('/premium/voucher/{id_voucher}/klaim', [PremiumCustomerController::class, 'klaimVoucher'])->name('premium.voucher.klaim');

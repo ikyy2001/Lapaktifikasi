@@ -1,6 +1,31 @@
 @extends('layout')
 
-@section('title', 'Katalog Akun Premium')
+@section('title', ($toko ? $toko->nama_toko . ' - ' : '') . 'Katalog Produk Digital & Akun Premium')
+@section('meta_title', ($toko ? 'Katalog Toko ' . $toko->nama_toko . ' | ' : '') . 'Katalog Produk Digital, Source Code & Akun Premium - Lapaktifikasi')
+@section('meta_description', 'Jelajahi katalog produk digital terpercaya, e-book, source code karya siswa SMK Plus Pelita Nusantara, dan akun premium murah bergaransi dengan pengiriman otomatis.')
+@section('meta_keywords', 'katalog produk digital, beli akun premium, source code karya siswa, smk pelita nusantara, streaming premium, voucher')
+
+@push('schema')
+<!-- Schema.org ItemList Structured Data for Catalog -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "{{ ($toko ? 'Katalog Toko ' . $toko->nama_toko : 'Katalog Produk Digital Lapaktifikasi') }}",
+  "description": "Daftar produk digital dan akun premium terpercaya.",
+  "itemListElement": [
+    @foreach($produk->take(20) as $index => $item)
+    {
+      "@type": "ListItem",
+      "position": {{ $index + 1 }},
+      "name": {!! json_encode($item->nama_produk) !!},
+      "url": "{{ url('/toko/' . ($item->toko && !empty($item->toko->slug) ? $item->toko->slug : 'store') . '/produk/' . \Illuminate\Support\Str::slug($item->nama_produk) . '-' . $item->id_produk) }}"
+    }@if(!$loop->last),@endif
+    @endforeach
+  ]
+}
+</script>
+@endpush
 
 @section('content')
 
@@ -403,11 +428,13 @@
         </div>
         @endif
 
+        @auth
         @if(empty($customer->nomor_telepon) || empty(Auth::user()->name))
         <div class="mono-alert-warning" role="alert">
             <i class="bi bi-exclamation-triangle-fill mr-2"></i><strong>Profil Belum Lengkap!</strong> Silakan <a href="{{ url('profile_customer/' . Auth::user()->id) }}">lengkapi nama dan nomor WhatsApp Anda di profil</a> terlebih dahulu agar invoice dan detail akun bisa dikirimkan ke WhatsApp Anda setelah pembayaran.
         </div>
         @endif
+        @endauth
 
         <!-- Search & Category Filter -->
         <div class="row mb-4 align-items-center">

@@ -49,7 +49,7 @@ class PremiumCustomerController extends Controller
             }
         }
 
-        $query = Produk::where('status', 'aktif');
+        $query = Produk::whereIn('status', ['aktif', 'active']);
 
         if ($kategori && in_array($kategori, ['premium', 'digital'])) {
             $query->where('tipe_produk', $kategori);
@@ -69,10 +69,10 @@ class PremiumCustomerController extends Controller
         $produk = $query->with([
             'toko',
             'tipeLayanan' => function ($query) {
-                $query->where('status', 'aktif')
+                $query->whereIn('status', ['aktif', 'active'])
                     ->with([
                         'varianLayanan' => function ($vQuery) {
-                            $vQuery->where('status', 'aktif');
+                            $vQuery->whereIn('status', ['aktif', 'active']);
                         }
                     ]);
             }
@@ -132,6 +132,14 @@ class PremiumCustomerController extends Controller
         return view('premium_customer.katalog', compact('produk', 'customer', 'toko', 'reviews', 'ratingDistribution'));
     }
 
+    /**
+     * Tampilkan detail produk secara langsung dari rute /produk/{product_slug} (SEO Friendly)
+     */
+    public function showWithoutStore(string $product_slug)
+    {
+        return $this->show('all', $product_slug);
+    }
+
     public function show(string $store_slug, string $product_slug)
     {
         $productId = null;
@@ -141,30 +149,59 @@ class PremiumCustomerController extends Controller
             $productId = (int) $matches[1];
         }
 
-        $query = Produk::with([
-            'toko.badges',
-            'tipeLayanan' => function ($q) {
-                $q->where('status', 'aktif')
-                  ->with([
-                      'varianLayanan' => function ($vq) {
-                          $vq->where('status', 'aktif');
-                      }
-                  ]);
-            }
-        ]);
+        $baseQuery = function () {
+            return Produk::with([
+                'toko.badges',
+                'tipeLayanan' => function ($q) {
+                    $q->whereIn(\DB::raw('LOWER(status)'), ['aktif', 'active'])
+                      ->with([
+                          'varianLayanan' => function ($vq) {
+                              $vq->whereIn(\DB::raw('LOWER(status)'), ['aktif', 'active']);
+                          }
+                      ]);
+                }
+            ]);
+        };
 
+        $produk = null;
+
+        // 1. Cari by ID produk jika ada
         if ($productId) {
-            $query->where('id_produk', $productId);
-        } else {
-            $query->where(function ($q) use ($product_slug) {
-                $q->where('id_produk', $product_slug)
-                  ->orWhereRaw("LOWER(REPLACE(nama_produk, ' ', '-')) = ?", [strtolower($product_slug)]);
-            });
+            $produk = $baseQuery()->where('id_produk', $productId)->first();
         }
 
-        $produk = $query->first();
+        // 2. Cari by slug string atau nama produk di database
+        if (!$produk) {
+            $cleanName = str_replace('-', ' ', strtolower($product_slug));
+            $produk = $baseQuery()->where(function ($q) use ($product_slug, $cleanName) {
+                $q->where('id_produk', $product_slug)
+                  ->orWhereRaw("LOWER(REPLACE(REPLACE(REPLACE(REPLACE(nama_produk, ' ', '-'), '(', ''), ')', ''), '/', '')) = ?", [strtolower($product_slug)])
+                  ->orWhere('nama_produk', 'like', '%' . $cleanName . '%');
+            })->first();
+        }
 
-        if (!$produk || $produk->status !== 'aktif') {
+        // 3. Fallback cerdas: Cocokkan dengan Str::slug() untuk produk yang memiliki tanda kurung atau simbol
+        if (!$produk) {
+            $allActive = $baseQuery()->whereIn(\DB::raw('LOWER(status)'), ['aktif', 'active'])->get();
+            $targetSlug = \Illuminate\Support\Str::slug($product_slug);
+            foreach ($allActive as $item) {
+                $itemSlug = \Illuminate\Support\Str::slug($item->nama_produk);
+                $itemSlugWithId = $itemSlug . '-' . $item->id_produk;
+                if ($targetSlug === $itemSlug || $targetSlug === $itemSlugWithId || str_contains($targetSlug, $itemSlug) || str_contains($itemSlug, $targetSlug)) {
+                    $produk = $item;
+                    break;
+                }
+            }
+        }
+
+        // 4. Jika store_slug dan product_slug tertukar di URL pengguna
+        if (!$produk && $store_slug !== 'all') {
+            if (is_numeric($store_slug)) {
+                $produk = $baseQuery()->where('id_produk', (int) $store_slug)->first();
+            }
+        }
+
+        if (!$produk || !in_array(strtolower(trim($produk->status)), ['aktif', 'active'])) {
             abort(404, 'Produk tidak ditemukan atau sudah tidak aktif.');
         }
 
@@ -173,23 +210,7 @@ class PremiumCustomerController extends Controller
 
     public function detail($id)
     {
-        $produk = Produk::with([
-            'toko.badges',
-            'tipeLayanan' => function ($q) {
-                $q->where('status', 'aktif')
-                  ->with([
-                      'varianLayanan' => function ($vq) {
-                          $vq->where('status', 'aktif');
-                      }
-                  ]);
-            }
-        ])->find($id);
-
-        if (!$produk || $produk->status !== 'aktif') {
-            abort(404, 'Produk tidak ditemukan atau sudah tidak aktif.');
-        }
-
-        return $this->renderDetailView($produk);
+        return $this->show('all', (string) $id);
     }
 
     private function renderDetailView(Produk $produk)

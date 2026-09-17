@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kebijakan Privasi - Lapaktifikasi</title>
-    <meta name="description" content="Kebijakan Privasi Lapaktifikasi menjelaskan bagaimana kami mengumpulkan, menggunakan, dan melindungi data pribadi Anda saat menggunakan layanan kami.">
-    <meta name="keywords" content="kebijakan privasi, privacy policy, keamanan data, lapaktifikasi">
-    <meta name="robots" content="index, follow">
+    @section('title', 'Kebijakan Privasi')
+    @section('meta_title', 'Kebijakan Privasi - Perlindungan & Keamanan Data Pengguna')
+    @section('meta_description', 'Kebijakan Privasi Lapaktifikasi menjelaskan bagaimana kami mengumpulkan, mengelola, dan melindungi keamanan data pribadi transaksi Anda dengan standar enkripsi tinggi.')
+    @section('meta_keywords', 'kebijakan privasi, privasi lapaktifikasi, keamanan data, privacy policy, perlindungan data transaksi')
+    @include('partials.seo')
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">

@@ -56,6 +56,8 @@
                 @elseif(Auth::user()->role_id == \App\Enums\Role::CUSTOMER->value)
                     @include('partials.layout.sidebar_customer')
                 @endif
+            @else
+                @include('partials.layout.sidebar_customer')
             @endauth
         </div>
     </div>

@@ -1,6 +1,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>@yield('title', 'Dashboard') - {{ isset($websiteSettings) ? $websiteSettings->site_name : 'Lapaktifikasi' }}</title>
+
+<!-- Comprehensive SEO & Open Graph Meta Tags -->
+@include('partials.seo')
 
 <!-- Favicon -->
 <link rel="icon" type="image/png" href="{{ isset($websiteSettings) && $websiteSettings->favicon_path ? asset($websiteSettings->favicon_path) : asset('assets/img/favicon.png') }}">

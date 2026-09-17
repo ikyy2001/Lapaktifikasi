@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Syarat & Ketentuan - Lapaktifikasi</title>
-    <meta name="description" content="Syarat dan Ketentuan penggunaan platform Lapaktifikasi. Ketahui hak, kewajiban, dan ketentuan garansi layanan digital kami.">
-    <meta name="keywords" content="syarat dan ketentuan, terms of service, ketentuan garansi, lapaktifikasi">
-    <meta name="robots" content="index, follow">
+    @section('title', 'Syarat & Ketentuan')
+    @section('meta_title', 'Syarat & Ketentuan Layanan & Garansi - Lapaktifikasi')
+    @section('meta_description', 'Syarat dan Ketentuan penggunaan platform Lapaktifikasi. Pelajari hak, kewajiban, ketentuan garansi akun premium, dan sistem pengiriman file digital kami.')
+    @section('meta_keywords', 'syarat dan ketentuan, terms of service, ketentuan garansi akun, lapaktifikasi, aturan transaksi digital')
+    @include('partials.seo')
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">

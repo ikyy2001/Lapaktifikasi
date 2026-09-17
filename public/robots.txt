@@ -1,2 +1,37 @@
+# ==========================================
+# Robots.txt for Lapaktifikasi
+# https://lapaktifikasi.com
+# ==========================================
+
 User-agent: *
-Disallow:
+Allow: /
+Allow: /katalog
+Allow: /premium/katalog
+Allow: /toko/
+Allow: /news/
+Allow: /assets/
+Allow: /css/
+Allow: /storage/
+
+# Disallow Private & Admin Areas from Crawlers
+Disallow: /dashboard
+Disallow: /profile_customer/
+Disallow: /admin/
+Disallow: /seller/
+Disallow: /premium/laporan
+Disallow: /premium/riwayat
+Disallow: /premium/kredensial/
+Disallow: /premium/download-digital/
+Disallow: /premium/invoice/
+Disallow: /premium/review/
+Disallow: /premium/inventaris
+Disallow: /login
+Disallow: /pendaftaran
+Disallow: /lupa_password
+Disallow: /reset_password
+Disallow: /banned
+Disallow: /api/
+
+# Specify Sitemap Location
+Sitemap: http://localhost:8000/sitemap.xml
+Sitemap: https://lapaktifikasi.com/sitemap.xml

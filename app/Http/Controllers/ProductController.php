@@ -472,12 +472,23 @@ class ProductController extends Controller
      */
     public function katalog_toko($store_slug)
     {
-        // Validasi toko aktif
-        $toko = Toko::where('slug', $store_slug)->firstOrFail();
-        if ($toko->status !== 'aktif') {
-            abort(404);
+        // Validasi toko aktif (mendukung slug, slug-id, atau id numerik)
+        $toko = Toko::where('slug', $store_slug)->first();
+        if (!$toko && preg_match('/-(\d+)$/', $store_slug, $matches)) {
+            $toko = Toko::find($matches[1]);
         }
+        if (!$toko && is_numeric($store_slug)) {
+            $toko = Toko::find($store_slug);
+        }
+        if (!$toko) {
+            $toko = Toko::where('nama_toko', 'like', '%' . str_replace('-', ' ', $store_slug) . '%')->first();
+        }
+
+        if (!$toko || $toko->status !== 'aktif') {
+            abort(404, 'Toko tidak ditemukan atau sedang tidak aktif.');
+        }
+
         // Delegate ke premium catalog dengan filter toko
-        return redirect()->route('premium.katalog', ['toko' => $store_slug]);
+        return redirect()->route('premium.katalog', ['toko' => $toko->slug ?? $toko->id_toko]);
     }
 }
