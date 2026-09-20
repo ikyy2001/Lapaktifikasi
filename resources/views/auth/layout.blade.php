@@ -473,9 +473,14 @@
     <script src="{{asset('assets/js/scripts.js')}}"></script>
     <script src="{{asset('assets/js/custom.js')}}"></script>
 
-    <!-- PWA Service Worker & Install Prompt -->
-    @include('partials.pwa_install_prompt')
-
+    <!-- PWA Service Worker (Silent Registration Only, No UI) -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').catch(function(){});
+            });
+        }
+    </script>
 </body>
 
 </html>

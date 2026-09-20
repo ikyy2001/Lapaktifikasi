@@ -37,6 +37,13 @@ class WebPushController extends Controller
     {
         $this->bootstrapOpenSSL();
 
+        if (!class_exists('Minishlink\WebPush\WebPush')) {
+            $autoload = base_path('vendor/autoload.php');
+            if (file_exists($autoload)) {
+                require_once $autoload;
+            }
+        }
+
         $auth = [
             'VAPID' => [
                 'subject' => config('webpush.vapid.subject', 'mailto:support@lapaktifikasi.com'),
