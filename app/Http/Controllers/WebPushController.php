@@ -38,6 +38,10 @@ class WebPushController extends Controller
         $this->bootstrapOpenSSL();
 
         if (!class_exists('Minishlink\WebPush\WebPush')) {
+            $packageAutoload = app_path('Packages/WebPush/autoload.php');
+            if (file_exists($packageAutoload)) {
+                require_once $packageAutoload;
+            }
             $autoload = base_path('vendor/autoload.php');
             if (file_exists($autoload)) {
                 require_once $autoload;
@@ -230,49 +234,62 @@ class WebPushController extends Controller
             ], 404);
         }
 
-        $webPush = $this->getWebPushInstance();
-        $payload = json_encode([
-            'title' => $validated['title'],
-            'body' => $validated['body'],
-            'icon' => asset('assets/img/pwa/icon-192x192.png'),
-            'badge' => asset('assets/img/pwa/icon-96x96.png'),
-            'url' => !empty($validated['url']) ? $validated['url'] : url('/premium/katalog'),
-            'timestamp' => time(),
-        ]);
+        try {
+            $webPush = $this->getWebPushInstance();
+            $payload = json_encode([
+                'title' => $validated['title'],
+                'body' => $validated['body'],
+                'icon' => asset('assets/img/pwa/icon-192x192.png'),
+                'badge' => asset('assets/img/pwa/icon-96x96.png'),
+                'url' => !empty($validated['url']) ? $validated['url'] : url('/premium/katalog'),
+                'timestamp' => time(),
+            ]);
 
-        $successCount = 0;
-        $failedCount = 0;
+            $successCount = 0;
+            $failedCount = 0;
 
-        foreach ($subscriptions as $subRecord) {
-            try {
-                $sub = Subscription::create([
-                    'endpoint' => $subRecord->endpoint,
-                    'publicKey' => $subRecord->public_key,
-                    'authToken' => $subRecord->auth_token,
-                    'contentEncoding' => $subRecord->content_encoding ?? 'aes128gcm',
-                ]);
-                $webPush->queueNotification($sub, $payload);
-            } catch (\Throwable $e) {
-                $failedCount++;
-            }
-        }
-
-        foreach ($webPush->flush() as $report) {
-            if ($report->isSuccess()) {
-                $successCount++;
-            } else {
-                $failedCount++;
-                if ($report->isSubscriptionExpired()) {
-                    PushSubscription::where('endpoint', $report->getRequest()->getUri()->__toString())->delete();
+            foreach ($subscriptions as $subRecord) {
+                try {
+                    $sub = Subscription::create([
+                        'endpoint' => $subRecord->endpoint,
+                        'publicKey' => $subRecord->public_key,
+                        'authToken' => $subRecord->auth_token,
+                        'contentEncoding' => $subRecord->content_encoding ?? 'aes128gcm',
+                    ]);
+                    $webPush->queueNotification($sub, $payload);
+                } catch (\Throwable $e) {
+                    $failedCount++;
                 }
             }
-        }
 
-        return response()->json([
-            'status' => 'success',
-            'message' => "Notifikasi berhasil disiarkan: {$successCount} sukses, {$failedCount} gagal.",
-            'success_count' => $successCount,
-            'failed_count' => $failedCount,
-        ]);
+            try {
+                foreach ($webPush->flush() as $report) {
+                    if ($report->isSuccess()) {
+                        $successCount++;
+                    } else {
+                        $failedCount++;
+                        if ($report->isSubscriptionExpired()) {
+                            PushSubscription::where('endpoint', $report->getRequest()->getUri()->__toString())->delete();
+                        }
+                    }
+                }
+            } catch (\Throwable $flushErr) {
+                Log::warning('WebPush Flush warning: ' . $flushErr->getMessage());
+                $failedCount++;
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => "Notifikasi berhasil disiarkan: {$successCount} sukses, {$failedCount} gagal/tidak aktif.",
+                'success_count' => $successCount,
+                'failed_count' => $failedCount,
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('WebPush Broadcast Error: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal menyiarkan notifikasi: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 }

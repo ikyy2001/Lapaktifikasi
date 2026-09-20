@@ -3,6 +3,7 @@
     /* Default hidden states with !important to prevent any framework leaks */
     #lp-pwa-install-banner,
     #lp-pwa-ios-modal,
+    #lp-pwa-welcome-modal,
     #lp-pwa-toast {
         display: none !important;
         box-sizing: border-box;
@@ -10,7 +11,8 @@
     }
 
     #lp-pwa-install-banner * ,
-    #lp-pwa-ios-modal * {
+    #lp-pwa-ios-modal * ,
+    #lp-pwa-welcome-modal * {
         box-sizing: border-box;
     }
 
@@ -221,6 +223,32 @@
         cursor: pointer;
     }
 
+    /* Welcome Modal on First PWA Launch */
+    #lp-pwa-welcome-modal.lp-show {
+        display: flex !important;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.75);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        z-index: 100002;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+    }
+    .lp-welcome-card {
+        background: #0f172a;
+        color: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 24px;
+        width: 100%;
+        max-width: 360px;
+        padding: 28px 22px;
+        text-align: center;
+        position: relative;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.9), 0 0 25px rgba(79, 70, 229, 0.3);
+    }
+
     /* Minimal Toast */
     #lp-pwa-toast.lp-show {
         display: flex !important;
@@ -277,6 +305,19 @@
             </div>
         </div>
         <button id="lp-ios-done" class="lp-ios-btn-done">Mengerti</button>
+    </div>
+</div>
+
+<!-- Welcome Modal on First PWA Launch -->
+<div id="lp-pwa-welcome-modal">
+    <div class="lp-welcome-card">
+        <button id="lp-welcome-close" class="lp-ios-close-x">&times;</button>
+        <div style="font-size: 40px; margin-bottom: 8px;">🎉</div>
+        <h3 style="font-size: 18px; font-weight: 700; color: #ffffff; margin: 0 0 8px 0;">Terima Kasih!</h3>
+        <p style="font-size: 13px; color: #cbd5e1; line-height: 1.5; margin: 0 0 20px 0;">
+            Terima kasih telah menginstall aplikasi <strong>Lapaktifikasi</strong>. Nikmati kemudahan akses akun premium & berkas digital langsung dari layar beranda Anda.
+        </p>
+        <button id="lp-welcome-btn" class="lp-ios-btn-done" style="background: #4f46e5; padding: 12px;">Mulai Belanja</button>
     </div>
 </div>
 
@@ -367,6 +408,47 @@
             deferredPrompt = null;
             showLpToast('Lapaktifikasi berhasil dipasang!');
         });
+
+        // --- First Time Opening PWA Welcome Greeting ---
+        const welcomeModal = document.getElementById('lp-pwa-welcome-modal');
+        const welcomeBtn = document.getElementById('lp-welcome-btn');
+        const welcomeClose = document.getElementById('lp-welcome-close');
+
+        function closeWelcomeModal() {
+            if (welcomeModal) welcomeModal.classList.remove('lp-show');
+        }
+        if (welcomeBtn) welcomeBtn.addEventListener('click', closeWelcomeModal);
+        if (welcomeClose) welcomeClose.addEventListener('click', closeWelcomeModal);
+
+        function checkFirstTimePwaLaunch() {
+            const isPwa = window.matchMedia('(display-mode: standalone)').matches ||
+                          (window.navigator.standalone === true) ||
+                          window.location.search.includes('source=pwa') ||
+                          document.referrer.includes('android-app://');
+
+            const WELCOME_KEY = 'lp_pwa_first_install_greeted';
+            if (isPwa && !localStorage.getItem(WELCOME_KEY)) {
+                localStorage.setItem(WELCOME_KEY, Date.now().toString());
+
+                setTimeout(function () {
+                    if (welcomeModal) {
+                        welcomeModal.classList.add('lp-show');
+                    }
+                    if ('Notification' in window && Notification.permission === 'granted' && swRegistration) {
+                        try {
+                            swRegistration.showNotification('🎉 Selamat Datang di Lapaktifikasi!', {
+                                body: 'Terima kasih telah menginstall aplikasi Lapaktifikasi. Nikmati kemudahan transaksi produk digital terpercaya.',
+                                icon: '/assets/img/pwa/icon-192x192.png',
+                                badge: '/assets/img/pwa/icon-96x96.png',
+                                data: { url: '/premium/katalog' }
+                            });
+                        } catch (e) {}
+                    }
+                }, 800);
+            }
+        }
+
+        checkFirstTimePwaLaunch();
 
         // --- 3. iOS Safari Modal (Hanya jika pengguna klik instalasi) ---
         const isIos = function () {

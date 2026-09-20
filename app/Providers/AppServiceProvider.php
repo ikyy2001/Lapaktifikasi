@@ -14,7 +14,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $webPushAutoload = app_path('Packages/WebPush/autoload.php');
+        if (file_exists($webPushAutoload)) {
+            require_once $webPushAutoload;
+        }
     }
 
     /**
