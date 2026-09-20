@@ -5,7 +5,6 @@
     #lp-pwa-notif-bar,
     #lp-pwa-ios-modal,
     #lp-pwa-welcome-modal,
-    #lp-pwa-quick-sheet,
     #lp-pwa-toast {
         display: none !important;
         box-sizing: border-box;
@@ -15,8 +14,7 @@
     #lp-pwa-install-banner *,
     #lp-pwa-notif-bar *,
     #lp-pwa-ios-modal *,
-    #lp-pwa-welcome-modal *,
-    #lp-pwa-quick-sheet * {
+    #lp-pwa-welcome-modal * {
         box-sizing: border-box;
     }
 
@@ -35,7 +33,7 @@
         100% { transform: translateY(-6px); }
     }
 
-    /* --- 1. Notification Permission Bar (Floating Bottom) --- */
+    /* --- 1. Notification Permission Prompt Bar (Floating Bottom) --- */
     #lp-pwa-notif-bar.lp-show {
         display: flex !important;
         position: fixed;
@@ -317,113 +315,6 @@
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.9), 0 0 25px rgba(79, 70, 229, 0.3);
     }
 
-    /* --- 5. In-App Quick Access Sheet (Pintasan Cepat untuk iOS & Mobile) --- */
-    #lp-pwa-quick-sheet.lp-show {
-        display: block !important;
-        position: fixed;
-        inset: 0;
-        z-index: 99997;
-    }
-    .lp-quick-backdrop {
-        position: absolute;
-        inset: 0;
-        background: rgba(0,0,0,0.6);
-        backdrop-filter: blur(4px);
-        -webkit-backdrop-filter: blur(4px);
-    }
-    .lp-quick-panel {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: #0f172a;
-        border-top: 1px solid rgba(255,255,255,0.15);
-        border-radius: 24px 24px 0 0;
-        padding: 20px;
-        max-width: 480px;
-        margin: 0 auto;
-        animation: lpSlideUp 0.3s ease-out forwards;
-    }
-    .lp-quick-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    .lp-quick-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        margin-top: 12px;
-    }
-    .lp-quick-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        background: #1e293b;
-        border: 1px solid #334155;
-        border-radius: 14px;
-        padding: 10px 12px;
-        text-decoration: none !important;
-        color: #ffffff !important;
-        transition: transform 0.15s, background 0.15s, border-color 0.15s;
-    }
-    .lp-quick-item:hover, .lp-quick-item:active {
-        background: #334155;
-        border-color: #6366f1;
-        transform: translateY(-2px);
-    }
-    .lp-quick-icon-box {
-        width: 36px;
-        height: 36px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 18px;
-        flex-shrink: 0;
-    }
-    .lp-quick-text {
-        display: flex;
-        flex-direction: column;
-        min-width: 0;
-    }
-    .lp-quick-name {
-        font-size: 12px;
-        font-weight: 700;
-        line-height: 1.2;
-    }
-    .lp-quick-sub {
-        font-size: 10px;
-        color: #94a3b8;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    /* Floating Quick Shortcuts FAB on Mobile Screens */
-    #lp-pwa-quick-fab {
-        position: fixed;
-        bottom: 85px;
-        right: 18px;
-        background: linear-gradient(135deg, #4f46e5, #7c3aed);
-        color: #ffffff;
-        border: 1px solid rgba(255,255,255,0.25);
-        border-radius: 9999px;
-        padding: 8px 14px;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 12px;
-        font-weight: 700;
-        box-shadow: 0 10px 25px rgba(79, 70, 229, 0.4);
-        z-index: 99996;
-        cursor: pointer;
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-    #lp-pwa-quick-fab:active {
-        transform: scale(0.95);
-    }
-
     /* Minimal Toast */
     #lp-pwa-toast.lp-show {
         display: flex !important;
@@ -518,63 +409,6 @@
         </div>
     </div>
 </div>
-
-<!-- 5. In-App Quick Shortcuts Sheet (Pintasan untuk iOS & Mobile) -->
-<div id="lp-pwa-quick-sheet">
-    <div class="lp-quick-backdrop" id="lp-quick-backdrop"></div>
-    <div class="lp-quick-panel">
-        <div class="lp-quick-header">
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <span style="font-size: 18px;">⚡</span>
-                <span style="font-weight: 700; font-size: 15px; color: #ffffff;">Pintasan Cepat</span>
-            </div>
-            <button id="lp-quick-close" class="lp-btn-close">&times;</button>
-        </div>
-        <p style="font-size: 12px; color: #94a3b8; margin: 4px 0 14px 0;">Menu pintasan instan Lapaktifikasi.</p>
-        <div class="lp-quick-grid">
-            <a href="/premium/katalog" class="lp-quick-item">
-                <div class="lp-quick-icon-box" style="background: rgba(79, 70, 229, 0.2); color: #818cf8;">🛍️</div>
-                <div class="lp-quick-text">
-                    <span class="lp-quick-name">Katalog Produk</span>
-                    <span class="lp-quick-sub">Beli akun & source code</span>
-                </div>
-            </a>
-            <a href="/premium/riwayat" class="lp-quick-item">
-                <div class="lp-quick-icon-box" style="background: rgba(16, 185, 129, 0.2); color: #34d399;">📦</div>
-                <div class="lp-quick-text">
-                    <span class="lp-quick-name">Riwayat Pesanan</span>
-                    <span class="lp-quick-sub">Cek akun & kredensial</span>
-                </div>
-            </a>
-            <a href="/seller/dashboard" class="lp-quick-item">
-                <div class="lp-quick-icon-box" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24;">💼</div>
-                <div class="lp-quick-text">
-                    <span class="lp-quick-name">Dashboard Mitra</span>
-                    <span class="lp-quick-sub">Kelola toko & penjualan</span>
-                </div>
-            </a>
-            <a href="/premium/laporan" class="lp-quick-item">
-                <div class="lp-quick-icon-box" style="background: rgba(239, 68, 68, 0.2); color: #f87171;">💬</div>
-                <div class="lp-quick-text">
-                    <span class="lp-quick-name">Pusat Bantuan</span>
-                    <span class="lp-quick-sub">Klaim garansi & kendala</span>
-                </div>
-            </a>
-        </div>
-        <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-size: 11px; color: #64748b;">Lapaktifikasi PWA</span>
-            <button type="button" id="lp-quick-notif-btn" style="background: #1e293b; color: #cbd5e1; border: 1px solid #334155; border-radius: 8px; padding: 5px 10px; font-size: 11px; cursor: pointer;">
-                🔔 Cek Notifikasi
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Floating Quick FAB Button on Mobile -->
-<button type="button" id="lp-pwa-quick-fab" aria-label="Pintasan Cepat" title="Pintasan Cepat">
-    <span>⚡</span>
-    <span>Pintasan</span>
-</button>
 
 <!-- Minimal Toast Notification -->
 <div id="lp-pwa-toast">
@@ -771,31 +605,7 @@
 
         checkFirstTimePwaLaunch();
 
-        // --- 6. Quick Shortcuts Sheet Logic (iOS & Mobile) ---
-        const quickSheet = document.getElementById('lp-pwa-quick-sheet');
-        const quickFab = document.getElementById('lp-pwa-quick-fab');
-        const quickBackdrop = document.getElementById('lp-quick-backdrop');
-        const quickClose = document.getElementById('lp-quick-close');
-        const quickNotifBtn = document.getElementById('lp-quick-notif-btn');
-
-        function openQuickSheet() {
-            if (quickSheet) quickSheet.classList.add('lp-show');
-        }
-        function closeQuickSheet() {
-            if (quickSheet) quickSheet.classList.remove('lp-show');
-        }
-
-        if (quickFab) quickFab.addEventListener('click', openQuickSheet);
-        if (quickBackdrop) quickBackdrop.addEventListener('click', closeQuickSheet);
-        if (quickClose) quickClose.addEventListener('click', closeQuickSheet);
-        if (quickNotifBtn) {
-            quickNotifBtn.addEventListener('click', function () {
-                closeQuickSheet();
-                window.LapaktifikasiPWA.requestPush(false);
-            });
-        }
-
-        // --- 7. Global LapaktifikasiPWA Object ---
+        // --- 6. Global LapaktifikasiPWA Object ---
         window.LapaktifikasiPWA = {
             install: function () {
                 if (deferredPrompt) {
@@ -806,9 +616,6 @@
                     showLpToast('Aplikasi sudah terpasang di perangkat Anda.');
                 }
             },
-
-            openQuickSheet: openQuickSheet,
-            closeQuickSheet: closeQuickSheet,
 
             requestPush: async function (silent = false) {
                 // Validasi kapabilitas browser

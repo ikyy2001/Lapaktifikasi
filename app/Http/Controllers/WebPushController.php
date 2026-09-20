@@ -216,12 +216,16 @@ class WebPushController extends Controller
         $target = $validated['target'] ?? 'all';
 
         if ($target === 'customer') {
-            $query->whereHas('user', function ($q) {
-                $q->where('id_role', 2);
+            // Target customer mencakup user dengan role_id = 2 serta pengunjung umum (guest / belum login)
+            $query->where(function ($q) {
+                $q->whereHas('user', function ($subQ) {
+                    $subQ->where('role_id', 2);
+                })->orWhereNull('user_id');
             });
         } elseif ($target === 'seller') {
+            // Target khusus mitra seller (role_id = 3)
             $query->whereHas('user', function ($q) {
-                $q->where('id_role', 3);
+                $q->where('role_id', 3);
             });
         }
 
