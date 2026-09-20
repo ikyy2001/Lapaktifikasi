@@ -8,6 +8,9 @@
 
     <link rel="icon" type="image/x-icon" href="{{ isset($websiteSettings) && $websiteSettings->favicon_path ? asset($websiteSettings->favicon_path) : asset('assets/img/favicon.png') }}">
 
+    <!-- PWA Manifest & Meta -->
+    @include('partials.pwa_head')
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -469,6 +472,9 @@
     <!-- Template JS Files -->
     <script src="{{asset('assets/js/scripts.js')}}"></script>
     <script src="{{asset('assets/js/custom.js')}}"></script>
+
+    <!-- PWA Service Worker & Install Prompt -->
+    @include('partials.pwa_install_prompt')
 
 </body>
 

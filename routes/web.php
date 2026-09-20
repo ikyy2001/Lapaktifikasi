@@ -72,8 +72,20 @@ Route::get('/syarat-ketentuan', function () {
     return view('syarat_ketentuan');
 })->name('syarat.ketentuan');
 
+Route::get('/offline', function () {
+    return view('offline');
+})->name('offline');
+
 // Dynamic XML Sitemap for SEO Crawlers
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+
+// Web Push Notification Endpoints
+Route::prefix('webpush')->group(function () {
+    Route::get('/key', [\App\Http\Controllers\WebPushController::class, 'getPublicKey'])->name('webpush.key');
+    Route::post('/subscribe', [\App\Http\Controllers\WebPushController::class, 'subscribe'])->name('webpush.subscribe');
+    Route::post('/unsubscribe', [\App\Http\Controllers\WebPushController::class, 'unsubscribe'])->name('webpush.unsubscribe');
+    Route::post('/test', [\App\Http\Controllers\WebPushController::class, 'sendTestNotification'])->name('webpush.test');
+});
 
 // Katalog & Produk Publik (SEO Friendly / Shopee Style)
 Route::get('/katalog', [PremiumCustomerController::class, 'katalog'])->name('katalog');
@@ -236,6 +248,9 @@ Route::middleware('auth')->group(function () {
 
         // Kelola Berita / News Admin
         Route::resource('admin/news', \App\Http\Controllers\AdminNewsController::class)->names('admin.news');
+
+        // Broadcast Web Push Notification Admin
+        Route::post('/admin/webpush/broadcast', [\App\Http\Controllers\WebPushController::class, 'broadcast'])->name('admin.webpush.broadcast');
     });
 
     // Premium Customer Routes

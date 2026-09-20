@@ -3521,6 +3521,7 @@
             });
         });
     </script>
+    @include('partials.pwa_install_prompt')
 </body>
 
 </html>

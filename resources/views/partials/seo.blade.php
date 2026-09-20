@@ -37,6 +37,9 @@
 <meta name="author" content="{{ $siteName }}">
 <link rel="canonical" href="{{ $canonicalUrl }}">
 
+<!-- PWA Manifest & App Config -->
+@include('partials.pwa_head')
+
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="{{ $ogType }}">
 <meta property="og:url" content="{{ $canonicalUrl }}">

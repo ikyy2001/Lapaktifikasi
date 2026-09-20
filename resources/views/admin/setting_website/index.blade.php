@@ -257,6 +257,128 @@
                 </form>
             </div>
         </div>
+
+        <!-- Card Broadcast Web Push Notification (PWA) -->
+        <div class="card shadow-sm border-0 mt-4" style="border-radius: 12px;">
+            <div class="card-header bg-white border-bottom-0 pt-4 pb-3 d-flex justify-content-between align-items-center">
+                <h4 class="mb-0 text-dark"><i class="bi bi-broadcast-pin text-danger mr-2"></i> Broadcast Web Push Notification (PWA)</h4>
+                @php
+                    $totalSubscribers = \App\Models\PushSubscription::count();
+                @endphp
+                <span class="badge badge-pill badge-primary px-3 py-2 font-weight-bold" style="font-size: 12px;">
+                    <i class="bi bi-phone mr-1"></i> {{ $totalSubscribers }} Perangkat Terdaftar
+                </span>
+            </div>
+            <div class="card-body pt-0">
+                <p class="text-muted small">
+                    Kirimkan pemberitahuan instan langsung ke layar HP dan browser laptop customer maupun seller tanpa biaya SMS / WhatsApp Gateway. Notifikasi akan diterima meskipun pengguna sedang tidak membuka website.
+                </p>
+
+                <form id="formBroadcastPush">
+                    @csrf
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="font-weight-bold">Judul Notifikasi <span class="text-danger">*</span></label>
+                            <input type="text" id="push_title" name="title" class="form-control" placeholder="Contoh: 🔥 Flash Sale Netflix & Canva Pro!" required maxlength="100">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="font-weight-bold">Target Penerima</label>
+                            <select id="push_target" name="target" class="form-control">
+                                <option value="all">Semua Perangkat Terdaftar (Customer & Seller)</option>
+                                <option value="customer">Khusus Customer</option>
+                                <option value="seller">Khusus Mitra Seller</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label class="font-weight-bold">Isi Pesan Notifikasi <span class="text-danger">*</span></label>
+                            <textarea id="push_body" name="body" class="form-control" rows="2" placeholder="Tuliskan pesan menarik dan singkat..." required maxlength="255"></textarea>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label class="font-weight-bold">URL Tujuan (Ketika Notifikasi Diklik)</label>
+                            <input type="url" id="push_url" name="url" class="form-control" value="{{ url('/premium/katalog') }}" placeholder="https://...">
+                            <small class="text-muted">Pengguna akan langsung diarahkan ke tautan ini saat mengklik notifikasi.</small>
+                        </div>
+                        <div class="col-12 text-right">
+                            <button type="button" onclick="sendBroadcastPush()" id="btnSendBroadcast" class="btn btn-danger px-4 font-weight-bold" style="border-radius: 8px;">
+                                <i class="bi bi-send-fill mr-1"></i> Siarkan Notifikasi Sekarang
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+    function sendBroadcastPush() {
+        const title = document.getElementById('push_title').value.trim();
+        const body = document.getElementById('push_body').value.trim();
+        const url = document.getElementById('push_url').value.trim();
+        const target = document.getElementById('push_target').value;
+
+        if (!title || !body) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Data Belum Lengkap',
+                text: 'Harap isi Judul dan Isi Pesan notifikasi terlebih dahulu.'
+            });
+            return;
+        }
+
+        Swal.fire({
+            title: 'Kirim Broadcast Notifikasi?',
+            text: 'Notifikasi akan dikirimkan langsung ke seluruh perangkat terdaftar.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Ya, Siarkan!',
+            cancelButtonText: 'Batal'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                const btn = document.getElementById('btnSendBroadcast');
+                btn.disabled = true;
+                btn.innerHTML = '<i class="bi bi-hourglass-split animate-spin mr-1"></i> Mengirim Notifikasi...';
+
+                try {
+                    const res = await fetch("{{ route('admin.webpush.broadcast') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({ title, body, url, target })
+                    });
+
+                    const data = await res.json();
+                    if (data.status === 'success') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Broadcast Berhasil!',
+                            text: data.message,
+                            confirmButtonColor: '#4f46e5'
+                        });
+                        document.getElementById('push_title').value = '';
+                        document.getElementById('push_body').value = '';
+                    } else {
+                        throw new Error(data.message || 'Gagal mengirim broadcast');
+                    }
+                } catch (err) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal Mengirim',
+                        text: err.message
+                    });
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="bi bi-send-fill mr-1"></i> Siarkan Notifikasi Sekarang';
+                }
+            }
+        });
+    }
+</script>
+@endpush
 @endsection

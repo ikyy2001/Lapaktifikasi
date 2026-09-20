@@ -1,0 +1,125 @@
+{
+  "id": "/?source=pwa",
+  "name": "Lapaktifikasi - Marketplace Produk Digital",
+  "short_name": "Lapaktifikasi",
+  "description": "Marketplace Produk Digital, Source Code & Akun Layanan Premium Bergaransi Resmi",
+  "lang": "id-ID",
+  "dir": "ltr",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0f172a",
+  "theme_color": "#4f46e5",
+  "categories": ["shopping", "business", "utilities"],
+  "icons": [
+    {
+      "src": "/assets/img/pwa/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/img/pwa/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/img/pwa/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/img/pwa/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/img/pwa/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/img/pwa/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/img/pwa/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/img/pwa/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/img/pwa/maskable-icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Katalog Produk",
+      "short_name": "Katalog",
+      "description": "Jelajahi akun premium dan berkas digital",
+      "url": "/premium/katalog",
+      "icons": [
+        {
+          "src": "/assets/img/pwa/shortcut-katalog.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Riwayat Pesanan",
+      "short_name": "Riwayat",
+      "description": "Lihat status pembelian dan akses kredensial akun",
+      "url": "/premium/riwayat",
+      "icons": [
+        {
+          "src": "/assets/img/pwa/shortcut-riwayat.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Dashboard Mitra",
+      "short_name": "Mitra",
+      "description": "Kelola penjualan dan stok akun",
+      "url": "/seller/dashboard",
+      "icons": [
+        {
+          "src": "/assets/img/pwa/shortcut-mitra.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Pusat Bantuan & Garansi",
+      "short_name": "Bantuan",
+      "description": "Klaim kendala & tiket garansi",
+      "url": "/premium/laporan",
+      "icons": [
+        {
+          "src": "/assets/img/pwa/shortcut-bantuan.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
+}

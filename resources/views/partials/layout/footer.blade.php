@@ -62,3 +62,6 @@
 </script>
 
 @stack('scripts')
+
+<!-- PWA Service Worker & Install Prompt -->
+@include('partials.pwa_install_prompt')
