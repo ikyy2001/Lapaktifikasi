@@ -23,9 +23,9 @@ class TestimoniSeeder extends Seeder
             ],
             [
                 'name' => 'Hanifan Nurfauzi',
-                'role' => 'Guru SMK PENUS · Bogor',
+                'role' => 'Mitra Edukasi & Pengajar · Bogor',
                 'rating' => 5,
-                'comment' => 'Sangat bangga ada platform kolaborasi seperti Lapaktifikasi di SMK Plus Pelita Nusantara. Sekarang siswa dan staff bisa memajang & menjual karya digital secara profesional.',
+                'comment' => 'Sangat bangga dan terbantu dengan kehadiran platform Lapaktifikasi. Sekarang para talenta muda dan kreator bisa memajang & menjual karya digital serta source code secara profesional.',
                 'is_active' => true,
             ],
             [

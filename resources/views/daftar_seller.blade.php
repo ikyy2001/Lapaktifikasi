@@ -11,7 +11,7 @@
             $phoneClean = '62' . substr($phoneClean, 1);
         }
         $contactEmail = isset($websiteSettings) && $websiteSettings->contact_email ? $websiteSettings->contact_email : 'support@lapaktifikasi.com';
-        $logoUrl = isset($websiteSettings) && $websiteSettings->logo_path ? asset($websiteSettings->logo_path) : asset('assets/img/smk_pelita_ambassadors.jpg');
+        $logoUrl = isset($websiteSettings) && $websiteSettings->logo_path ? asset($websiteSettings->logo_path) : asset('assets/img/brand_ambassador.jpg');
         $faviconUrl = isset($websiteSettings) && $websiteSettings->favicon_path ? asset($websiteSettings->favicon_path) : asset('assets/img/favicon.png');
         $canonicalUrl = url('/daftar-jadi-seller');
     @endphp
@@ -19,7 +19,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daftar Jadi Seller Resmi - Jual Produk Digital &amp; Akun Premium | {{ $siteName }}</title>
-    <meta name="description" content="Bergabunglah sebagai mitra seller resmi di {{ $siteName }}. Jual akun premium, source code, karya siswa, dan file digital dengan sistem pembayaran serba otomatis dan bebas komisi di bulan pertama.">
+    <meta name="description" content="Bergabunglah sebagai mitra seller resmi di {{ $siteName }}. Jual akun premium, source code aplikasi, file digital, dan produk kreatif dengan sistem pembayaran serba otomatis dan bebas komisi di bulan pertama.">
     <meta name="keywords" content="daftar seller {{ strtolower($siteName) }}, cara jadi seller, jual produk digital, jual source code, marketplace digital indonesia, seller akun premium">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <link rel="canonical" href="{{ $canonicalUrl }}">
@@ -751,8 +751,8 @@
         .footer-inner { max-width: 1200px; margin: 0 auto; }
         .footer-top-row {
             display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr;
-            gap: 48px;
+            grid-template-columns: 1.4fr 0.9fr 0.9fr 1fr 1.3fr;
+            gap: 32px;
             margin-bottom: 50px;
         }
         .footer-brand p {
@@ -760,8 +760,13 @@
             font-size: 0.92rem;
             line-height: 1.7;
             margin: 14px 0 20px;
-            max-width: 320px;
         }
+        .footer-location-content { display: flex; flex-direction: column; gap: 8px; }
+        .footer-address { display: flex; align-items: flex-start; gap: 8px; color: var(--text-muted); font-size: 0.84rem; line-height: 1.5; margin: 0; }
+        .footer-address i { color: #000; font-size: 1rem; flex-shrink: 0; margin-top: 2px; }
+        .footer-map-frame { width: 100%; height: 105px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(0, 0, 0, 0.08); background: #f8fafc; }
+        .footer-map-action { display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 600; color: #000; text-decoration: none; }
+        .footer-map-action:hover { color: #4f46e5; }
         .footer-socials { display: flex; gap: 10px; }
         .social-btn {
             width: 38px;
@@ -922,12 +927,14 @@
             .nav-links { display: none; }
             .nav-toggle { display: block; }
             .footer-top-row { grid-template-columns: 1fr 1fr; gap: 36px; }
+            .footer-brand, .footer-location-col { grid-column: span 2; }
         }
         @media (max-width: 768px) {
             #hero-seller { padding: 130px 5% 50px; }
             .hero-title { font-size: 2.1rem; }
             .section-wrap { padding: 65px 5%; }
             .footer-top-row { grid-template-columns: 1fr; gap: 32px; }
+            .footer-brand, .footer-location-col { grid-column: span 1; }
             .registration-box { padding: 40px 22px; }
             .btn-whatsapp, .btn-gmail { width: 100%; }
         }
@@ -1287,6 +1294,37 @@
                         <li><a href="{{ route('join.partner') }}">Join Partner Komunitas</a></li>
                         <li><a href="https://wa.me/{{ $phoneClean }}?text=Halo%20Admin%20{{ urlencode($siteName) }},%20saya%20ingin%20bertanya%20seputar%20seller." target="_blank">Hubungi Admin</a></li>
                     </ul>
+                </div>
+                <div class="footer-col footer-location-col">
+                    <h5>Lokasi Kami</h5>
+                    <div class="footer-location-content">
+                        <p class="footer-address">
+                            <i class="bi bi-geo-alt-fill"></i>
+                            <span>{{ isset($websiteSettings) && $websiteSettings->address ? $websiteSettings->address : 'Jl. Golf RT06/08, Ciriung, Kec. Cibinong, Kab. Bogor, Jawa Barat 16918' }}</span>
+                        </p>
+                        @php
+                            $mapEmbedSrc = (isset($websiteSettings) && !empty($websiteSettings->maps_embed_url)) 
+                                ? $websiteSettings->maps_embed_url 
+                                : 'https://maps.google.com/maps?q=' . urlencode(isset($websiteSettings) && $websiteSettings->address ? $websiteSettings->address : 'Bogor, Jawa Barat, Indonesia') . '&t=&z=15&ie=UTF8&iwloc=&output=embed';
+                            $mapsDirectUrl = 'https://maps.google.com/?q=' . urlencode(isset($websiteSettings) && $websiteSettings->address ? $websiteSettings->address : 'Bogor, Jawa Barat, Indonesia');
+                        @endphp
+                        <div class="footer-map-frame">
+                            <iframe 
+                                src="{{ $mapEmbedSrc }}" 
+                                width="100%" 
+                                height="105" 
+                                style="border:0;display:block;" 
+                                allowfullscreen="" 
+                                loading="lazy" 
+                                referrerpolicy="no-referrer-when-downgrade"
+                                title="Peta Lokasi {{ $siteName }}">
+                            </iframe>
+                        </div>
+                        <a href="{{ $mapsDirectUrl }}" target="_blank" class="footer-map-action" rel="noopener noreferrer">
+                            <i class="bi bi-box-arrow-up-right"></i>
+                            <span>Buka di Google Maps</span>
+                        </a>
+                    </div>
                 </div>
             </div>
             <div class="footer-bottom-row">

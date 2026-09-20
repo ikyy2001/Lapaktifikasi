@@ -12,10 +12,11 @@
 
 <div class="row mb-4">
     <div class="col-12">
-        <div class="hero bg-primary text-white p-4 rounded shadow-sm">
+        <div class="p-4 p-md-5 rounded-2xl shadow-sm text-white" style="background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%); border: 1px solid rgba(0,0,0,0.1); border-radius: 20px;">
             <div class="hero-inner">
-                <h2>Selamat Datang di Marketplace Kami!</h2>
-                <p class="lead">Temukan dan jelajahi berbagai toko seller terpercaya kami untuk mengunduh source code dan produk digital berkualitas tinggi.</p>
+                <span class="badge px-3 py-1.5 mb-2 font-weight-bold" style="background: rgba(255,255,255,0.15); border-radius: 50px; font-size: 0.78rem; letter-spacing: 1px;"><i class="bi bi-shop-window mr-1"></i> DIREKTORI SELLER RESMI</span>
+                <h2 class="font-weight-bold mb-2" style="font-family: 'Space Grotesk', sans-serif; font-size: clamp(1.5rem, 3vw, 2.2rem);">Direktori Toko &amp; Seller Terverifikasi</h2>
+                <p class="lead mb-0 text-white-50" style="font-size: 1rem; max-width: 750px;">Temukan dan jelajahi berbagai toko seller terpercaya di platform Lapaktifikasi untuk mendapatkan source code aplikasi, file kreatif, dan layanan digital berkualitas tinggi.</p>
             </div>
         </div>
     </div>

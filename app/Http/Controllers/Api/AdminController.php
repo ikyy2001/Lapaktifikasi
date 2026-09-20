@@ -582,6 +582,7 @@ class AdminController extends ApiController
             'contact_email' => 'nullable|email',
             'contact_phone' => 'nullable|string|max:50',
             'address' => 'nullable|string',
+            'maps_embed_url' => 'nullable|string',
             'is_midtrans_active' => 'nullable|boolean',
             'is_tripay_active' => 'nullable|boolean',
             'is_pakasir_active' => 'nullable|boolean',
@@ -599,6 +600,14 @@ class AdminController extends ApiController
         $settings->contact_email = $request->contact_email;
         $settings->contact_phone = $request->contact_phone;
         $settings->address = $request->address;
+
+        if ($request->has('maps_embed_url')) {
+            $mapsEmbed = $request->maps_embed_url;
+            if (!empty($mapsEmbed) && preg_match('/src=[\'"]([^\'"]+)[\'"]/', $mapsEmbed, $matches)) {
+                $mapsEmbed = $matches[1];
+            }
+            $settings->maps_embed_url = $mapsEmbed;
+        }
 
         if ($request->has('is_midtrans_active')) $settings->is_midtrans_active = $request->boolean('is_midtrans_active');
         if ($request->has('is_tripay_active')) $settings->is_tripay_active = $request->boolean('is_tripay_active');

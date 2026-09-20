@@ -2,8 +2,8 @@
 
 @section('title', ($toko ? $toko->nama_toko . ' - ' : '') . 'Katalog Produk Digital & Akun Premium')
 @section('meta_title', ($toko ? 'Katalog Toko ' . $toko->nama_toko . ' | ' : '') . 'Katalog Produk Digital, Source Code & Akun Premium - Lapaktifikasi')
-@section('meta_description', 'Jelajahi katalog produk digital terpercaya, e-book, source code karya siswa SMK Plus Pelita Nusantara, dan akun premium murah bergaransi dengan pengiriman otomatis.')
-@section('meta_keywords', 'katalog produk digital, beli akun premium, source code karya siswa, smk pelita nusantara, streaming premium, voucher')
+@section('meta_description', 'Jelajahi katalog produk digital terpercaya, e-book, source code aplikasi, dan akun premium murah bergaransi dengan pengiriman otomatis.')
+@section('meta_keywords', 'katalog produk digital, beli akun premium, source code aplikasi, produk kreatif, streaming premium, voucher')
 
 @push('schema')
 <!-- Schema.org ItemList Structured Data for Catalog -->

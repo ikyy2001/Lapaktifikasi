@@ -4,7 +4,7 @@
     $minPriceFormatted = number_format($minPrice, 0, ',', '.');
     $storeName = $toko ? $toko->nama_toko : 'Lapaktifikasi';
     $productCleanDesc = Str::limit(strip_tags($produk->deskripsi ?? 'Beli ' . $produk->nama_produk . ' dengan harga terbaik, garansi resmi, dan pengiriman otomatis instan di Lapaktifikasi.'), 155);
-    $productImage = $produk->gambar ? asset('assets/img/produk_premium/' . $produk->gambar) : asset('assets/img/smk_pelita_ambassadors.jpg');
+    $productImage = $produk->gambar ? asset('assets/img/produk_premium/' . $produk->gambar) : (isset($websiteSettings) && $websiteSettings->logo_path ? asset($websiteSettings->logo_path) : asset('assets/img/brand_ambassador.jpg'));
     $productRating = $toko ? (float) $toko->rating_rata_rata : 5.0;
     $productReviewCount = $toko ? (int) $toko->jumlah_review : 0;
 @endphp
@@ -12,7 +12,7 @@
 @section('title', $produk->nama_produk . ' - ' . $storeName)
 @section('meta_title', 'Jual ' . $produk->nama_produk . ' Murah & Bergaransi - ' . $storeName)
 @section('meta_description', $productCleanDesc)
-@section('meta_keywords', 'jual ' . strtolower($produk->nama_produk) . ', beli ' . strtolower($produk->nama_produk) . ', ' . strtolower($produk->nama_produk) . ' murah, akun premium, produk digital, karya siswa, ' . strtolower($storeName))
+@section('meta_keywords', 'jual ' . strtolower($produk->nama_produk) . ', beli ' . strtolower($produk->nama_produk) . ', ' . strtolower($produk->nama_produk) . ' murah, akun premium, produk digital, software aplikasi, ' . strtolower($storeName))
 @section('og_type', 'product')
 @section('og_image', $productImage)
 

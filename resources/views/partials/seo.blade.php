@@ -1,6 +1,6 @@
 @php
     $siteName = isset($websiteSettings) && $websiteSettings->site_name ? $websiteSettings->site_name : 'Lapaktifikasi';
-    $siteDesc = isset($websiteSettings) && $websiteSettings->site_description ? $websiteSettings->site_description : 'Marketplace Produk Digital, Source Code & Akun Premium Terpercaya Berbasis Kolaborasi Pendidikan SMK Plus Pelita Nusantara';
+    $siteDesc = isset($websiteSettings) && $websiteSettings->site_description ? $websiteSettings->site_description : 'Marketplace Produk Digital, Source Code & Akun Premium Terpercaya Bergaransi Resmi';
     
     $seoTitle = trim($__env->yieldContent('meta_title', $__env->yieldContent('title', '')));
     if (!empty($seoTitle)) {
@@ -15,10 +15,10 @@
         $metaDescription = mb_substr($metaDescription, 0, 160) . '...';
     }
 
-    $metaKeywords = trim($__env->yieldContent('meta_keywords', 'lapaktifikasi, marketplace produk digital, beli akun premium, source code, karya siswa, smk plus pelita nusantara, akun premium murah, sistem otomatis, payment gateway'));
+    $metaKeywords = trim($__env->yieldContent('meta_keywords', 'lapaktifikasi, marketplace produk digital, beli akun premium, source code aplikasi, produk kreatif digital, akun premium murah, sistem otomatis, payment gateway'));
     $canonicalUrl = trim($__env->yieldContent('canonical_url', url()->current()));
     
-    $defaultImage = isset($websiteSettings) && $websiteSettings->logo_path ? asset($websiteSettings->logo_path) : asset('assets/img/smk_pelita_ambassadors.jpg');
+    $defaultImage = isset($websiteSettings) && $websiteSettings->logo_path ? asset($websiteSettings->logo_path) : asset('assets/img/brand_ambassador.jpg');
     $ogImage = trim($__env->yieldContent('og_image', $defaultImage));
     $ogType = trim($__env->yieldContent('og_type', 'website'));
     $isPrivateArea = request()->is('dashboard*', 'admin*', 'seller*', 'profile_customer*', 'premium/riwayat*', 'premium/laporan*', 'premium/kredensial*', 'login', 'pendaftaran', 'lupa_password', 'reset_password');

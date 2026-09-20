@@ -21,6 +21,7 @@ class SettingWebsite extends Model
         'contact_email',
         'contact_phone',
         'address',
+        'maps_embed_url',
         'is_midtrans_active',
         'is_tripay_active',
         'is_pakasir_active',

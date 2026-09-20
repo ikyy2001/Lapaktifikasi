@@ -28,6 +28,7 @@ class SettingWebsiteController extends Controller
             'contact_email' => 'nullable|email',
             'contact_phone' => 'nullable|string|max:50',
             'address' => 'nullable|string',
+            'maps_embed_url' => 'nullable|string',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,svg,webp|max:2048',
             'favicon' => 'nullable|image|mimes:jpeg,png,jpg,ico,svg|max:1024',
             'auth_hero' => 'nullable|image|mimes:jpeg,png,jpg,svg,webp|max:3072',
@@ -52,6 +53,14 @@ class SettingWebsiteController extends Controller
         $settings->contact_email = $request->contact_email;
         $settings->contact_phone = $request->contact_phone;
         $settings->address = $request->address;
+
+        $mapsEmbed = $request->maps_embed_url;
+        if (!empty($mapsEmbed)) {
+            if (preg_match('/src=[\'"]([^\'"]+)[\'"]/', $mapsEmbed, $matches)) {
+                $mapsEmbed = $matches[1];
+            }
+        }
+        $settings->maps_embed_url = $mapsEmbed;
 
         $settings->is_midtrans_active = $isMidtrans;
         $settings->is_tripay_active = $isTripay;

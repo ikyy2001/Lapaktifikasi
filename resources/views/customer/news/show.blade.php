@@ -2,7 +2,7 @@
 
 @php
     $newsDesc = Str::limit(strip_tags($news->subjudul ?? $news->konten), 160);
-    $newsImg = $news->gambar_url ?? asset('assets/img/smk_pelita_ambassadors.jpg');
+    $newsImg = $news->gambar_url ?? (isset($websiteSettings) && $websiteSettings->logo_path ? asset($websiteSettings->logo_path) : asset('assets/img/brand_ambassador.jpg'));
 @endphp
 
 @section('title', $news->judul)

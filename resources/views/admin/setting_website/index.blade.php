@@ -152,8 +152,23 @@
                                 </div>
                                 
                                 <div class="form-group">
-                                    <label class="font-weight-bold">Alamat Perusahaan</label>
-                                    <textarea name="address" class="form-control" rows="2">{{ old('address', $settings->address) }}</textarea>
+                                    <label class="font-weight-bold">Alamat Kantor / Operasional</label>
+                                    <textarea name="address" class="form-control" rows="2" placeholder="Contoh: Jl. Golf RT06/08, Ciriung, Kec. Cibinong, Kab. Bogor, Jawa Barat 16918">{{ old('address', $settings->address) }}</textarea>
+                                    <small class="text-muted">Alamat yang ditampilkan pada kolom lokasi di footer website.</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Link Embed Google Maps (Footer)</label>
+                                    <textarea name="maps_embed_url" class="form-control" rows="2" placeholder="Contoh: https://maps.google.com/maps?q=Bogor+Jawa+Barat&output=embed atau kode <iframe> embed">{{ old('maps_embed_url', $settings->maps_embed_url) }}</textarea>
+                                    <small class="text-muted">Masukkan link URL embed Google Maps atau salin kode <code>&lt;iframe src="..."&gt;</code> dari Google Maps. Kosongkan untuk menggunakan peta default lokasi alamat.</small>
+                                    @if($settings->maps_embed_url)
+                                        <div class="mt-2 p-2 bg-light border rounded">
+                                            <small class="text-muted d-block mb-1 font-weight-bold"><i class="bi bi-geo-alt"></i> Pratinjau Peta Saat Ini:</small>
+                                            <div style="height: 130px; border-radius: 8px; overflow: hidden;">
+                                                <iframe src="{{ $settings->maps_embed_url }}" width="100%" height="130" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                                            </div>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>

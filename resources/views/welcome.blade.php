@@ -5,9 +5,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 @section('title', (isset($websiteSettings) ? $websiteSettings->site_name : 'Lapaktifikasi') . ' - Marketplace Produk Digital & Akun Premium')
-@section('meta_title', (isset($websiteSettings) ? $websiteSettings->site_name : 'Lapaktifikasi') . ' - Marketplace Produk Digital, Source Code & Akun Premium SMK Pelita')
+@section('meta_title', (isset($websiteSettings) ? $websiteSettings->site_name : 'Lapaktifikasi') . ' - Marketplace Produk Digital, Source Code & Akun Premium')
 @section('meta_description', 'Platform marketplace produk digital, source code aplikasi, dan akun premium murah terpercaya. Pengiriman otomatis instan kurang dari 5 detik, bergaransi resmi, dan didukung payment gateway terpercaya.')
-@section('og_image', asset('assets/img/smk_pelita_ambassadors.jpg'))
+@section('og_image', isset($websiteSettings) && $websiteSettings->logo_path ? asset($websiteSettings->logo_path) : asset('assets/img/brand_ambassador.jpg'))
 
 @push('schema')
 <!-- Schema.org FAQPage Structured Data (Google Rich Results SERP) -->
@@ -1309,8 +1309,8 @@
 
         .footer-top-row {
             display: grid;
-            grid-template-columns: 1.5fr 1fr 1fr 1fr;
-            gap: 48px;
+            grid-template-columns: 1.3fr 0.85fr 0.85fr 0.9fr 1.3fr;
+            gap: 36px;
             margin-bottom: 60px;
         }
 
@@ -1318,7 +1318,63 @@
             color: var(--text-muted);
             font-size: 0.9rem;
             line-height: 1.7;
-            margin: 18px 0 24px;
+            margin: 14px 0 20px;
+        }
+
+        .footer-location-content {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .footer-address {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            color: var(--text-muted);
+            font-size: 0.84rem;
+            line-height: 1.5;
+            margin: 0 0 4px;
+        }
+
+        .footer-address i {
+            color: #000000;
+            font-size: 1rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .footer-map-frame {
+            width: 100%;
+            height: 110px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e5e5e5;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            background: #f8fafc;
+            transition: all 0.3s ease;
+        }
+
+        .footer-map-frame:hover {
+            border-color: #000000;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        .footer-map-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #000000;
+            text-decoration: none !important;
+            transition: all 0.2s ease;
+            width: fit-content;
+        }
+
+        .footer-map-action:hover {
+            color: #4f46e5;
+            transform: translateX(2px);
         }
 
         .footer-socials {
@@ -2089,7 +2145,15 @@
 
             .footer-top-row {
                 grid-template-columns: repeat(2, 1fr);
-                gap: 36px;
+                gap: 32px;
+            }
+
+            .footer-brand {
+                grid-column: span 2;
+            }
+
+            .footer-location-col {
+                grid-column: span 2;
             }
         }
 
@@ -2439,6 +2503,16 @@
                 max-width: 320px;
                 padding: 70px 24px 30px;
             }
+
+            .footer-top-row {
+                grid-template-columns: 1fr;
+                gap: 28px;
+            }
+
+            .footer-brand,
+            .footer-location-col {
+                grid-column: span 1;
+            }
         }
 
         /* EXTREMELY SMALL MOBILE (< 360px) */
@@ -2502,9 +2576,9 @@
             <li><a href="{{ route('premium.katalog') }}">Katalog Produk</a></li>
             <li><a href="#fitur">Kelebihan</a></li>
             <li><a href="#visimisi">Visi &amp; Misi</a></li>
-            <li><a href="#produk">Produk</a></li>
-            <li><a href="#faq">FAQ</a></li>
+            <li><a href="#produk">Produk</a></li            <li><a href="#faq">FAQ</a></li>
             <li><a href="{{ route('daftar.seller') }}">Jadi Seller</a></li>
+            <li><a href="{{ route('join.partner') }}">Join Partner</a></li>
             @auth
                 @if(Auth::user()->role_id == 2)
                     <li><a href="{{ route('premium.riwayat') }}">Riwayat</a></li>
@@ -2517,6 +2591,8 @@
             @auth
                 @if(Auth::user()->role_id == 1)
                     <a href="{{ url('/dashboard') }}" class="btn-nav-signup"><i class="bi bi-speedometer2"></i> Dashboard</a>
+                @elseif(Auth::user()->role_id == 3)
+                    <a href="{{ url('/seller/dashboard') }}" class="btn-nav-signup"><i class="bi bi-shop"></i> Toko Saya</a>
                 @else
                     <a href="{{ route('premium.katalog') }}" class="btn-nav-signup"><i class="bi bi-cart3"></i> Belanja</a>
                 @endif
@@ -2544,6 +2620,7 @@
             <li><a href="#produk" onclick="closeMobileMenu()">Produk</a></li>
             <li><a href="#faq" onclick="closeMobileMenu()">FAQ</a></li>
             <li><a href="{{ route('daftar.seller') }}" onclick="closeMobileMenu()">Jadi Seller</a></li>
+            <li><a href="{{ route('join.partner') }}" onclick="closeMobileMenu()">Join Partner</a></li>
             @auth
                 @if(Auth::user()->role_id == 2)
                     <li><a href="{{ route('premium.riwayat') }}" onclick="closeMobileMenu()">Riwayat</a></li>
@@ -2557,6 +2634,9 @@
                 @if(Auth::user()->role_id == 1)
                     <a href="{{ url('/dashboard') }}" class="btn-nav-signup" onclick="closeMobileMenu()"><i
                             class="bi bi-speedometer2"></i> Dashboard</a>
+                @elseif(Auth::user()->role_id == 3)
+                    <a href="{{ url('/seller/dashboard') }}" class="btn-nav-signup" onclick="closeMobileMenu()"><i
+                            class="bi bi-shop"></i> Toko Saya</a>
                 @else
                     <a href="{{ route('premium.katalog') }}" class="btn-nav-signup" onclick="closeMobileMenu()"><i
                             class="bi bi-cart3"></i> Belanja</a>
@@ -2572,13 +2652,9 @@
     <header id="hero">
         <div class="hero-inner">
             <div class="hero-content">
-                <div class="hero-badge"><i class="bi bi-mortarboard-fill"></i> Sinergi Digital SMK Plus Pelita Nusantara
-                    Bogor</div>
-                <h1 class="hero-title">Lapaktifikasi Bersama<br><span class="grad-text">SMK PLUS PELITA NUSANTARA
-                        BOGOR</span></h1>
-                <p class="hero-desc">Pusat Marketplace Digital &amp; Akun Premium Terpercaya. Hasil kolaborasi strategis
-                    dalam membangun ekosistem digital mandiri, mengasah jiwa kewirausahaan siswa 5 Jurusan &amp; Staff,
-                    serta mendorong pertumbuhan ekonomi kreatif digital di SMK Plus Pelita Nusantara Bogor.</p>
+                <div class="hero-badge"><i class="bi bi-patch-check-fill"></i> Platform Ekosistem Digital &amp; Kreatif Terpercaya</div>
+                <h1 class="hero-title">Marketplace Produk Digital &amp;<br><span class="grad-text">AKUN PREMIUM TERPERCAYA</span></h1>
+                <p class="hero-desc">Pusat Marketplace Produk Digital &amp; Akun Premium Terpercaya. Platform terdepan yang menyediakan aneka source code aplikasi, file kreatif, e-book berkualitas, serta akun premium terverifikasi dengan sistem otomatis instan 24/7 dan bergaransi resmi.</p>
                 <div class="hero-cta">
                     @auth
                         @if(Auth::user()->role_id == 2)
@@ -2648,8 +2724,8 @@
 
                 <div class="hero-cards-mini">
                     <div class="glass-card mini-card">
-                        <div class="num">5</div>
-                        <div class="lbl">Jurusan SMK Pelita</div>
+                        <div class="num">10+</div>
+                        <div class="lbl">Kategori Produk</div>
                     </div>
                     <div class="glass-card mini-card">
                         <div class="num">2.5K+</div>
@@ -2774,10 +2850,9 @@
     <section id="visimisi" class="section-wrap alt" style="padding: 90px 5%;">
         <div class="container-custom">
             <div class="section-header centered mb-12">
-                <div class="section-tag"><i class="bi bi-eye-fill"></i> Sinergi &amp; Komitmen</div>
-                <h2 class="section-title">Visi &amp; Misi <span class="highlight-cyan">Sinergi Digital</span></h2>
-                <p class="section-subtitle">Lapaktifikasi bersama SMK Plus Pelita Nusantara Bogor berkomitmen membangun
-                    ekosistem digital mandiri yang memberdayakan karya siswa dan menggerakkan potensi ekonomi sekolah.
+                <div class="section-tag"><i class="bi bi-eye-fill"></i> Visi &amp; Komitmen</div>
+                <h2 class="section-title">Visi &amp; Misi <span class="highlight-cyan">Lapaktifikasi</span></h2>
+                <p class="section-subtitle">Lapaktifikasi berkomitmen membangun ekosistem digital terpercaya yang memberdayakan kreator, developer, dan talenta muda berbakat untuk menggerakkan potensi ekonomi kreatif di Indonesia.
                 </p>
             </div>
 
@@ -2801,7 +2876,7 @@
                     <div class="vm-hover-view">
                         <h3 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.5rem; font-weight: 800; color: #000000; margin-bottom: 18px;">Visi Kami</h3>
                         <p style="font-size: 0.95rem; color: #555555; line-height: 1.8; margin-bottom: 24px;">
-                            Menjadi platform marketplace produk digital &amp; akun premium terdepan berbasis kolaborasi pendidikan yang menginspirasi kemandirian ekonomi digital, inovasi karya siswa 5 Jurusan &amp; Staff, serta mempermudah akses produk kreatif di seluruh Indonesia.
+                            Menjadi platform marketplace produk digital &amp; akun premium terdepan yang menginspirasi kemandirian ekonomi digital, inovasi karya teknologi, serta mempermudah akses produk kreatif berkualitas di seluruh Indonesia.
                         </p>
                         <div style="padding: 16px 20px; border-radius: 16px; background: #fafafa; border: 1px solid #e5e5e5; display: flex; align-items: center; gap: 12px; width: 100%;">
                             <i class="bi bi-patch-check-fill" style="color: #5417D7; font-size: 1.4rem; flex-shrink: 0;"></i>
@@ -2831,23 +2906,23 @@
                         <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; width: 100%;">
                             <li style="display: flex; align-items: flex-start; gap: 10px; font-size: 0.88rem; color: #555555; line-height: 1.55;">
                                 <i class="bi bi-chevron-right" style="color: #000000; font-weight: 800; font-size: 0.85rem; margin-top: 2px; flex-shrink: 0;"></i>
-                                <span>Membuka wadah distribusi karya digital siswa (Source Code, ZIP, E-Book, Desain) &amp; Akun Premium.</span>
+                                <span>Membuka wadah distribusi karya digital kreatif (Source Code, Aplikasi, ZIP, E-Book, Desain) &amp; Akun Premium terverifikasi.</span>
                             </li>
                             <li style="display: flex; align-items: flex-start; gap: 10px; font-size: 0.88rem; color: #555555; line-height: 1.55;">
                                 <i class="bi bi-chevron-right" style="color: #000000; font-weight: 800; font-size: 0.85rem; margin-top: 2px; flex-shrink: 0;"></i>
-                                <span>Mengembangkan jiwa kewirausahaan digital siswa 5 Jurusan &amp; Staff SMK Plus Pelita Nusantara Bogor.</span>
+                                <span>Mengembangkan potensi dan jiwa kewirausahaan digital para kreator, talenta muda, dan pengembang teknologi.</span>
                             </li>
                             <li style="display: flex; align-items: flex-start; gap: 10px; font-size: 0.88rem; color: #555555; line-height: 1.55;">
                                 <i class="bi bi-chevron-right" style="color: #000000; font-weight: 800; font-size: 0.85rem; margin-top: 2px; flex-shrink: 0;"></i>
-                                <span>Menyediakan sistem pengiriman otomatis serta unduh file digital instan yang aman dan terpercaya.</span>
+                                <span>Menyediakan sistem pengiriman otomatis serta unduh file digital instan yang aman, cepat, dan terpercaya.</span>
                             </li>
                             <li style="display: flex; align-items: flex-start; gap: 10px; font-size: 0.88rem; color: #555555; line-height: 1.55;">
                                 <i class="bi bi-chevron-right" style="color: #000000; font-weight: 800; font-size: 0.85rem; margin-top: 2px; flex-shrink: 0;"></i>
-                                <span>Mendorong pertumbuhan ekonomi kreatif sekolah melalui sistem komisi dan bagi hasil transparan.</span>
+                                <span>Mendorong pertumbuhan ekonomi kreatif digital melalui sistem komisi dan kemitraan bagi hasil yang transparan.</span>
                             </li>
                             <li style="display: flex; align-items: flex-start; gap: 10px; font-size: 0.88rem; color: #555555; line-height: 1.55;">
                                 <i class="bi bi-chevron-right" style="color: #000000; font-weight: 800; font-size: 0.85rem; margin-top: 2px; flex-shrink: 0;"></i>
-                                <span>Menyediakan layanan pembuatan website dan portal digital custom untuk komunitas maupun institusi.</span>
+                                <span>Menyediakan layanan pembuatan website, integrasi sistem, dan portal digital custom untuk komunitas maupun institusi.</span>
                             </li>
                         </ul>
                     </div>
@@ -2958,8 +3033,7 @@
                     <div class="product-card-icon"><img src="https://cdn-icons-png.flaticon.com/512/2232/2232688.png"
                             alt="E-Book & Modul Edukasi"></div>
                     <h3>E-Book &amp; Modul Edukasi</h3>
-                    <p>Panduan praktis, e-book pembelajaran 5 Jurusan SMK, hingga materi pengembangan karir &amp;
-                        teknologi.</p>
+                    <p>Panduan praktis, e-book teknologi, strategi bisnis digital, hingga materi pengembangan karir profesional.</p>
                     <div class="product-card-footer">
                         <div class="product-card-price"><small>Format PDF</small><strong>Unduh Seketika</strong></div>
                         <a href="{{ route('premium.katalog', ['kategori' => 'digital']) }}" class="btn-see">Beli <i
@@ -2968,12 +3042,11 @@
                 </div>
                 <div class="glass-card product-card reveal" style="transition-delay:.5s">
                     <div class="product-card-icon"><img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
-                            alt="Karya Siswa SMK Pelita"></div>
-                    <h3>Karya Siswa SMK Pelita</h3>
-                    <p>Dukung kreativitas dan jiwa wirausaha para siswa SMK Plus Pelita Nusantara Bogor dengan membeli
-                        karya terbaik mereka.</p>
+                            alt="Karya Kreator & Developer"></div>
+                    <h3>Karya Kreator &amp; Developer</h3>
+                    <p>Dukung inovasi dan karya digital para kreator independen serta developer berbakat dengan membeli aset dan source code pilihan.</p>
                     <div class="product-card-footer">
-                        <div class="product-card-price"><small>Karya Siswa</small><strong>Dukungan Ekonomi</strong>
+                        <div class="product-card-price"><small>Inovasi Digital</small><strong>Aset Kreatif</strong>
                         </div>
                         <a href="{{ route('premium.katalog') }}" class="btn-see">Jelajahi <i
                                 class="bi bi-arrow-right"></i></a>
@@ -2996,12 +3069,12 @@
                             Mau Memiliki Website Marketplace / Portal Digital Seperti Ini?
                         </h2>
                         <p style="color: var(--text-muted); font-size: 1.02rem; line-height: 1.7; margin-bottom: 24px;">
-                            Tim Lapaktifikasi bersama pengembang SMK Plus Pelita Nusantara Bogor siap membantu Anda
-                            membangun website custom, sistem e-commerce, portal sekolah/komunitas, hingga aplikasi
+                            Tim developer dan konsultan teknologi profesional Lapaktifikasi siap membantu Anda
+                            membangun website custom, sistem e-commerce, portal komunitas/institusi, hingga aplikasi
                             bisnis terintegrasi sesuai kebutuhan Anda!
                         </p>
                         <div class="jasa-btn-group" style="display: flex; gap: 16px; flex-wrap: wrap;">
-                            <a href="https://wa.me/6287897600086?text=Halo%20Tim%20Lapaktifikasi,%20saya%20tertarik%20untuk%20konsultasi%20jasa%20pembuatan%20website%20/%20platform%20digital."
+                            <a href="https://wa.me/{{ isset($websiteSettings) && $websiteSettings->contact_phone ? preg_replace('/[^0-9]/', '', $websiteSettings->contact_phone) : '6287897600086' }}?text=Halo%20Tim%20Lapaktifikasi,%20saya%20tertarik%20untuk%20konsultasi%20jasa%20pembuatan%20website%20/%20platform%20digital."
                                 target="_blank" class="btn-primary">
                                 <i class="bi bi-whatsapp"></i> Hubungi Tim Lapaktifikasi
                             </a>
@@ -3225,18 +3298,22 @@
         <div class="footer-inner">
             <div class="footer-top-row">
                 <div class="footer-brand">
-                    <a href="{{ url('/') }}" class="nav-logo" style="display:inline-flex;margin-bottom:4px;">
-                        <div class="nav-logo-icon">L</div>
-                        <span class="nav-logo-text">LAPAK<span>TIFIKASI</span></span>
+                    <a href="{{ url('/') }}" class="nav-logo" style="display:inline-flex;align-items:center;margin-bottom:8px;text-decoration:none;">
+                        @if(isset($websiteSettings) && $websiteSettings->logo_path)
+                            <img src="{{ asset($websiteSettings->logo_path) }}" alt="{{ $websiteSettings->site_name ?? 'Lapaktifikasi' }}"
+                                style="max-height: 48px; width: auto; object-fit: contain;">
+                        @else
+                            <div class="nav-logo-icon">L</div>
+                            <span class="nav-logo-text">{{ isset($websiteSettings) ? $websiteSettings->site_name : 'LAPAKTIFIKASI' }}</span>
+                        @endif
                     </a>
-                    <p>Platform distribusi akun digital premium terpercaya di Indonesia. Cepat, aman, dan terjangkau
-                        untuk semua lapisan pengguna.</p>
+                    <p>{{ isset($websiteSettings) && $websiteSettings->site_description ? $websiteSettings->site_description : 'Platform distribusi akun digital premium terpercaya di Indonesia. Cepat, aman, dan terjangkau untuk semua lapisan pengguna.' }}</p>
                     <div class="footer-socials">
-                        <a href="https://instagram.com/nusagarudastudio" target="_blank" class="social-btn"><i
+                        <a href="https://instagram.com/nusagarudastudio" target="_blank" class="social-btn" aria-label="Instagram"><i
                                 class="bi bi-instagram"></i></a>
-                        <a href="https://wa.me/6287897600086" target="_blank" class="social-btn"><i
+                        <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $websiteSettings->contact_phone ?? '6287897600086') }}" target="_blank" class="social-btn" aria-label="WhatsApp"><i
                                 class="bi bi-whatsapp"></i></a>
-                        <a href="https://t.me/nusagarudastudio" target="_blank" class="social-btn"><i
+                        <a href="https://t.me/nusagarudastudio" target="_blank" class="social-btn" aria-label="Telegram"><i
                                 class="bi bi-telegram"></i></a>
                     </div>
                 </div>
@@ -3267,16 +3344,47 @@
                         <li><a href="{{ route('syarat.ketentuan') }}">Syarat &amp; Ketentuan</a></li>
                         <li><a href="{{ route('daftar.seller') }}">Daftar Jadi Seller</a></li>
                         <li><a href="{{ route('join.partner') }}">Join Partner</a></li>
-                        <li><a href="https://wa.me/6287897600086?text=Halo%20Admin%20Lapaktifikasi,%20saya%20ingin%20bertanya%20mengenai%20layanan%20Lapaktifikasi."
+                        <li><a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $websiteSettings->contact_phone ?? '6287897600086') }}?text=Halo%20Admin%20Lapaktifikasi,%20saya%20ingin%20bertanya%20mengenai%20layanan%20Lapaktifikasi."
                                 target="_blank">Hubungi Kami</a></li>
                         @guest
                             <li><a href="{{ url('/pendaftaran') }}">Daftar Akun</a></li>
                         @endguest
                     </ul>
                 </div>
+                <div class="footer-col footer-location-col">
+                    <h5>Lokasi Kami</h5>
+                    <div class="footer-location-content">
+                        <p class="footer-address">
+                            <i class="bi bi-geo-alt-fill"></i>
+                            <span>{{ isset($websiteSettings) && $websiteSettings->address ? $websiteSettings->address : 'Jl. Golf RT06/08, Ciriung, Kec. Cibinong, Kab. Bogor, Jawa Barat 16918' }}</span>
+                        </p>
+                        @php
+                            $mapEmbedSrc = (isset($websiteSettings) && !empty($websiteSettings->maps_embed_url)) 
+                                ? $websiteSettings->maps_embed_url 
+                                : 'https://maps.google.com/maps?q=' . urlencode(isset($websiteSettings) && $websiteSettings->address ? $websiteSettings->address : 'Bogor, Jawa Barat, Indonesia') . '&t=&z=15&ie=UTF8&iwloc=&output=embed';
+                            $mapsDirectUrl = 'https://maps.google.com/?q=' . urlencode(isset($websiteSettings) && $websiteSettings->address ? $websiteSettings->address : 'Bogor, Jawa Barat, Indonesia');
+                        @endphp
+                        <div class="footer-map-frame">
+                            <iframe 
+                                src="{{ $mapEmbedSrc }}" 
+                                width="100%" 
+                                height="110" 
+                                style="border:0;display:block;" 
+                                allowfullscreen="" 
+                                loading="lazy" 
+                                referrerpolicy="no-referrer-when-downgrade"
+                                title="Peta Lokasi {{ $websiteSettings->site_name ?? 'Lapaktifikasi' }}">
+                            </iframe>
+                        </div>
+                        <a href="{{ $mapsDirectUrl }}" target="_blank" class="footer-map-action" rel="noopener noreferrer">
+                            <i class="bi bi-box-arrow-up-right"></i>
+                            <span>Buka di Google Maps</span>
+                        </a>
+                    </div>
+                </div>
             </div>
             <div class="footer-bottom-row">
-                <p>&copy; {{ date('Y') }} Lapaktifikasi. Hak Cipta Dilindungi Undang-Undang.</p>
+                <p>&copy; {{ date('Y') }} {{ isset($websiteSettings) ? $websiteSettings->site_name : 'Lapaktifikasi' }}. Hak Cipta Dilindungi Undang-Undang.</p>
                 <div class="footer-bottom-badges">
                     <div class="badge-secure"><i class="bi bi-shield-check-fill"></i> Pembayaran Aman</div>
                     <div class="badge-secure"><i class="bi bi-lock-fill"></i> Data Terenkripsi</div>
