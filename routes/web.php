@@ -251,6 +251,8 @@ Route::middleware('auth')->group(function () {
 
         // Broadcast Web Push Notification Admin
         Route::post('/admin/webpush/broadcast', [\App\Http\Controllers\WebPushController::class, 'broadcast'])->name('admin.webpush.broadcast');
+        Route::delete('/admin/webpush/subscription/{id}', [\App\Http\Controllers\WebPushController::class, 'deleteSubscription'])->name('admin.webpush.subscription.delete');
+        Route::post('/admin/webpush/device/{id}/test', [\App\Http\Controllers\WebPushController::class, 'sendTestToDevice'])->name('admin.webpush.device.test');
     });
 
     // Premium Customer Routes

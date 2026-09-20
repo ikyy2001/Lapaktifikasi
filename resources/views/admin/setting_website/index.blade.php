@@ -260,14 +260,22 @@
 
         <!-- Card Broadcast Web Push Notification (PWA) -->
         <div class="card shadow-sm border-0 mt-4" style="border-radius: 12px;">
-            <div class="card-header bg-white border-bottom-0 pt-4 pb-3 d-flex justify-content-between align-items-center">
+            <div class="card-header bg-white border-bottom-0 pt-4 pb-3 d-flex flex-wrap justify-content-between align-items-center">
                 <h4 class="mb-0 text-dark"><i class="bi bi-broadcast-pin text-danger mr-2"></i> Broadcast Web Push Notification (PWA)</h4>
                 @php
                     $totalSubscribers = \App\Models\PushSubscription::count();
                 @endphp
-                <span class="badge badge-pill badge-primary px-3 py-2 font-weight-bold" style="font-size: 12px;">
-                    <i class="bi bi-phone mr-1"></i> {{ $totalSubscribers }} Perangkat Terdaftar
-                </span>
+                <div class="d-flex align-items-center mt-2 mt-md-0">
+                    <span class="badge badge-pill badge-primary px-3 py-2 font-weight-bold" style="font-size: 12px;">
+                        <i class="bi bi-phone mr-1"></i> <span id="badgeSubCount">{{ $totalSubscribers }}</span> Perangkat Terdaftar
+                    </span>
+                    <button type="button" class="btn btn-sm btn-outline-primary ml-2" onclick="registerCurrentAdminDevice()" title="Daftarkan browser ini sebagai perangkat penerima notifikasi">
+                        <i class="bi bi-bell-fill mr-1"></i> Daftarkan Browser Ini
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-info ml-1" onclick="testCurrentAdminDevice()" title="Uji notifikasi langsung ke browser ini">
+                        <i class="bi bi-send-check mr-1"></i> Uji ke Browser Ini
+                    </button>
+                </div>
             </div>
             <div class="card-body pt-0">
                 <p class="text-muted small">
@@ -305,6 +313,65 @@
                         </div>
                     </div>
                 </form>
+
+                <!-- Daftar Perangkat Terdaftar -->
+                <div class="mt-4 pt-3 border-top">
+                    <h5 class="font-weight-bold text-dark mb-3"><i class="bi bi-phone-vibrate text-primary mr-1"></i> Perangkat Terdaftar Saat Ini</h5>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover align-middle mb-0" style="font-size: 13px;">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th style="width: 50px;">No</th>
+                                    <th>Perangkat / OS</th>
+                                    <th>Penyedia Push</th>
+                                    <th>Pemilik Akun</th>
+                                    <th>Waktu Terdaftar</th>
+                                    <th style="width: 170px;" class="text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($pushSubscriptions ?? [] as $idx => $sub)
+                                <tr id="row-sub-{{ $sub->id }}">
+                                    <td>{{ $idx + 1 }}</td>
+                                    <td>
+                                        <strong>{{ $sub->device_name }}</strong>
+                                        <div class="text-muted small" style="font-size: 11px;">{{ Str::limit($sub->user_agent, 45) }}</div>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-light border font-weight-bold px-2 py-1">
+                                            {{ $sub->push_provider }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @if($sub->user)
+                                            <span class="badge badge-info">{{ $sub->user->name }}</span>
+                                        @else
+                                            <span class="badge badge-secondary">Tamu / Pengunjung</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <span title="{{ $sub->created_at }}">{{ $sub->created_at->diffForHumans() }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-xs btn-outline-primary" onclick="testSpecificDevice({{ $sub->id }})" title="Kirim notifikasi uji coba ke perangkat ini">
+                                            <i class="bi bi-send-fill mr-1"></i> Uji
+                                        </button>
+                                        <button type="button" class="btn btn-xs btn-outline-danger ml-1" onclick="deleteSpecificDevice({{ $sub->id }})" title="Hapus perangkat">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="6" class="text-center py-4 text-muted">
+                                        <i class="bi bi-info-circle mr-1"></i> Belum ada perangkat yang mengaktifkan izin notifikasi. Kunjungi website atau PWA dari HP/browser lain, lalu klik <strong>"Aktifkan"</strong> pada banner notifikasi.
+                                    </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -312,6 +379,116 @@
 
 @push('scripts')
 <script>
+    function registerCurrentAdminDevice() {
+        if (window.LapaktifikasiPWA && window.LapaktifikasiPWA.requestPush) {
+            window.LapaktifikasiPWA.requestPush(false).then(success => {
+                if (success) {
+                    setTimeout(() => location.reload(), 1500);
+                }
+            });
+        } else {
+            alert('Fitur PWA belum termuat di halaman ini.');
+        }
+    }
+
+    function testCurrentAdminDevice() {
+        if (window.LapaktifikasiPWA && window.LapaktifikasiPWA.testPush) {
+            window.LapaktifikasiPWA.testPush();
+        } else {
+            alert('Fitur PWA belum termuat di halaman ini.');
+        }
+    }
+
+    function testSpecificDevice(id) {
+        Swal.fire({
+            title: 'Kirim Uji Coba Notifikasi?',
+            text: 'Notifikasi akan dikirimkan secara khusus ke perangkat ini.',
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonColor: '#4f46e5',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Kirim Sekarang',
+            cancelButtonText: 'Batal'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                Swal.showLoading();
+                try {
+                    const res = await fetch(`/admin/webpush/device/${id}/test`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        }
+                    });
+                    const data = await res.json();
+                    if (data.status === 'success') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Terkirim!',
+                            text: data.message,
+                            confirmButtonColor: '#4f46e5'
+                        });
+                    } else {
+                        throw new Error(data.message || 'Gagal mengirim');
+                    }
+                } catch (err) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal Mengirim',
+                        text: err.message
+                    });
+                }
+            }
+        });
+    }
+
+    function deleteSpecificDevice(id) {
+        Swal.fire({
+            title: 'Hapus Perangkat?',
+            text: 'Perangkat ini tidak akan lagi menerima siaran notifikasi web push.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Ya, Hapus',
+            cancelButtonText: 'Batal'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const res = await fetch(`/admin/webpush/subscription/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        }
+                    });
+                    const data = await res.json();
+                    if (data.status === 'success') {
+                        const row = document.getElementById(`row-sub-${id}`);
+                        if (row) row.remove();
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Dihapus',
+                            text: data.message,
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        throw new Error(data.message || 'Gagal menghapus');
+                    }
+                } catch (err) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: err.message
+                    });
+                }
+            }
+        });
+    }
+
     function sendBroadcastPush() {
         const title = document.getElementById('push_title').value.trim();
         const body = document.getElementById('push_body').value.trim();

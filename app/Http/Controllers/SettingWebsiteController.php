@@ -17,7 +17,8 @@ class SettingWebsiteController extends Controller
                 'site_description' => 'Platform Jasa Digital',
             ]
         );
-        return view('admin.setting_website.index', compact('settings'));
+        $pushSubscriptions = \App\Models\PushSubscription::with('user')->latest()->take(30)->get();
+        return view('admin.setting_website.index', compact('settings', 'pushSubscriptions'));
     }
 
     public function update(Request $request)

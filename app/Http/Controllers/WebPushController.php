@@ -292,4 +292,70 @@ class WebPushController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Hapus perangkat terdaftar dari admin panel.
+     */
+    public function deleteSubscription($id)
+    {
+        $subscription = PushSubscription::findOrFail($id);
+        $subscription->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Perangkat berhasil dihapus dari daftar notifikasi.',
+        ]);
+    }
+
+    /**
+     * Kirim uji notifikasi langsung ke perangkat spesifik berdasarkan ID.
+     */
+    public function sendTestToDevice($id)
+    {
+        $subscription = PushSubscription::findOrFail($id);
+
+        try {
+            $webPush = $this->getWebPushInstance();
+
+            $sub = Subscription::create([
+                'endpoint' => $subscription->endpoint,
+                'publicKey' => $subscription->public_key,
+                'authToken' => $subscription->auth_token,
+                'contentEncoding' => $subscription->content_encoding ?? 'aes128gcm',
+            ]);
+
+            $payload = json_encode([
+                'title' => '⚡ Uji Notifikasi Admin Lapaktifikasi',
+                'body' => 'Uji notifikasi ke perangkat ' . $subscription->device_name . ' berhasil diterima!',
+                'icon' => asset('assets/img/pwa/icon-192x192.png'),
+                'badge' => asset('assets/img/pwa/icon-96x96.png'),
+                'url' => url('/premium/katalog'),
+                'timestamp' => time(),
+            ]);
+
+            $report = $webPush->sendOneNotification($sub, $payload);
+
+            if ($report->isSuccess()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Notifikasi uji coba berhasil dikirim ke perangkat ' . $subscription->device_name . '!',
+                ]);
+            } else {
+                if ($report->isSubscriptionExpired()) {
+                    $subscription->delete();
+                }
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Gagal mengirim push ke perangkat: ' . $report->getReason(),
+                ], 400);
+            }
+        } catch (\Throwable $e) {
+            Log::error('WebPush Test Device Error: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
 }
+
