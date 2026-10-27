@@ -11,6 +11,10 @@
 @section('og_type', 'article')
 @section('og_image', $newsImg)
 
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/pages/customer-news.css') }}">
+@endpush
+
 @push('schema')
 <!-- Schema.org NewsArticle Structured Data -->
 <script type="application/ld+json">
@@ -41,67 +45,6 @@
 @endpush
 
 @section('content')
-<style>
-    .news-detail-card {
-        background: #ffffff !important;
-        border: 1px solid #e2e8f0 !important;
-        border-radius: 18px !important;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04) !important;
-        overflow: hidden !important;
-    }
-
-    .news-detail-cover {
-        width: 100%;
-        max-height: 480px;
-        object-fit: cover;
-        border-radius: 14px;
-        margin-bottom: 2rem;
-    }
-
-    .news-detail-title {
-        font-size: 1.85rem !important;
-        font-weight: 800 !important;
-        line-height: 1.35 !important;
-        color: #0f172a !important;
-        margin-bottom: 0.75rem !important;
-    }
-
-    .news-detail-subtitle {
-        font-size: 1.1rem !important;
-        color: #64748b !important;
-        line-height: 1.6 !important;
-        margin-bottom: 1.5rem !important;
-    }
-
-    .news-meta-bar {
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 1.25rem;
-        padding-bottom: 1.5rem;
-        margin-bottom: 2rem;
-        border-bottom: 1px solid #e2e8f0;
-        font-size: 0.9rem;
-        color: #64748b;
-    }
-
-    .news-content-body {
-        font-size: 1.05rem;
-        line-height: 1.8;
-        color: #334155;
-    }
-
-    .news-content-body p {
-        margin-bottom: 1.25rem;
-    }
-
-    .news-content-body img {
-        max-width: 100%;
-        height: auto;
-        border-radius: 10px;
-        margin: 1rem 0;
-    }
-</style>
 
 <div class="container-fluid py-2">
     <!-- Tombol Kembali -->

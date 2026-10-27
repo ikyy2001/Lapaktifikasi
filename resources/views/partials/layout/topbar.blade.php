@@ -50,6 +50,19 @@
                                 @if(Auth::user()->role_id == \App\Enums\Role::ADMIN->value) Administrator @elseif(Auth::user()->role_id == \App\Enums\Role::SELLER->value) Seller @else Customer @endif
                             </p>
                         </div>
+                        @if(Auth::user()->role_id == \App\Enums\Role::SELLER->value)
+                            <a class="dropdown-item rounded-xl text-xs sm:text-sm font-medium py-2 px-3 flex items-center gap-x-2" href="{{ url('/seller/profil') }}">
+                                <i class="bi bi-shop text-gray-500"></i> Profil Toko
+                            </a>
+                        @elseif(Auth::user()->role_id == \App\Enums\Role::CUSTOMER->value)
+                            <a class="dropdown-item rounded-xl text-xs sm:text-sm font-medium py-2 px-3 flex items-center gap-x-2" href="{{ url('/profile_customer/' . Auth::id()) }}">
+                                <i class="bi bi-person text-gray-500"></i> Profil Saya
+                            </a>
+                        @elseif(Auth::user()->role_id == \App\Enums\Role::ADMIN->value)
+                            <a class="dropdown-item rounded-xl text-xs sm:text-sm font-medium py-2 px-3 flex items-center gap-x-2" href="{{ route('admin.setting_website') }}">
+                                <i class="bi bi-gear text-gray-500"></i> Pengaturan Website
+                            </a>
+                        @endif
                         <a class="dropdown-item rounded-xl text-xs sm:text-sm font-medium py-2 px-3 flex items-center gap-x-2" href="{{ url('ganti_password') }}">
                             <i class="bi bi-key text-gray-500"></i> Ganti Password
                         </a>

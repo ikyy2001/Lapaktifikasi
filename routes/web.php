@@ -126,6 +126,7 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::resource('menu_produk', ProductController::class, ['only' => ['index']]);
+    Route::resource('menu_produk_digital', ProductDigitalController::class, ['only' => ['index']]);
 
     Route::controller(PembayaranController::class)->group(function () {
         Route::middleware([OnlyCustomer::class])->group(function () {
@@ -292,7 +293,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('menu_produk', ProductController::class, ['except' => ['index', 'show']]);
 
         // Seller Product CRUD (digital only)
-        Route::resource('menu_produk_digital', ProductDigitalController::class, ['except' => ['show']]);
+        Route::resource('menu_produk_digital', ProductDigitalController::class, ['except' => ['index', 'show']]);
     });
 
     Route::get('/logout', [AuthController::class, 'logout']);

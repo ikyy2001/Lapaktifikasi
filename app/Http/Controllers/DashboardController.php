@@ -18,6 +18,14 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        if (Auth::user()->role_id == \App\Enums\Role::SELLER->value) {
+            return redirect()->route('seller.dashboard');
+        }
+
+        if (Auth::user()->role_id == \App\Enums\Role::CUSTOMER->value) {
+            return redirect()->route('premium.katalog');
+        }
+
         $hari_ini = date('Y-m-d');
         $total_order_hari_ini = $this->getTotalOrderHariIni($hari_ini);
         $total_penjualan_hari_ini = $this->getTotalPenjualanHariIni($hari_ini);

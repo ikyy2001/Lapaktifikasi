@@ -2,6 +2,10 @@
 
 @section('title', 'Status Pembayaran')
 
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/pages/customer-status.css') }}">
+@endpush
+
 @section('content')
 @php
     $orderId = $orderId ?? ($order->order_id ?? '');
@@ -39,157 +43,6 @@
         $descText = 'Pembayaran Anda gagal diproses atau dibatalkan. Silakan coba kembali.';
     }
 @endphp
-
-<style>
-    .status-container {
-        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        margin-top: 10px;
-        animation: statusFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    
-    .status-card {
-        background: #ffffff !important;
-        border: 1px solid #000000 !important;
-        border-radius: 16px !important;
-        padding: 40px !important;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05) !important;
-        position: relative !important;
-        overflow: hidden !important;
-    }
-    
-    .status-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 4px;
-        background: #000000;
-    }
-
-    .status-icon-wrapper {
-        font-size: 3.5rem;
-        margin-bottom: 20px;
-        line-height: 1;
-    }
-
-    .status-title {
-        font-size: 1.5rem;
-        font-weight: 800;
-        letter-spacing: -0.5px;
-        text-transform: uppercase;
-        color: #000000;
-        margin-bottom: 10px;
-    }
-
-    .status-desc {
-        font-size: 0.95rem;
-        color: #555555;
-        max-width: 480px;
-        margin: 0 auto 30px auto;
-        line-height: 1.6;
-    }
-
-    .order-details-box {
-        background: #fafafa;
-        border: 1px solid #e5e5e5;
-        border-radius: 12px;
-        padding: 24px;
-        margin-bottom: 30px;
-        text-align: left;
-    }
-
-    .order-details-title {
-        font-size: 0.85rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: #000000;
-        margin-bottom: 16px;
-        border-bottom: 1px solid #e5e5e5;
-        padding-bottom: 10px;
-    }
-
-    .detail-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 12px;
-        font-size: 0.9rem;
-    }
-
-    .detail-row:last-child {
-        margin-bottom: 0;
-        padding-top: 12px;
-        border-top: 1px dashed #e5e5e5;
-        font-weight: 700;
-    }
-
-    .detail-label {
-        color: #666666;
-    }
-
-    .detail-value {
-        color: #000000;
-        font-weight: 600;
-    }
-
-    .btn-action-group {
-        display: flex;
-        justify-content: center;
-        gap: 12px;
-        flex-wrap: wrap;
-    }
-
-    .btn-mono {
-        font-family: inherit !important;
-        font-size: 0.85rem !important;
-        font-weight: 700 !important;
-        text-transform: uppercase !important;
-        letter-spacing: 0.5px !important;
-        padding: 12px 24px !important;
-        border-radius: 8px !important;
-        cursor: pointer !important;
-        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        gap: 8px !important;
-    }
-
-    .btn-mono-primary {
-        background: #000000 !important;
-        color: #ffffff !important;
-        border: 1px solid #000000 !important;
-    }
-
-    .btn-mono-primary:hover {
-        background: transparent !important;
-        color: #000000 !important;
-        text-decoration: none !important;
-    }
-
-    .btn-mono-secondary {
-        background: #ffffff !important;
-        color: #000000 !important;
-        border: 1px solid #000000 !important;
-    }
-
-    .btn-mono-secondary:hover {
-        background: #fafafa !important;
-        text-decoration: none !important;
-    }
-
-    @keyframes statusFadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-</style>
 
 <div class="container status-container my-4 text-center" id="status-card-container" data-order-id="{{ $orderId }}" data-status="{{ $status }}">
     <div class="row justify-content-center">

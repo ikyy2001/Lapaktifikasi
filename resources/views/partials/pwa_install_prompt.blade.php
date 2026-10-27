@@ -417,20 +417,19 @@
 
 <script>
     (function () {
-        let swRegistration = null;
-
         // --- 1. Service Worker Silent Registration ---
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function () {
                 navigator.serviceWorker.register('/sw.js')
-                    .then(function (reg) {
-                        swRegistration = reg;
+                    .then(function () {
                         // Auto-sync jika permission sudah granted sebelumnya
                         if ('Notification' in window && Notification.permission === 'granted') {
-                            reg.pushManager.getSubscription().then(function (sub) {
-                                if (!sub) {
-                                    window.LapaktifikasiPWA.requestPush(true);
-                                }
+                            navigator.serviceWorker.ready.then(function (reg) {
+                                reg.pushManager.getSubscription().then(function (sub) {
+                                    if (!sub) {
+                                        window.LapaktifikasiPWA.requestPush(true);
+                                    }
+                                });
                             });
                         }
                     })
@@ -443,6 +442,19 @@
         function getCsrfToken() {
             const meta = document.querySelector('meta[name="csrf-token"]');
             return meta ? meta.getAttribute('content') : '';
+        }
+
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+            const base64 = (base64String + padding)
+                .replace(/\-/g, '+')
+                .replace(/_/g, '/');
+            const rawData = window.atob(base64);
+            const outputArray = new Uint8Array(rawData.length);
+            for (let i = 0; i < rawData.length; ++i) {
+                outputArray[i] = rawData.charCodeAt(i);
+            }
+            return outputArray;
         }
 
         function showLpToast(msg) {
@@ -619,7 +631,7 @@
 
             requestPush: async function (silent = false) {
                 // Validasi kapabilitas browser
-                if (!('Notification' in window) || !('PushManager' in window)) {
+                if (!('Notification' in window) || !('PushManager' in window) || !('serviceWorker' in navigator)) {
                     if (isIos()) {
                         if (!isInStandalone()) {
                             if (!silent) {
@@ -632,10 +644,6 @@
                         if (!silent) alert('Browser Anda belum mendukung Web Push Notifications.');
                     }
                     return false;
-                }
-
-                if (!swRegistration && 'serviceWorker' in navigator) {
-                    swRegistration = await navigator.serviceWorker.ready;
                 }
 
                 let permission = Notification.permission;
@@ -651,26 +659,30 @@
                 }
 
                 try {
+                    const reg = await navigator.serviceWorker.ready;
+                    if (!reg || !reg.pushManager) {
+                        throw new Error('Service Worker Push Manager tidak tersedia.');
+                    }
+
                     const keyRes = await fetch('/webpush/key');
                     const keyData = await keyRes.json();
                     if (!keyData.publicKey) throw new Error('Kunci VAPID publik tidak ditemukan');
 
-                    // Base64 to Uint8Array
-                    const padding = '='.repeat((4 - keyData.publicKey.length % 4) % 4);
-                    const base64 = (keyData.publicKey + padding).replace(/\-/g, '+').replace(/_/g, '/');
-                    const rawData = window.atob(base64);
-                    const outputArray = new Uint8Array(rawData.length);
-                    for (let i = 0; i < rawData.length; ++i) {
-                        outputArray[i] = rawData.charCodeAt(i);
+                    const appServerKey = urlBase64ToUint8Array(keyData.publicKey);
+
+                    // Bersihkan subscription lama yang mungkin corrupt/kadaluarsa untuk mencegah 'push service error'
+                    const existingSub = await reg.pushManager.getSubscription();
+                    if (existingSub) {
+                        try {
+                            await existingSub.unsubscribe();
+                        } catch (unsubErr) {
+                            console.warn('[WebPush] Gagal unsubscribe sub lama:', unsubErr);
+                        }
                     }
 
-                    if (!swRegistration && 'serviceWorker' in navigator) {
-                        swRegistration = await navigator.serviceWorker.ready;
-                    }
-
-                    const subscription = await swRegistration.pushManager.subscribe({
+                    const subscription = await reg.pushManager.subscribe({
                         userVisibleOnly: true,
-                        applicationServerKey: outputArray
+                        applicationServerKey: appServerKey
                     });
 
                     const subJson = subscription.toJSON();
@@ -696,7 +708,7 @@
                         if (!silent) {
                             // Tembak uji notifikasi selamat datang
                             try {
-                                await swRegistration.showNotification('🎉 Notifikasi Lapaktifikasi Aktif!', {
+                                await reg.showNotification('🎉 Notifikasi Lapaktifikasi Aktif!', {
                                     body: 'Perangkat ini siap menerima info update pesanan & promo flash sale.',
                                     icon: '/assets/img/pwa/icon-192x192.png',
                                     badge: '/assets/img/pwa/icon-96x96.png',
@@ -723,23 +735,35 @@
                     throw new Error(saveResult.message || 'Gagal menyimpan data perangkat');
                 } catch (err) {
                     console.error('[WebPush Error]', err);
-                    if (!silent) alert('Gagal mengaktifkan notifikasi: ' + err.message);
+                    if (!silent) {
+                        const errMsg = (err && err.message) ? err.message : String(err);
+                        if (errMsg.includes('Registration failed - push service error') || errMsg.includes('push service error')) {
+                            alert('Gagal mengaktifkan notifikasi: Layanan Push diblokir oleh browser atau jaringan.\n\nTips:\n1. Jika Anda memakai browser Brave: Buka brave://settings/privacy lalu AKTIFKAN "Use Google services for push messaging".\n2. Pastikan adblocker atau firewall tidak memblokir fcm.googleapis.com.');
+                        } else {
+                            alert('Gagal mengaktifkan notifikasi: ' + errMsg);
+                        }
+                    }
                     return false;
                 }
             },
 
             testPush: async function () {
-                if (!swRegistration && 'serviceWorker' in navigator) {
-                    swRegistration = await navigator.serviceWorker.ready;
-                }
+                if (!('serviceWorker' in navigator)) return;
+                const reg = await navigator.serviceWorker.ready;
 
-                if (!swRegistration || !swRegistration.pushManager) {
+                if (!reg || !reg.pushManager) {
                     await this.requestPush();
                     return;
                 }
 
-                let sub = await swRegistration.pushManager.getSubscription();
+                let sub = await reg.pushManager.getSubscription();
                 if (!sub) {
+                    const ok = await this.requestPush();
+                    if (!ok) return;
+                    sub = await reg.pushManager.getSubscription();
+                }
+
+                if (!sub) return;
                     const ok = await this.requestPush();
                     if (!ok) return;
                     sub = await swRegistration.pushManager.getSubscription();

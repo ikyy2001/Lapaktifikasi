@@ -1,0 +1,342 @@
+/* Customer Member Tier & Voucher Page Styles */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@600;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+.member-container {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #f8fafc;
+    margin-top: 10px;
+    margin-bottom: 40px;
+}
+
+/* Void Black & Glassmorphism Card Hero */
+.glass-card-hero {
+    background: radial-gradient(circle at 85% 15%, rgba(139, 92, 246, 0.2) 0%, transparent 55%),
+                radial-gradient(circle at 15% 85%, rgba(6, 182, 212, 0.15) 0%, transparent 55%),
+                linear-gradient(135deg, #0f172a 0%, #080c16 100%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    position: relative;
+    overflow: hidden;
+    padding: 32px;
+}
+
+.tier-badge-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 18px;
+    border-radius: 9999px;
+    font-weight: 800;
+    font-size: 0.82rem;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid rgba(139, 92, 246, 0.5);
+    color: #22d3ee;
+    box-shadow: 0 0 16px rgba(6, 182, 212, 0.2);
+}
+
+.tier-title-name {
+    font-size: 2.2rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: #ffffff;
+    margin-top: 12px;
+    margin-bottom: 6px;
+    word-break: break-word;
+}
+
+.referral-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(6, 182, 212, 0.15);
+    border: 1px solid rgba(6, 182, 212, 0.35);
+    color: #38bdf8;
+    padding: 6px 14px;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.mono-amount {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 800;
+}
+
+/* Energy Gauge (Signature Progress Bar) */
+.energy-gauge-wrapper {
+    margin-top: 28px;
+    margin-bottom: 8px;
+}
+
+.energy-gauge-labels {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #cbd5e1;
+    margin-bottom: 10px;
+    gap: 8px;
+}
+
+.energy-gauge-track {
+    height: 14px;
+    background: #090d16;
+    border-radius: 9999px;
+    padding: 2px;
+    border: 1px solid rgba(6, 182, 212, 0.3);
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.8), 0 0 10px rgba(6, 182, 212, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.energy-gauge-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #8b5cf6 0%, #06b6d4 100%);
+    border-radius: 9999px;
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 16px rgba(6, 182, 212, 0.8);
+    position: relative;
+}
+
+.progress-hint {
+    font-size: 0.88rem;
+    color: #cbd5e1;
+    margin-top: 12px;
+    line-height: 1.5;
+}
+
+/* Tab Switcher */
+.tab-nav-container {
+    display: flex;
+    gap: 8px;
+    background: rgba(15, 23, 42, 0.9);
+    padding: 6px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: 28px;
+    margin-bottom: 24px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.tab-btn {
+    flex: 1;
+    min-width: 140px;
+    text-align: center;
+    padding: 12px 22px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #94a3b8;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+}
+
+.tab-btn:hover {
+    color: #f8fafc;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.tab-btn.active {
+    color: #ffffff !important;
+    background: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%) !important;
+    box-shadow: 0 4px 16px rgba(6, 182, 212, 0.35);
+}
+
+.tab-pane {
+    display: none;
+}
+
+.tab-pane.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Tier Card Structural Legibility */
+.tier-card-item {
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 20px;
+    transition: all 0.25s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.tier-card-unlocked {
+    background: linear-gradient(135deg, rgba(30, 27, 75, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
+    border: 1.5px solid #8b5cf6;
+    box-shadow: 0 10px 30px rgba(139, 92, 246, 0.25);
+}
+
+.tier-card-locked {
+    background: #0b101d;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.tier-card-current {
+    border: 2px solid #22d3ee !important;
+    box-shadow: 0 0 30px rgba(34, 211, 238, 0.3) !important;
+}
+
+.benefit-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.benefit-item:last-child {
+    border-bottom: none;
+}
+
+.benefit-icon-box {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 0.95rem;
+}
+
+.benefit-icon-unlocked {
+    background: rgba(34, 197, 94, 0.2);
+    color: #4ade80;
+    border: 1px solid rgba(34, 197, 94, 0.4);
+}
+
+.benefit-icon-locked {
+    background: rgba(148, 163, 184, 0.15);
+    color: #cbd5e1;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+}
+
+/* Voucher Cards */
+.voucher-card {
+    background: linear-gradient(135deg, rgba(30, 27, 75, 0.75) 0%, rgba(15, 23, 42, 0.9) 100%);
+    border: 1px dashed rgba(139, 92, 246, 0.5);
+    border-radius: 18px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease;
+}
+
+.voucher-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(139, 92, 246, 0.25);
+}
+
+.voucher-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: #22d3ee;
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid rgba(6, 182, 212, 0.3);
+    padding: 8px 16px;
+    border-radius: 10px;
+    display: inline-block;
+    margin-top: 8px;
+}
+
+.btn-klaim {
+    background: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%);
+    color: #ffffff !important;
+    font-weight: 700;
+    font-size: 0.88rem;
+    padding: 10px 22px;
+    border-radius: 12px;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.btn-klaim:hover {
+    box-shadow: 0 6px 18px rgba(6, 182, 212, 0.4);
+}
+
+.btn-claimed {
+    background: rgba(148, 163, 184, 0.15);
+    color: #94a3b8;
+    font-weight: 600;
+    font-size: 0.88rem;
+    padding: 10px 22px;
+    border-radius: 12px;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    cursor: not-allowed;
+}
+
+/* Responsive Collisions */
+@media (max-width: 768px) {
+    .glass-card-hero {
+        padding: 20px;
+    }
+
+    .tier-title-name {
+        font-size: 1.5rem;
+    }
+
+    .energy-gauge-labels {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+
+    .hero-top-flex {
+        flex-direction: column;
+        align-items: flex-start !important;
+    }
+
+    .hero-amount-block {
+        margin-top: 16px;
+        width: 100%;
+        text-align: left !important;
+        padding-top: 16px;
+        border-top: 1px dashed rgba(255, 255, 255, 0.1);
+    }
+
+    .tab-nav-container {
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        padding: 4px;
+    }
+
+    .tab-btn {
+        flex: 0 0 auto;
+        min-width: 120px;
+        padding: 10px 14px;
+        font-size: 0.82rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .tier-title-name {
+        font-size: 1.35rem;
+    }
+
+    .mono-amount {
+        font-size: 1.2rem;
+    }
+
+    .tier-card-item {
+        padding: 18px;
+    }
+}
