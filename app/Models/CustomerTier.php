@@ -23,9 +23,12 @@ class CustomerTier extends Model
         'benefit_deskripsi',
     ];
 
-    protected $casts = [
-        'benefit_deskripsi' => 'array',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'benefit_deskripsi' => 'array',
+        ];
+    }
 
     public function customers(): HasMany
     {

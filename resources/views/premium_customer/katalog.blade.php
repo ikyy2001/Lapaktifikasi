@@ -13,7 +13,7 @@
 <!-- Schema.org ItemList Structured Data for Catalog -->
 <script type="application/ld+json">
 {
-  "@context": "https://schema.org",
+  "{{ '@context' }}": "https://schema.org",
   "@type": "ItemList",
   "name": "{{ ($toko ? 'Katalog Toko ' . $toko->nama_toko : 'Katalog Produk Digital Lapaktifikasi') }}",
   "description": "Daftar produk digital dan akun premium terpercaya.",

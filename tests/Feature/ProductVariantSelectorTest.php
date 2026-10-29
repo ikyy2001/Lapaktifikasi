@@ -21,13 +21,13 @@ class ProductVariantSelectorTest extends TestCase
     {
         parent::setUp();
 
-        Schema::disableForeignKeyConstraints();
-        Schema::dropIfExists('tbl_stok_akun');
-        Schema::dropIfExists('tbl_varian_layanan');
-        Schema::dropIfExists('tbl_tipe_layanan');
-        Schema::dropIfExists('tbl_produk');
-        Schema::dropIfExists('tbl_toko');
-        Schema::enableForeignKeyConstraints();
+        $this->cleanUpTables([
+            'tbl_stok_akun',
+            'tbl_varian_layanan',
+            'tbl_tipe_layanan',
+            'tbl_produk',
+            'tbl_toko',
+        ]);
 
         Schema::create('tbl_toko', function (Blueprint $table) {
             $table->id('id_toko');
@@ -307,5 +307,18 @@ class ProductVariantSelectorTest extends TestCase
             ->assertSet('qty', 1)
             ->call('decrementQty') // tidak boleh kurang dari 1
             ->assertSet('qty', 1);
+    }
+
+    protected function tearDown(): void
+    {
+        $this->cleanUpTables([
+            'tbl_stok_akun',
+            'tbl_varian_layanan',
+            'tbl_tipe_layanan',
+            'tbl_produk',
+            'tbl_toko',
+        ]);
+
+        parent::tearDown();
     }
 }

@@ -3,9 +3,27 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\View;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 
 use App\Models\BeliProdukModel;
+use App\Models\Pembelian;
+use App\Models\Review;
+use App\Models\News;
+use App\Models\SettingWebsite;
 use App\Observers\BeliProdukObserver;
+use App\Observers\PembelianObserver;
+use App\Observers\ReviewObserver;
+use App\Policies\PembelianPolicy;
+use App\Policies\NewsPolicy;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,21 +44,70 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         if (config('app.env') === 'production') {
-            \Illuminate\Support\Facades\URL::forceScheme('https');
+            URL::forceScheme('https');
         }
 
+        // Model Observers
         BeliProdukModel::observe(BeliProdukObserver::class);
-        \App\Models\Pembelian::observe(\App\Observers\PembelianObserver::class);
-        \App\Models\Review::observe(\App\Observers\ReviewObserver::class);
+        Pembelian::observe(PembelianObserver::class);
+        Review::observe(ReviewObserver::class);
+
+        // Model Policies
+        Gate::policy(Pembelian::class, PembelianPolicy::class);
+        Gate::policy(News::class, NewsPolicy::class);
+
+        // Event Listeners
+        Event::listen(Registered::class, SendEmailVerificationNotification::class);
+
+        // Rate Limiters
+        $this->configureRateLimiting();
 
         // Global Site Settings
         try {
-            if (!app()->runningInConsole() && \Illuminate\Support\Facades\Schema::hasTable('setting_websites')) {
-                $websiteSettings = \App\Models\SettingWebsite::first();
-                \Illuminate\Support\Facades\View::share('websiteSettings', $websiteSettings);
+            if (!app()->runningInConsole() && Schema::hasTable('setting_websites')) {
+                $websiteSettings = SettingWebsite::first();
+                View::share('websiteSettings', $websiteSettings);
             }
         } catch (\Throwable $e) {
             // Safe fallback during testing or console commands
         }
+    }
+
+    /**
+     * Configure the rate limiters for the application.
+     */
+    protected function configureRateLimiting(): void
+    {
+        RateLimiter::for('api', function (Request $request) {
+            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('auth_rate_limit', function (Request $request) {
+            return Limit::perMinute(6)->by($request->ip())->response(function () {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Terlalu banyak percobaan autentikasi. Silakan tunggu 1 menit.',
+                    'errors' => []
+                ], 429);
+            });
+        });
+
+        RateLimiter::for('checkout_rate_limit', function (Request $request) {
+            return Limit::perMinute(10)->by($request->user()?->id ?: $request->ip())->response(function () {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Terlalu banyak permintaan transaksi dalam waktu singkat. Silakan tunggu.',
+                    'errors' => []
+                ], 429);
+            });
+        });
+
+        RateLimiter::for('webhook_rate_limit', function (Request $request) {
+            return Limit::perMinute(120)->by($request->ip());
+        });
+
+        RateLimiter::for('limit_login', function (Request $request) {
+            return Limit::perMinute(6)->by($request->ip());
+        });
     }
 }

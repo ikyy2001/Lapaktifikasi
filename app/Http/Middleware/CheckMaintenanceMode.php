@@ -23,9 +23,13 @@ class CheckMaintenanceMode
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $setting = Cache::remember('setting_komisi_global', 300, function () {
-            return SettingKomisi::first();
-        });
+        try {
+            $setting = Cache::remember('setting_komisi_global', 300, function () {
+                return SettingKomisi::first();
+            });
+        } catch (\Throwable $e) {
+            $setting = null;
+        }
 
         if ($setting && $setting->is_maintenance) {
             // Admin (role_id == 1) retains full access

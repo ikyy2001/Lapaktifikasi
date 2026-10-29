@@ -26,11 +26,14 @@ class Pembayaran extends Model
         'wa_last_retry_by',
     ];
 
-    protected $casts = [
-        'tanggal_bayar' => 'datetime',
-        'wa_sent_at' => 'datetime',
-        'wa_last_retry_at' => 'datetime',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'tanggal_bayar' => 'datetime',
+            'wa_sent_at' => 'datetime',
+            'wa_last_retry_at' => 'datetime',
+        ];
+    }
 
     public function pembelian()
     {

@@ -10,6 +10,7 @@ use App\Models\TipeLayanan;
 use App\Models\User;
 use App\Models\VarianLayanan;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
@@ -18,15 +19,19 @@ class PaymentGatewaySettingTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        Cache::flush();
 
-        Schema::dropIfExists('tbl_pembelian_log');
-        Schema::dropIfExists('tbl_pembelian');
-        Schema::dropIfExists('tbl_varian_layanan');
-        Schema::dropIfExists('tbl_tipe_layanan');
-        Schema::dropIfExists('tbl_produk');
-        Schema::dropIfExists('tbl_customer');
-        Schema::dropIfExists('setting_websites');
-        Schema::dropIfExists('users');
+        $this->cleanUpTables([
+            'tbl_setting_komisi',
+            'tbl_pembelian_log',
+            'tbl_pembelian',
+            'tbl_varian_layanan',
+            'tbl_tipe_layanan',
+            'tbl_produk',
+            'tbl_customer',
+            'setting_websites',
+            'users',
+        ]);
 
         Schema::create('users', function (Blueprint $table) {
             $table->id();
@@ -62,6 +67,9 @@ class PaymentGatewaySettingTest extends TestCase
             $table->string('contact_email')->nullable();
             $table->string('contact_phone')->nullable();
             $table->text('address')->nullable();
+            $table->text('maps_embed_url')->nullable();
+            $table->string('visi_logo_path')->nullable();
+            $table->string('misi_logo_path')->nullable();
             $table->boolean('is_midtrans_active')->default(true);
             $table->boolean('is_tripay_active')->default(true);
             $table->boolean('is_pakasir_active')->default(true);
@@ -258,5 +266,23 @@ class PaymentGatewaySettingTest extends TestCase
         $response->assertStatus(422);
         $response->assertJsonStructure(['error']);
         $this->assertStringContainsString('MIDTRANS', $response->json('error'));
+    }
+
+    protected function tearDown(): void
+    {
+        Cache::flush();
+        $this->cleanUpTables([
+            'tbl_setting_komisi',
+            'tbl_pembelian_log',
+            'tbl_pembelian',
+            'tbl_varian_layanan',
+            'tbl_tipe_layanan',
+            'tbl_produk',
+            'tbl_customer',
+            'setting_websites',
+            'users',
+        ]);
+
+        parent::tearDown();
     }
 }

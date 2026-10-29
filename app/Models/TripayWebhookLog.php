@@ -20,8 +20,11 @@ class TripayWebhookLog extends Model
         'verified_at',
     ];
 
-    protected $casts = [
-        'payload' => 'array',
-        'verified_at' => 'datetime',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'payload' => 'array',
+            'verified_at' => 'datetime',
+        ];
+    }
 }

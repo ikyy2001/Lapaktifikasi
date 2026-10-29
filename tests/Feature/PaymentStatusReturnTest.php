@@ -19,13 +19,15 @@ class PaymentStatusReturnTest extends TestCase
     {
         parent::setUp();
 
-        Schema::dropIfExists('tbl_pembelian_log');
-        Schema::dropIfExists('tbl_pembelian');
-        Schema::dropIfExists('tbl_varian_layanan');
-        Schema::dropIfExists('tbl_tipe_layanan');
-        Schema::dropIfExists('tbl_produk');
-        Schema::dropIfExists('tbl_customer');
-        Schema::dropIfExists('users');
+        $this->cleanUpTables([
+            'tbl_pembelian_log',
+            'tbl_pembelian',
+            'tbl_varian_layanan',
+            'tbl_tipe_layanan',
+            'tbl_produk',
+            'tbl_customer',
+            'users',
+        ]);
 
         Schema::create('users', function (Blueprint $table) {
             $table->id();
@@ -151,5 +153,20 @@ class PaymentStatusReturnTest extends TestCase
         $rendered = $view->render();
         $this->assertStringContainsString('Transaksi Dibatalkan', $rendered);
         $this->assertStringNotContainsString('Selesaikan Pembayaran', $rendered);
+    }
+
+    protected function tearDown(): void
+    {
+        $this->cleanUpTables([
+            'tbl_pembelian_log',
+            'tbl_pembelian',
+            'tbl_varian_layanan',
+            'tbl_tipe_layanan',
+            'tbl_produk',
+            'tbl_customer',
+            'users',
+        ]);
+
+        parent::tearDown();
     }
 }

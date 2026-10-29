@@ -27,7 +27,7 @@
 <!-- Schema.org Product Structured Data (Google Rich Results / Shopee Standard) -->
 <script type="application/ld+json">
 {
-  "@context": "https://schema.org/",
+  "{{ '@context' }}": "https://schema.org/",
   "@type": "Product",
   "name": {!! json_encode($produk->nama_produk) !!},
   "image": [
@@ -68,7 +68,7 @@
 <!-- BreadcrumbList Schema for Google Navigation Trail -->
 <script type="application/ld+json">
 {
-  "@context": "https://schema.org",
+  "{{ '@context' }}": "https://schema.org",
   "@type": "BreadcrumbList",
   "itemListElement": [
     {

@@ -21,9 +21,7 @@ class TriPayCallbackTest extends TestCase
         parent::setUp();
         Config::set('tripay.private_key', $this->privateKey);
 
-        Schema::dropIfExists('tripay_webhook_logs');
-        Schema::dropIfExists('tbl_pembelian_log');
-        Schema::dropIfExists('tbl_pembelian');
+        $this->cleanUpTables(['tripay_webhook_logs', 'tbl_pembelian_log', 'tbl_pembelian']);
 
         Schema::create('tbl_pembelian', function (Blueprint $table) {
             $table->id('id_pembelian');
@@ -213,5 +211,12 @@ class TriPayCallbackTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
+    }
+
+    protected function tearDown(): void
+    {
+        $this->cleanUpTables(['tripay_webhook_logs', 'tbl_pembelian_log', 'tbl_pembelian']);
+
+        parent::tearDown();
     }
 }

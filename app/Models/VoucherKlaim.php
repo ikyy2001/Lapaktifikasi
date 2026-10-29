@@ -21,9 +21,12 @@ class VoucherKlaim extends Model
         'created_at'
     ];
 
-    protected $casts = [
-        'created_at' => 'datetime',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'created_at' => 'datetime',
+        ];
+    }
 
     public function voucher(): BelongsTo
     {

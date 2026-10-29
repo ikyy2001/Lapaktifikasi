@@ -43,8 +43,18 @@ use App\Models\MitraIndustri;
 use App\Models\Testimoni;
 
 Route::get('/', function () {
-    $mitras = MitraIndustri::where('is_active', true)->orderBy('id', 'desc')->get();
-    $testimonis = Testimoni::where('is_active', true)->orderBy('id', 'desc')->get();
+    try {
+        $mitras = MitraIndustri::where('is_active', true)->orderBy('id', 'desc')->get();
+    } catch (\Throwable $e) {
+        $mitras = collect();
+    }
+
+    try {
+        $testimonis = Testimoni::where('is_active', true)->orderBy('id', 'desc')->get();
+    } catch (\Throwable $e) {
+        $testimonis = collect();
+    }
+
     return view('welcome', compact('mitras', 'testimonis'));
 });
 

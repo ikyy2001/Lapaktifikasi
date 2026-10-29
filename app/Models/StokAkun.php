@@ -25,13 +25,16 @@ class StokAkun extends Model
         'tanggal_terjual',
     ];
 
-    protected $casts = [
-        'password_encrypted' => 'encrypted',
-        'status' => StokStatus::class,
-        'reserved_at' => 'datetime',
-        'reserved_expired_at' => 'datetime',
-        'tanggal_terjual' => 'datetime',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'password_encrypted' => 'encrypted',
+            'status' => StokStatus::class,
+            'reserved_at' => 'datetime',
+            'reserved_expired_at' => 'datetime',
+            'tanggal_terjual' => 'datetime',
+        ];
+    }
 
     public function varianLayanan()
     {

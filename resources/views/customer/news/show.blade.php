@@ -19,7 +19,7 @@
 <!-- Schema.org NewsArticle Structured Data -->
 <script type="application/ld+json">
 {
-  "@context": "https://schema.org",
+  "{{ '@context' }}": "https://schema.org",
   "@type": "NewsArticle",
   "headline": {!! json_encode($news->judul) !!},
   "image": [

@@ -30,11 +30,14 @@ class Voucher extends Model
         'is_active',
     ];
 
-    protected $casts = [
-        'berlaku_dari' => 'datetime',
-        'berlaku_sampai' => 'datetime',
-        'is_active' => 'boolean',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'berlaku_dari' => 'datetime',
+            'berlaku_sampai' => 'datetime',
+            'is_active' => 'boolean',
+        ];
+    }
 
     public function toko(): BelongsTo
     {

@@ -30,10 +30,13 @@ class Pembelian extends Model
         'reserved_until',
     ];
 
-    protected $casts = [
-        'status' => PembelianStatus::class,
-        'reserved_until' => 'datetime',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'status' => PembelianStatus::class,
+            'reserved_until' => 'datetime',
+        ];
+    }
 
     protected static function booted()
     {

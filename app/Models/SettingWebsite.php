@@ -27,11 +27,25 @@ class SettingWebsite extends Model
         'is_pakasir_active',
     ];
 
-    protected $casts = [
-        'is_midtrans_active' => 'boolean',
-        'is_tripay_active' => 'boolean',
-        'is_pakasir_active' => 'boolean',
-    ];
+    protected static function booted(): void
+    {
+        static::saved(function () {
+            Cache::forget('setting_website_global');
+        });
+
+        static::deleted(function () {
+            Cache::forget('setting_website_global');
+        });
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'is_midtrans_active' => 'boolean',
+            'is_tripay_active' => 'boolean',
+            'is_pakasir_active' => 'boolean',
+        ];
+    }
 
     /**
      * Get cached site settings
