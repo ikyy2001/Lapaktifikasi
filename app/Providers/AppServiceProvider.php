@@ -48,21 +48,21 @@ class AppServiceProvider extends ServiceProvider
         }
 
         // Model Observers
-        if (class_exists(BeliProdukModel::class)) {
+        if (class_exists(BeliProdukModel::class) && class_exists(BeliProdukObserver::class)) {
             BeliProdukModel::observe(BeliProdukObserver::class);
         }
-        if (class_exists(Pembelian::class)) {
+        if (class_exists(Pembelian::class) && class_exists(PembelianObserver::class)) {
             Pembelian::observe(PembelianObserver::class);
         }
-        if (class_exists(Review::class)) {
+        if (class_exists(Review::class) && class_exists(ReviewObserver::class)) {
             Review::observe(ReviewObserver::class);
         }
 
         // Model Policies
-        if (class_exists(Pembelian::class)) {
+        if (class_exists(Pembelian::class) && class_exists(PembelianPolicy::class)) {
             Gate::policy(Pembelian::class, PembelianPolicy::class);
         }
-        if (class_exists(News::class)) {
+        if (class_exists(News::class) && class_exists(NewsPolicy::class)) {
             Gate::policy(News::class, NewsPolicy::class);
         }
 
