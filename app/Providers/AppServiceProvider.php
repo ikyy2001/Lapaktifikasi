@@ -48,13 +48,23 @@ class AppServiceProvider extends ServiceProvider
         }
 
         // Model Observers
-        BeliProdukModel::observe(BeliProdukObserver::class);
-        Pembelian::observe(PembelianObserver::class);
-        Review::observe(ReviewObserver::class);
+        if (class_exists(BeliProdukModel::class)) {
+            BeliProdukModel::observe(BeliProdukObserver::class);
+        }
+        if (class_exists(Pembelian::class)) {
+            Pembelian::observe(PembelianObserver::class);
+        }
+        if (class_exists(Review::class)) {
+            Review::observe(ReviewObserver::class);
+        }
 
         // Model Policies
-        Gate::policy(Pembelian::class, PembelianPolicy::class);
-        Gate::policy(News::class, NewsPolicy::class);
+        if (class_exists(Pembelian::class)) {
+            Gate::policy(Pembelian::class, PembelianPolicy::class);
+        }
+        if (class_exists(News::class)) {
+            Gate::policy(News::class, NewsPolicy::class);
+        }
 
         // Event Listeners
         Event::listen(Registered::class, SendEmailVerificationNotification::class);
