@@ -8,6 +8,19 @@ use Illuminate\Support\Facades\Schema;
 
 abstract class TestCase extends BaseTestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // STRICT SAFETY CHECK: Cegah eksekusi test pada database production
+        $connection = config('database.default');
+        $database = config("database.connections.{$connection}.database");
+
+        if (app()->environment('production') || str_contains(strtolower((string)$database), 'nusagar')) {
+            abort(500, "FATAL ERROR: Automated testing dilarang dijalankan pada database production ('{$database}')! Konfigurasi testing database terlebih dahulu.");
+        }
+    }
+
     /**
      * Safely drop tables without foreign key constraint violations in MySQL 8.0+.
      */
